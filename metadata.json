@@ -1,0 +1,6 @@
+{
+  "name": "Soma Web Novel",
+  "description": "An East African localized web novel platform featuring rich story discovery, bilingual reading modes in English & Kiswahili, custom reader customization, and AI story assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
