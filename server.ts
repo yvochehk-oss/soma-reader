@@ -1,14 +1,12 @@
 import express from "express";
 import path from "path";
-import { fileURLToPath } from "url";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
+import JSZip from "jszip";
 import dotenv from "dotenv";
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const PORT = 3000;
 
@@ -30,6 +28,47 @@ async function startServer() {
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", service: "Soma Web Novel API" });
+  });
+
+  // Download project source code as ZIP
+  app.get("/api/download-zip", async (_req, res) => {
+    try {
+      const zip = new JSZip();
+      const rootDir = process.cwd();
+
+      function addDirToZip(dirPath: string, zipFolder: JSZip) {
+        const items = fs.readdirSync(dirPath);
+        for (const item of items) {
+          if (
+            item === "node_modules" ||
+            item === "dist" ||
+            item === ".git" ||
+            item.endsWith(".zip") ||
+            item === ".DS_Store"
+          ) {
+            continue;
+          }
+          const fullPath = path.join(dirPath, item);
+          const stat = fs.statSync(fullPath);
+          if (stat.isDirectory()) {
+            addDirToZip(fullPath, zipFolder.folder(item)!);
+          } else {
+            const content = fs.readFileSync(fullPath);
+            zipFolder.file(item, content);
+          }
+        }
+      }
+
+      addDirToZip(rootDir, zip);
+      const buffer = await zip.generateAsync({ type: "nodebuffer" });
+
+      res.setHeader("Content-Type", "application/zip");
+      res.setHeader("Content-Disposition", 'attachment; filename="soma-project.zip"');
+      res.send(buffer);
+    } catch (error: any) {
+      console.error("Error generating ZIP:", error);
+      res.status(500).json({ error: "Failed to generate ZIP file" });
+    }
   });
 
   // AI Story Companion Endpoint

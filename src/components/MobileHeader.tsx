@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, Search, Globe, Bookmark, X, Upload } from 'lucide-react';
+import { Menu, Search, Globe, Bookmark, X, Upload, Download } from 'lucide-react';
 import { ActiveNavTab, Language, Book } from '../types';
 
 interface MobileHeaderProps {
@@ -208,7 +208,16 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
               </div>
             </div>
 
-            <div className="pt-6 border-t border-[#dec0b7]/40">
+            <div className="pt-6 border-t border-[#dec0b7]/40 flex flex-col gap-3">
+              <a
+                href="/api/download-zip"
+                download="soma-project.zip"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#a43d17] text-white text-sm font-extrabold shadow-sm"
+              >
+                <Download className="w-5 h-5" />
+                <span>{language === 'sw' ? 'Pakua Kod (ZIP)' : 'Export Code (ZIP)'}</span>
+              </a>
+
               <button
                 onClick={() => setLanguage(language === 'en' ? 'sw' : 'en')}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#d0e7e4] text-sm font-extrabold text-[#0a1f1d]"

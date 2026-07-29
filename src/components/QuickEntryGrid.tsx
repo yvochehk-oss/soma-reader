@@ -27,7 +27,7 @@ export const QuickEntryGrid: React.FC<QuickEntryGridProps> = ({
                 <Upload className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-[#ed7248]" strokeWidth={2.5} />
               </div>
             </div>
-            <span className="font-bold text-[11px] md:text-[12px] lg:text-[14px] text-[#0a1f1d] group-hover:text-[#a43d17] transition-colors text-center w-[68px] md:w-auto leading-[1.2] break-words md:whitespace-nowrap">
+            <span className="hidden sm:block font-bold text-[11px] md:text-[12px] lg:text-[14px] text-[#0a1f1d] group-hover:text-[#a43d17] transition-colors text-center w-[68px] md:w-auto leading-[1.2] break-words md:whitespace-nowrap">
               {language === 'sw' ? 'Ingiza Kitabu' : 'Upload Ebook'}
             </span>
           </button>
@@ -46,7 +46,7 @@ export const QuickEntryGrid: React.FC<QuickEntryGridProps> = ({
                 className="w-full h-full object-cover p-2.5 lg:p-3 rounded-full"
               />
             </div>
-            <span className="font-bold text-[11px] md:text-[12px] lg:text-[14px] text-[#0a1f1d] group-hover:text-[#a43d17] transition-colors text-center w-[68px] md:w-auto leading-[1.2] break-words md:whitespace-nowrap">
+            <span className="hidden sm:block font-bold text-[11px] md:text-[12px] lg:text-[14px] text-[#0a1f1d] group-hover:text-[#a43d17] transition-colors text-center w-[68px] md:w-auto leading-[1.2] break-words md:whitespace-nowrap">
               {language === 'sw' ? item.titleSwahili : item.title}
             </span>
           </button>

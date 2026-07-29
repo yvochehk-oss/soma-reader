@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, User, BookOpen, Globe, Bookmark, Upload } from 'lucide-react';
+import { Search, User, BookOpen, Globe, Bookmark, Upload, Download } from 'lucide-react';
 import { ActiveNavTab, Language, Book } from '../types';
 
 interface HeaderProps {
@@ -193,6 +193,17 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             )}
           </button>
+
+          {/* Export Code ZIP */}
+          <a
+            href="/api/download-zip"
+            download="soma-project.zip"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#a43d17] text-white font-bold text-xs hover:bg-[#8b3313] transition-colors shadow-sm ml-1"
+            title="Download full project source code as ZIP"
+          >
+            <Download className="w-4 h-4" />
+            <span>{language === 'sw' ? 'Pakua Kod' : 'Export Code'}</span>
+          </a>
         </div>
       </div>
     </header>
