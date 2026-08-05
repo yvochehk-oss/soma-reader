@@ -36,6 +36,11 @@ export const EditorsChoiceHero: React.FC<EditorsChoiceHeroProps> = ({
             onClick={() => onSelectBook(book)}
             src={book.coverImage}
             alt={book.title}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            width="420"
+            height="630"
             className="w-[130px] md:w-[170px] lg:w-[210px] rounded-lg shadow-2xl object-cover aspect-[2/3] border-4 border-white/40 transform -rotate-2 hover:rotate-0 transition-transform duration-500 cursor-pointer"
           />
           <div className="bg-[#ed7248] text-white text-[11px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest mb-4 hidden md:block shadow-md">

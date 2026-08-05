@@ -2,5 +2,47 @@
   "name": "Soma Web Novel",
   "description": "An East African localized web novel platform featuring rich story discovery, bilingual reading modes in English & Kiswahili, custom reader customization, and AI story assistant.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ],
+  "published_books": [
+    {
+      "slug": "i-returned-before-the-wedding",
+      "title": "I Returned Before the Wedding",
+      "title_sw": "Nilirudi Kabla ya Harusi",
+      "author": "Nia Kendi",
+      "category": "Romance Thriller",
+      "rating": 4.98,
+      "description": "Trapped in a burning warehouse on the eve of her husband's secret wedding, Zawadi uncovers a cold-blooded insurance betrayal—and returns to reclaim her life and company.",
+      "description_sw": "Akinaswa katika ghala linaloungua moto siku moja kabla ya harusi ya siri ya mume wake, Zawadi anagundua usaliti wa bima—na anarudi kudai maisha na kampuni yake.",
+      "cover_url": "/covers/i_returned_before_the_wedding_en.jpg",
+      "cover_sw_url": "/covers/nilirudi_kabla_ya_harusi_sw.jpg",
+      "tags": [
+        "Revenge",
+        "Nairobi Elite",
+        "Betrayal",
+        "Swahili Drama"
+      ],
+      "status": "published"
+    },
+    {
+      "slug": "container-forty-seven",
+      "title": "Container Forty-Seven",
+      "title_sw": "Kontena la Arobaini na Saba",
+      "author": "Safiya Amani",
+      "category": "Corporate Suspense",
+      "rating": 4.95,
+      "description": "When a refrigerated medicine shipment reaches Mombasa with its cold chain broken, port auditor Mariam Bakari follows a fake electronic seal into a dangerous logistics conspiracy.",
+      "description_sw": "Shehena ya dawa za baridi inapowasili Mombasa ikiwa imeharibika, mkaguzi Mariam Bakari anafuata saini ya uongo ya kielektroniki ndani ya njama hatari ya usafirishaji.",
+      "cover_url": "/covers/container_forty_seven_en.jpg",
+      "cover_sw_url": "/covers/kontena_la_arobaini_na_saba_sw.jpg",
+      "tags": [
+        "Mombasa Port",
+        "Logistics Mystery",
+        "Corporate Corruption",
+        "Swahili Thriller"
+      ],
+      "status": "published"
+    }
+  ]
 }

@@ -15,6 +15,9 @@ export interface Chapter {
 
 export interface Book {
   id: string;
+  databaseId?: string;
+  parentBookId?: string | null;
+  language?: Language;
   title: string;
   titleSwahili?: string;
   author: string;
@@ -49,6 +52,7 @@ export interface ReaderSettings {
   theme: ReaderTheme;
   lineHeight: number;
   bilingualMode: boolean; // Show side-by-side or toggled Kiswahili
+  spacing: 'compact' | 'comfortable'; // Paragraph spacing
 }
 
 export type ActiveNavTab = 'Home' | 'Romance' | 'Thriller' | 'Popular' | 'Library' | 'Free Zone' | 'Completed' | 'Bilingual';

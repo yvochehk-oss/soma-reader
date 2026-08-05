@@ -60,6 +60,13 @@ export const PopularGrid: React.FC<PopularGridProps> = ({
               <img
                 src={book.coverImage}
                 alt={book.title}
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="600"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop';
+                }}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
 

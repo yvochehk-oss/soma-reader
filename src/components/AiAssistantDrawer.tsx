@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Book, Chapter, Language } from '../types';
 import { X, Sparkles, Send, Bot, RefreshCw, BookOpen, MessageSquare } from 'lucide-react';
 
@@ -10,6 +10,18 @@ interface AiAssistantDrawerProps {
   language: Language;
 }
 
+const createWelcomeMessage = (currentBook: Book | null, currentLanguage: Language) => {
+  const title = currentBook?.titleSwahili || currentBook?.title || '';
+
+  return {
+    sender: 'assistant' as const,
+    text:
+      currentLanguage === 'sw'
+        ? `Hujambo! Mimi ni Soma AI Assistant. Ungependa kuelewa nini kuhusu "${title}"? Unaweza kuniuliza kuhusu muhtasari, wahusika, au maana ya maneno ya Kiswahili.`
+        : `Hello! I am your Soma AI Story Companion. How can I assist you with "${title}"? Feel free to ask for a chapter summary, character insights, or Kiswahili vocabulary explanations.`,
+  };
+};
+
 export const AiAssistantDrawer: React.FC<AiAssistantDrawerProps> = ({
   isOpen,
   onClose,
@@ -17,21 +29,19 @@ export const AiAssistantDrawer: React.FC<AiAssistantDrawerProps> = ({
   chapter,
   language,
 }) => {
-  if (!isOpen || !book) return null;
-
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<
     { sender: 'user' | 'assistant'; text: string }[]
-  >([
-    {
-      sender: 'assistant',
-      text:
-        language === 'sw'
-          ? `Hujambo! Mimi ni Soma AI Assistant. Ungependa kuelewa nini kuhusu "${book.titleSwahili || book.title}"? Unaweza kuniuliza kuhusu muhtasari, wahusika, au maana ya maneno ya Kiswahili.`
-          : `Hello! I am your Soma AI Story Companion. How can I assist you with "${book.title}"? Feel free to ask for a chapter summary, character insights, or Kiswahili vocabulary explanations.`,
-    },
-  ]);
+  >(() => [createWelcomeMessage(book, language)]);
+
+  useEffect(() => {
+    if (isOpen && book) {
+      setMessages([createWelcomeMessage(book, language)]);
+    }
+  }, [isOpen, book, language]);
+
+  if (!isOpen || !book) return null;
 
   const handleSend = async (customPrompt?: string) => {
     const textToSend = customPrompt || prompt;
@@ -97,7 +107,12 @@ export const AiAssistantDrawer: React.FC<AiAssistantDrawerProps> = ({
         ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Soma AI assistant"
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex justify-end animate-in fade-in duration-200"
+    >
       <div className="w-full max-w-md bg-[#F8F7F2] h-full shadow-2xl flex flex-col border-l border-[#dec0b7]/40">
         {/* Header */}
         <div className="p-4 bg-[#a43d17] text-white flex items-center justify-between shadow-md">
@@ -112,6 +127,7 @@ export const AiAssistantDrawer: React.FC<AiAssistantDrawerProps> = ({
           </div>
           <button
             onClick={onClose}
+            aria-label="Close AI assistant"
             className="p-1 rounded-full hover:bg-white/20 transition-colors"
           >
             <X className="w-5 h-5" />

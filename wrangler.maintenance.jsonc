@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "soma-monthly-maintenance",
+  "main": "workers/monthly-maintenance.ts",
+  "compatibility_date": "2026-07-26",
+  "triggers": { "crons": ["0 2 1 * *"] },
+  "vars": {
+    "MAINTENANCE_TARGET": "https://read.20140128.xyz/api/internal/monthly-report"
+  }
+}

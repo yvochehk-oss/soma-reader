@@ -19,17 +19,8 @@ export const Footer: React.FC<FooterProps> = ({ language }) => {
         </div>
 
         <div className="flex gap-8 text-xs font-semibold text-[#e7fefa]">
-          <a href="#" className="hover:text-[#ed7248] transition-colors">
-            {language === 'sw' ? 'Msaada' : 'Help & FAQ'}
-          </a>
-          <a href="#" className="hover:text-[#ed7248] transition-colors">
-            {language === 'sw' ? 'Waandishi' : 'Author Hub'}
-          </a>
-          <a href="#" className="hover:text-[#ed7248] transition-colors">
-            {language === 'sw' ? 'Sera ya Faragha' : 'Privacy Policy'}
-          </a>
-          <a href="#" className="hover:text-[#ed7248] transition-colors">
-            {language === 'sw' ? 'Masharti' : 'Terms of Service'}
+          <a href="/books/" className="hover:text-[#ed7248] transition-colors">
+            {language === 'sw' ? 'Vinjari vitabu' : 'Browse books'}
           </a>
         </div>
       </div>

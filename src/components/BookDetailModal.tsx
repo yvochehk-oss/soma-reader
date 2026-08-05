@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Book, Chapter, Language } from '../types';
-import { X, Flame, BookOpen, Bookmark, Sparkles, Globe, Calendar, Tag, Download, ShieldCheck, CheckCircle2, Loader2, Trash2 } from 'lucide-react';
+import { X, Flame, BookOpen, Bookmark, Globe, Calendar, Tag, Download, ShieldCheck, CheckCircle2, Loader2, Trash2 } from 'lucide-react';
 import { saveChapterOfflineEncrypted, getOfflineBookStatus, deleteOfflineBook } from '../lib/offline-storage';
 
 interface BookDetailModalProps {
@@ -10,7 +10,6 @@ interface BookDetailModalProps {
   onStartReading: (book: Book, chapter: Chapter) => void;
   isBookmarked: boolean;
   onToggleBookmark: (book: Book) => void;
-  onOpenAiAssistant: (book: Book, chapter?: Chapter) => void;
 }
 
 export const BookDetailModal: React.FC<BookDetailModalProps> = ({
@@ -20,26 +19,39 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   onStartReading,
   isBookmarked,
   onToggleBookmark,
-  onOpenAiAssistant,
 }) => {
-  if (!book) return null;
-
   const [synopsisLang, setSynopsisLang] = useState<Language>(language);
   const [isOffline, setIsOffline] = useState<boolean>(false);
   const [downloading, setDownloading] = useState<boolean>(false);
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
 
   useEffect(() => {
-    if (book) {
-      checkOfflineStatus();
+    if (book) setSynopsisLang(language);
+  }, [book?.databaseId, language]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    if (!book) {
+      setIsOffline(false);
+      return () => {
+        isActive = false;
+      };
     }
+
+    setIsOffline(false);
+    getOfflineBookStatus(book.id).then((status) => {
+      if (isActive) {
+        setIsOffline(status.isOfflineAvailable && status.downloadedCount >= book.chapters.length);
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
   }, [book]);
 
-  const checkOfflineStatus = async () => {
-    if (!book) return;
-    const status = await getOfflineBookStatus(book.id);
-    setIsOffline(status.isOfflineAvailable && status.downloadedCount >= book.chapters.length);
-  };
+  if (!book) return null;
 
   const handleOfflineDownload = async () => {
     if (!book) return;
@@ -77,7 +89,12 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
     synopsisLang === 'sw' && book.descriptionSwahili ? book.descriptionSwahili : book.description;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200 overflow-y-auto">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Book details"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200 overflow-y-auto"
+    >
       <div className="bg-[#F8F7F2] w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden relative max-h-[90vh] flex flex-col my-auto border border-[#dec0b7]/40">
         {/* Header / Banner */}
         <div className="relative h-48 sm:h-56 bg-cover bg-center" style={{ backgroundImage: `url('${book.bannerImage || book.coverImage}')` }}>
@@ -85,6 +102,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           
           <button
             onClick={onClose}
+            aria-label="Close book details"
             className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black transition-colors z-20"
           >
             <X className="w-5 h-5" />
@@ -94,6 +112,10 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
             <img
               src={book.coverImage}
               alt={book.title}
+              loading="lazy"
+              decoding="async"
+              width="240"
+              height="360"
               className="w-24 sm:w-32 aspect-[2/3] object-cover rounded-xl shadow-2xl border-2 border-white shrink-0"
             />
             <div className="text-white min-w-0 flex-1 drop-shadow-md">

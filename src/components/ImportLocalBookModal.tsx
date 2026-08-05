@@ -16,14 +16,14 @@ export const ImportLocalBookModal: React.FC<ImportLocalBookModalProps> = ({
   language,
   onBookImported,
 }) => {
-  if (!isOpen) return null;
-
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [parsedBook, setParsedBook] = useState<Book | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (!isOpen) return null;
 
   const handleFileProcess = async (file: File) => {
     setErrorMsg(null);
@@ -91,7 +91,12 @@ export const ImportLocalBookModal: React.FC<ImportLocalBookModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Import local book"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+    >
       <div className="bg-[#F8F7F2] w-full max-w-xl rounded-3xl shadow-2xl border border-[#dec0b7]/40 flex flex-col overflow-hidden">
         {/* Modal Header */}
         <div className="p-6 bg-[#182625] text-white flex items-center justify-between border-b border-[#203432]">
@@ -111,6 +116,7 @@ export const ImportLocalBookModal: React.FC<ImportLocalBookModalProps> = ({
           </div>
           <button
             onClick={onClose}
+            aria-label="Close import dialog"
             className="p-1 rounded-full hover:bg-white/20 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -192,6 +198,10 @@ export const ImportLocalBookModal: React.FC<ImportLocalBookModalProps> = ({
               <img
                 src={parsedBook.coverImage}
                 alt={parsedBook.title}
+                loading="lazy"
+                decoding="async"
+                width="96"
+                height="144"
                 className="w-20 h-28 object-cover rounded-xl shadow-md border shrink-0"
               />
               <div className="flex-1 min-w-0">

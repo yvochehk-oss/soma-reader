@@ -29,12 +29,17 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
   onOpenImportModal,
   onRemoveLocalBook,
 }) => {
-  if (!isOpen) return null;
-
   const [activeTab, setActiveTab] = useState<'online' | 'local'>('online');
 
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="My personal library"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+    >
       <div className="bg-[#F8F7F2] w-full max-w-3xl rounded-3xl shadow-2xl border border-[#dec0b7]/40 flex flex-col max-h-[85vh] overflow-hidden">
         {/* Header */}
         <div className="p-6 bg-[#a43d17] text-white flex items-center justify-between">
@@ -64,6 +69,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
             </button>
             <button
               onClick={onClose}
+              aria-label="Close library"
               className="p-1.5 rounded-full hover:bg-white/20 transition-colors text-white"
             >
               <X className="w-5 h-5" />
@@ -117,6 +123,10 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                   <img
                     src={book.coverImage}
                     alt={book.title}
+                    loading="lazy"
+                    decoding="async"
+                    width="96"
+                    height="144"
                     className="w-16 h-24 object-cover rounded-lg shadow-sm shrink-0 cursor-pointer"
                     onClick={() => {
                       onSelectBook(book);
@@ -196,6 +206,10 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                   <img
                     src={book.coverImage}
                     alt={book.title}
+                    loading="lazy"
+                    decoding="async"
+                    width="96"
+                    height="144"
                     className="w-16 h-24 object-cover rounded-lg shadow-sm shrink-0 cursor-pointer"
                     onClick={() => {
                       onSelectBook(book);

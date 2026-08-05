@@ -1,8 +1,16 @@
 node_modules/
-build/
+.next/
+.open-next/
+.wrangler/
 dist/
+build/
 coverage/
+__pycache__/
+*.py[cod]
+*.tsbuildinfo
+public/sitemap.xml
 .DS_Store
 *.log
 .env*
 !.env.example
+0.0书籍正文/

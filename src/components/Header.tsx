@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, User, BookOpen, Globe, Bookmark, Upload, Download } from 'lucide-react';
+import { Search, Globe, Bookmark, Upload } from 'lucide-react';
 import { ActiveNavTab, Language, Book } from '../types';
 
 interface HeaderProps {
@@ -56,13 +56,19 @@ export const Header: React.FC<HeaderProps> = ({
               setActiveTab('Home');
               setSearchQuery('');
             }}
+            aria-label="Soma home"
             className="font-black text-[32px] text-[#a43d17] tracking-tight shrink-0 hover:opacity-90 transition-opacity flex items-center gap-1.5"
           >
             Soma
           </button>
 
           <nav className="flex gap-8 items-center h-full">
-            {navItems.map((item) => {
+            {[
+              ...navItems,
+              { label: 'Romance', labelSwahili: 'Mapenzi', tab: 'Romance' as ActiveNavTab },
+              { label: 'Thriller', labelSwahili: 'Kusisimua', tab: 'Thriller' as ActiveNavTab },
+              { label: 'Bilingual', labelSwahili: 'Lugha Mbili', tab: 'Bilingual' as ActiveNavTab },
+            ].map((item) => {
               const isActive = activeTab === item.tab;
               return (
                 <button
@@ -120,12 +126,15 @@ export const Header: React.FC<HeaderProps> = ({
                 placeholder={
                   language === 'sw' ? 'Tafuta vitabu, waandishi...' : 'Search books, authors...'
                 }
+                aria-label={language === 'sw' ? 'Tafuta vitabu na waandishi' : 'Search books and authors'}
+                autoComplete="off"
                 className="bg-[#e1f8f5] border-none rounded-full py-2.5 pl-11 pr-8 text-sm w-64 lg:w-80 focus:ring-2 focus:ring-[#a43d17] focus:bg-white transition-all shadow-inner placeholder:text-[#6E7E7A] text-[#0a1f1d]"
               />
               <Search className="w-4 h-4 absolute left-4 text-[#6E7E7A] group-focus-within:text-[#a43d17] transition-colors" />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
+                  aria-label={language === 'sw' ? 'Futa utafutaji' : 'Clear search'}
                   className="absolute right-3 text-xs text-[#6E7E7A] hover:text-[#0a1f1d]"
                 >
                   ✕
@@ -153,6 +162,10 @@ export const Header: React.FC<HeaderProps> = ({
                         <img
                           src={book.coverImage}
                           alt={book.title}
+                          loading="lazy"
+                          decoding="async"
+                          width="40"
+                          height="60"
                           className="w-10 h-14 object-cover rounded shadow-sm shrink-0"
                         />
                         <div className="min-w-0 flex-1">
@@ -183,6 +196,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Library / Saved Items */}
           <button
             onClick={onOpenLibrary}
+            aria-label={language === 'sw' ? 'Fungua maktaba yangu' : 'Open my library'}
             className="relative w-11 h-11 rounded-full bg-[#d0e7e4] flex items-center justify-center text-[#0a1f1d] hover:bg-[#ed7248] hover:text-white transition-colors"
             title={language === 'sw' ? 'Maktaba Yangu' : 'My Library'}
           >
@@ -193,17 +207,6 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             )}
           </button>
-
-          {/* Export Code ZIP */}
-          <a
-            href="/api/download-zip"
-            download="soma-project.zip"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#a43d17] text-white font-bold text-xs hover:bg-[#8b3313] transition-colors shadow-sm ml-1"
-            title="Download full project source code as ZIP"
-          >
-            <Download className="w-4 h-4" />
-            <span>{language === 'sw' ? 'Pakua Kod' : 'Export Code'}</span>
-          </a>
         </div>
       </div>
     </header>

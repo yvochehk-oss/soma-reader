@@ -1,0 +1,14 @@
+# Soma Novel
+
+> Free English and Kiswahili web novels from East Africa.
+
+Soma Novel publishes original web fiction in English and Kiswahili. Book details and chapter lists are available as public HTML pages under /books/.
+
+## Catalogue
+
+- https://somanovel.uk/books/
+- https://somanovel.uk/sitemap.xml
+
+## Use
+
+Please attribute Soma Novel and link to the canonical book page when citing a title or synopsis. Do not reproduce full chapter text.

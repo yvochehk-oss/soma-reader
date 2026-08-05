@@ -71,6 +71,13 @@ export const TopRankings: React.FC<TopRankingsProps> = ({
                 <img
                   src={book.coverImage}
                   alt={book.title}
+                  loading="lazy"
+                  decoding="async"
+                  width="210"
+                  height="315"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop';
+                  }}
                   className="w-[90px] lg:w-[105px] rounded-lg shadow-md object-cover aspect-[2/3] group-hover:shadow-xl transition-shadow"
                 />
                 <div

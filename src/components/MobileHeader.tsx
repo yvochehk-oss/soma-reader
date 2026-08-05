@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, Search, Globe, Bookmark, X, Upload, Download } from 'lucide-react';
+import { Menu, Search, Globe, Bookmark, X, Upload } from 'lucide-react';
 import { ActiveNavTab, Language, Book } from '../types';
 
 interface MobileHeaderProps {
@@ -44,6 +44,8 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
 
   const navItems: { label: string; labelSwahili: string; tab: ActiveNavTab }[] = [
     { label: 'Home', labelSwahili: 'Nyumbani', tab: 'Home' },
+    { label: 'Romance', labelSwahili: 'Mapenzi', tab: 'Romance' },
+    { label: 'Thriller', labelSwahili: 'Kusisimua', tab: 'Thriller' },
     { label: 'Popular', labelSwahili: 'Maarufu', tab: 'Popular' },
     { label: 'Library', labelSwahili: 'Maktaba', tab: 'Library' },
     { label: 'Bilingual', labelSwahili: 'Lugha Mbili', tab: 'Bilingual' },
@@ -54,6 +56,8 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
       <header className="fixed top-0 w-full z-50 backdrop-blur-md bg-[#e7fefa]/95 border-b border-[#dec0b7]/30 md:hidden flex h-[60px] items-center px-4 justify-between">
         <button
           onClick={() => setIsMenuOpen(true)}
+          aria-label={language === 'sw' ? 'Fungua menyu' : 'Open menu'}
+          aria-expanded={isMenuOpen}
           className="w-10 h-10 flex items-center justify-center text-[#0a1f1d] hover:text-[#a43d17]"
         >
           <Menu className="w-6 h-6" />
@@ -64,6 +68,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
             setActiveTab('Home');
             setSearchQuery('');
           }}
+          aria-label="Soma home"
           className="text-[24px] text-[#a43d17] font-black tracking-tight"
         >
           Soma
@@ -73,6 +78,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
           {onOpenImportModal && (
             <button
               onClick={onOpenImportModal}
+              aria-label={language === 'sw' ? 'Ingiza kitabu' : 'Import ebook'}
               className="w-9 h-9 rounded-full bg-[#ed7248] text-white flex items-center justify-center hover:bg-[#a43d17] transition-colors"
               title="Import TXT/EPUB"
             >
@@ -82,6 +88,8 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
 
           <button
             onClick={() => setIsSearchOpen(!isSearchOpen)}
+            aria-label={language === 'sw' ? 'Fungua utafutaji' : 'Open search'}
+            aria-expanded={isSearchOpen}
             className="w-10 h-10 flex items-center justify-center text-[#0a1f1d] hover:text-[#a43d17]"
           >
             <Search className="w-5 h-5" />
@@ -89,6 +97,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
           
           <button
             onClick={onOpenLibrary}
+            aria-label={language === 'sw' ? 'Fungua maktaba yangu' : 'Open my library'}
             className="relative w-9 h-9 rounded-full bg-[#d0e7e4] flex items-center justify-center text-[#0a1f1d]"
           >
             <Bookmark className="w-4 h-4" />
@@ -119,6 +128,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
                 setSearchQuery('');
                 setIsSearchOpen(false);
               }}
+              aria-label={language === 'sw' ? 'Funga utafutaji' : 'Close search'}
               className="absolute right-3 top-2.5 text-xs text-[#6E7E7A]"
             >
               ✕
@@ -140,6 +150,10 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
                   <img
                     src={book.coverImage}
                     alt={book.title}
+                    loading="lazy"
+                    decoding="async"
+                    width="32"
+                    height="48"
                     className="w-8 h-12 object-cover rounded shrink-0"
                   />
                   <div className="min-w-0 flex-1">
@@ -164,6 +178,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
                 <span className="font-black text-2xl text-[#a43d17]">Soma</span>
                 <button
                   onClick={() => setIsMenuOpen(false)}
+                  aria-label={language === 'sw' ? 'Funga menyu' : 'Close menu'}
                   className="p-1 rounded-full text-[#6E7E7A] hover:bg-gray-200"
                 >
                   <X className="w-6 h-6" />
@@ -193,7 +208,11 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
                   <button
                     key={item.tab}
                     onClick={() => {
-                      setActiveTab(item.tab);
+                      if (item.tab === 'Library') {
+                        onOpenLibrary();
+                      } else {
+                        setActiveTab(item.tab);
+                      }
                       setIsMenuOpen(false);
                     }}
                     className={`w-full text-left px-4 py-3 rounded-xl font-bold text-sm transition-all ${
@@ -209,14 +228,6 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
             </div>
 
             <div className="pt-6 border-t border-[#dec0b7]/40 flex flex-col gap-3">
-              <a
-                href="/api/download-zip"
-                download="soma-project.zip"
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#a43d17] text-white text-sm font-extrabold shadow-sm"
-              >
-                <Download className="w-5 h-5" />
-                <span>{language === 'sw' ? 'Pakua Kod (ZIP)' : 'Export Code (ZIP)'}</span>
-              </a>
 
               <button
                 onClick={() => setLanguage(language === 'en' ? 'sw' : 'en')}
