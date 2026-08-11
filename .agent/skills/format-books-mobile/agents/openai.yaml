@@ -1,0 +1,4 @@
+interface:
+  display_name: "英斯语书籍手机排版 v4.2.2 HTML"
+  short_description: "已有 HTML → Agent 逐段手机重排 → Formal QA"
+  default_prompt: "使用 $format-books-mobile。只处理已经取得的 working_source.html，不下载书、不查询或修改 classics_catalog.json。你是主要排版编辑：按 packet 顺序阅读上下文，对每个 editable prose unit 明确决定 break_after，只选择脚本提供的安全 HTML offset；绝不改写原文。render 后检查 warnings、所有内部切分、开头/中段/结尾、长短段节奏、章节结构和图片资产，再运行 audit --require-formal。最终输出 mobile_*.html、可选 content.html、qa.json、publication.json 及对应 assets。"

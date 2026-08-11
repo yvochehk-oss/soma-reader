@@ -1,0 +1,4 @@
+interface:
+  display_name: "英语斯语书籍手机排版"
+  short_description: "让大模型判断重点并生成原文零改写的英斯语手机阅读版"
+  default_prompt: "使用 $format-books-mobile 把这本英语或斯瓦希里语书籍制作成重点突出、错落有致且原文零改写的手机阅读版。"

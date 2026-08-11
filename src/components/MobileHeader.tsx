@@ -44,11 +44,8 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
 
   const navItems: { label: string; labelSwahili: string; tab: ActiveNavTab }[] = [
     { label: 'Home', labelSwahili: 'Nyumbani', tab: 'Home' },
-    { label: 'Romance', labelSwahili: 'Mapenzi', tab: 'Romance' },
-    { label: 'Thriller', labelSwahili: 'Kusisimua', tab: 'Thriller' },
-    { label: 'Popular', labelSwahili: 'Maarufu', tab: 'Popular' },
-    { label: 'Library', labelSwahili: 'Maktaba', tab: 'Library' },
-    { label: 'Bilingual', labelSwahili: 'Lugha Mbili', tab: 'Bilingual' },
+    { label: 'English Classics', labelSwahili: 'Klasiki za Kiingereza', tab: 'Classics' },
+    { label: 'Modern Web Novels', labelSwahili: 'Riwaya za Kisasa', tab: 'Modern' },
   ];
 
   return (
@@ -208,11 +205,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
                   <button
                     key={item.tab}
                     onClick={() => {
-                      if (item.tab === 'Library') {
-                        onOpenLibrary();
-                      } else {
-                        setActiveTab(item.tab);
-                      }
+                      setActiveTab(item.tab);
                       setIsMenuOpen(false);
                     }}
                     className={`w-full text-left px-4 py-3 rounded-xl font-bold text-sm transition-all ${

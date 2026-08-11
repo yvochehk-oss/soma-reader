@@ -33,17 +33,36 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   if (!(await authorize(request))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
+    const payload = await request.json().catch(() => ({})) as { slugs?: unknown; deleteAll?: unknown; confirmation?: unknown };
+    const deleteAll = payload.deleteAll === true && payload.confirmation === "DELETE ALL SOMA BOOKS";
+    const slugs = Array.isArray(payload.slugs)
+      ? [...new Set(payload.slugs.filter((value): value is string => typeof value === "string").map((value) => value.trim()).filter((value) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)))]
+      : [];
+    if (!deleteAll && (!slugs.length || slugs.length > 50)) {
+      return NextResponse.json({ error: "Provide between 1 and 50 explicit book slugs. Full-library deletion requires the exact confirmation phrase." }, { status: 400 });
+    }
     const supabase = await createAdminClient();
-    const { data: books, error: listError } = await supabase.from("books").select("id,cover_url");
+    let query = supabase.from("books").select("id,slug,cover_url");
+    if (!deleteAll) query = query.in("slug", slugs);
+    const { data: books, error: listError } = await query;
     if (listError) throw new Error(listError.message);
     const covers = [...new Set((books ?? []).map((book) => coverPath(book.cover_url)).filter((path): path is string => Boolean(path)))];
     if (covers.length) {
       const { error } = await supabase.storage.from("covers").remove(covers);
       if (error) throw new Error(`Could not remove covers: ${error.message}`);
     }
-    const { error } = await supabase.from("books").delete().not("id", "is", null);
+    let deleteQuery = supabase.from("books").delete();
+    deleteQuery = deleteAll ? deleteQuery.not("id", "is", null) : deleteQuery.in("slug", slugs);
+    const { error } = await deleteQuery;
     if (error) throw new Error(error.message);
-    return NextResponse.json({ ok: true, deletedBooks: books?.length ?? 0, deletedCovers: covers.length });
+    const foundSlugs = new Set((books ?? []).map((book) => book.slug));
+    return NextResponse.json({
+      ok: true,
+      deletedBooks: books?.length ?? 0,
+      deletedCovers: covers.length,
+      deletedSlugs: [...foundSlugs],
+      missingSlugs: deleteAll ? [] : slugs.filter((slug) => !foundSlugs.has(slug)),
+    });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Could not clear the book library" }, { status: 400 });
   }

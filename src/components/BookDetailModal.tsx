@@ -87,6 +87,12 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   const displayTitle = synopsisLang === 'sw' && book.titleSwahili ? book.titleSwahili : book.title;
   const displayDesc =
     synopsisLang === 'sw' && book.descriptionSwahili ? book.descriptionSwahili : book.description;
+  const hasSwahiliEdition = Boolean(
+    book.isBilingualAvailable
+      || book.titleSwahili
+      || book.descriptionSwahili
+      || book.chapters.some((chapter) => chapter.titleSwahili || chapter.contentSwahili)
+  );
 
   return (
     <div
@@ -142,10 +148,12 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
               <span className="font-bold text-[#0a1f1d]">{book.chaptersCount}</span>{' '}
               {synopsisLang === 'sw' ? 'Sura' : 'Chapters'}
             </div>
-            <div className="flex items-center gap-1 text-[#6E7E7A]">
-              <Calendar className="w-4 h-4" />
-              <span>{book.publishedYear}</span>
-            </div>
+            {book.publishedYear && (
+              <div className="flex items-center gap-1 text-[#6E7E7A]">
+                <Calendar className="w-4 h-4" />
+                <span>{book.publishedYear}</span>
+              </div>
+            )}
             <div className="bg-[#e1f8f5] text-[#026a65] font-bold px-2.5 py-1 rounded-full text-xs">
               {book.status}
             </div>
@@ -215,14 +223,16 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                 >
                   EN
                 </button>
-                <button
-                  onClick={() => setSynopsisLang('sw')}
-                  className={`px-2.5 py-0.5 rounded-full transition-all ${
-                    synopsisLang === 'sw' ? 'bg-[#a43d17] text-white' : 'text-[#6E7E7A]'
-                  }`}
-                >
-                  SW
-                </button>
+                {hasSwahiliEdition && (
+                  <button
+                    onClick={() => setSynopsisLang('sw')}
+                    className={`px-2.5 py-0.5 rounded-full transition-all ${
+                      synopsisLang === 'sw' ? 'bg-[#a43d17] text-white' : 'text-[#6E7E7A]'
+                    }`}
+                  >
+                    SW
+                  </button>
+                )}
               </div>
             </div>
             <p className="font-serif-reader text-sm sm:text-base text-[#57423b] leading-relaxed bg-white p-4 rounded-2xl border border-[#dec0b7]/20">

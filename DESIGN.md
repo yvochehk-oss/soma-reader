@@ -101,7 +101,7 @@ This document dictates the visual identity, UI patterns, and layout principles f
 * **Search Input Bar (`.fanqie-search-box`)**: 
   - Pill-shaped (`border-radius: 99px`), 2px solid orange border.
   - Contains magnifying icon 🔍, prompt text ("Search title, author or keywords..."), and rounded search action button.
-* **Channel Tabs (`.fanqie-channel-tabs`)**: Horizontal scroll bar with categories (`Home`, `Romance`, `Thriller`, `Rankings`, `Completed`). Active tab highlights with orange bottom border.
+* **Primary navigation (`.header-nav`)**: One desktop navigation row for `Home`, `Romance`, `Thriller`, and `My shelf`. Rankings and completed stories remain available in the homepage quick-entry grid, avoiding a duplicated second header row.
 
 ### B. Golden Diamond Shortcuts (`.fanqie-quick-grid`)
 * 5 Grid items across mobile & desktop:

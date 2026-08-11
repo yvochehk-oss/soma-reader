@@ -45,6 +45,10 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
   const [decryptedText, setDecryptedText] = useState<string | null>(null);
   const [isOfflineLoaded, setIsOfflineLoaded] = useState<boolean>(false);
   const [readingProgress, setReadingProgress] = useState(0);
+
+  // A classic book can be viewed through the bilingual UI, but its reader
+  // must remain English-only when no paired Kiswahili chapter exists.
+  const hasAlternateLanguage = Boolean(alternateChapter);
   
   // Immersive UI State
   const [isUiVisible, setIsUiVisible] = useState(true);
@@ -79,6 +83,12 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
       // Private browsing and storage restrictions should not affect the reader.
     }
   }, [settings]);
+
+  useEffect(() => {
+    if (!hasAlternateLanguage && settings.bilingualMode) {
+      setSettings((current) => ({ ...current, bilingualMode: false }));
+    }
+  }, [hasAlternateLanguage, settings.bilingualMode]);
 
   useEffect(() => {
     let isMounted = true;
@@ -471,8 +481,8 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
             </div>
           </div>
 
-          {/* Bilingual Dual Mode Toggle */}
-          <div>
+          {/* Bilingual Dual Mode Toggle (only when a paired chapter exists) */}
+          {hasAlternateLanguage && <div>
             <label className="text-xs font-bold opacity-75 mb-1.5 block">Display Mode</label>
             <div className="flex items-center justify-between bg-gray-100 dark:bg-black/20 p-2 rounded-xl">
               <span className="text-xs font-bold">Parallel Dual Language</span>
@@ -483,7 +493,7 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
                 className="w-4 h-4 accent-[#a43d17]"
               />
             </div>
-          </div>
+          </div>}
       </div>
 
       {/* Language Bar (Animated along with header) */}
@@ -500,15 +510,17 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
         >
           English
         </button>
-        <button
-          onClick={() => void switchLanguage('sw')}
-          disabled={isSwitchingLanguage || displayLanguage === 'sw'}
-          className={`px-3 py-1 rounded-full transition-all ${
-            displayLanguage === 'sw' ? 'bg-[#a43d17] text-white' : 'opacity-70'
-          }`}
-        >
-          Kiswahili
-        </button>
+        {hasAlternateLanguage && (
+          <button
+            onClick={() => void switchLanguage('sw')}
+            disabled={isSwitchingLanguage || displayLanguage === 'sw'}
+            className={`px-3 py-1 rounded-full transition-all ${
+              displayLanguage === 'sw' ? 'bg-[#a43d17] text-white' : 'opacity-70'
+            }`}
+          >
+            Kiswahili
+          </button>
+        )}
 
         {isOfflineLoaded && (
           <span className="ml-2 hidden sm:flex items-center gap-1 text-[11px] font-extrabold bg-[#026a65] text-white px-2.5 py-0.5 rounded-full">

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Public Domain Book Downloader"
+  short_description: "Download and normalize public-domain ebook sources"
+  default_prompt: "Download the requested public-domain English book. Prefer Standard Ebooks XHTML, then Project Gutenberg HTML, and use UTF-8 TXT only as a fallback. Preserve raw files, assets, hashes, and source_manifest.json."

@@ -43,7 +43,8 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems: { label: string; labelSwahili: string; tab: ActiveNavTab }[] = [
     { label: 'Home', labelSwahili: 'Nyumbani', tab: 'Home' },
-    { label: 'Popular', labelSwahili: 'Maarufu', tab: 'Popular' },
+    { label: 'English Classics', labelSwahili: 'Klasiki za Kiingereza', tab: 'Classics' },
+    { label: 'Modern Web Novels', labelSwahili: 'Riwaya za Kisasa', tab: 'Modern' },
   ];
 
   return (
@@ -65,9 +66,6 @@ export const Header: React.FC<HeaderProps> = ({
           <nav className="flex gap-8 items-center h-full">
             {[
               ...navItems,
-              { label: 'Romance', labelSwahili: 'Mapenzi', tab: 'Romance' as ActiveNavTab },
-              { label: 'Thriller', labelSwahili: 'Kusisimua', tab: 'Thriller' as ActiveNavTab },
-              { label: 'Bilingual', labelSwahili: 'Lugha Mbili', tab: 'Bilingual' as ActiveNavTab },
             ].map((item) => {
               const isActive = activeTab === item.tab;
               return (

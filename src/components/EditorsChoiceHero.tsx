@@ -19,6 +19,10 @@ export const EditorsChoiceHero: React.FC<EditorsChoiceHeroProps> = ({
   isBookmarked,
   onToggleBookmark,
 }) => {
+  const categoryLabel = language === 'sw'
+    ? ({ Romance: 'Mapenzi', Thriller: 'Kusisimua', 'Sci-Fi': 'Sayansi ya Kubuni', Historical: 'Kihistoria', Fantasy: 'Fantasia', Contemporary: 'Kisasa', 'Urban Fantasy': 'Fantasia ya Mjini' } as Record<string, string>)[book.category] ?? book.category
+    : book.category;
+
   return (
     <section className="relative rounded-3xl overflow-hidden bg-white shadow-lg border border-[#dec0b7]/30 flex flex-col md:flex-row min-h-[400px] lg:min-h-[480px]">
       {/* Background Image Area */}
@@ -32,17 +36,23 @@ export const EditorsChoiceHero: React.FC<EditorsChoiceHeroProps> = ({
 
         {/* Floating Book Cover */}
         <div className="absolute bottom-4 left-6 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:left-12 lg:left-16 flex gap-4 items-end z-20">
-          <img
+          <button
+            type="button"
             onClick={() => onSelectBook(book)}
-            src={book.coverImage}
-            alt={book.title}
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            width="420"
-            height="630"
-            className="w-[130px] md:w-[170px] lg:w-[210px] rounded-lg shadow-2xl object-cover aspect-[2/3] border-4 border-white/40 transform -rotate-2 hover:rotate-0 transition-transform duration-500 cursor-pointer"
-          />
+            aria-label={`${language === 'sw' ? 'Fungua' : 'Open'} ${language === 'sw' && book.titleSwahili ? book.titleSwahili : book.title}`}
+            className="rounded-lg transform -rotate-2 hover:rotate-0 transition-transform duration-500"
+          >
+            <img
+              src={book.coverImage}
+              alt={book.title}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              width="420"
+              height="630"
+              className="w-[130px] md:w-[170px] lg:w-[210px] rounded-lg shadow-2xl object-cover aspect-[2/3] border-4 border-white/40"
+            />
+          </button>
           <div className="bg-[#ed7248] text-white text-[11px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest mb-4 hidden md:block shadow-md">
             {language === 'sw' ? 'Chaguo la Mhariri' : "Editor's Choice"}
           </div>
@@ -55,17 +65,16 @@ export const EditorsChoiceHero: React.FC<EditorsChoiceHeroProps> = ({
           {language === 'sw' ? 'Chaguo la Mhariri' : "Editor's Choice"}
         </div>
 
-        <h2
-          onClick={() => onSelectBook(book)}
-          className="font-bold text-2xl md:text-3xl lg:text-[40px] lg:leading-[1.1] text-[#0a1f1d] mb-3 hover:text-[#a43d17] transition-colors cursor-pointer"
-        >
-          {language === 'sw' && book.titleSwahili ? book.titleSwahili : book.title}
+        <h2 className="font-bold text-2xl md:text-3xl lg:text-[40px] lg:leading-[1.1] text-[#0a1f1d] mb-3">
+          <button type="button" onClick={() => onSelectBook(book)} className="text-left hover:text-[#a43d17] transition-colors">
+            {language === 'sw' && book.titleSwahili ? book.titleSwahili : book.title}
+          </button>
         </h2>
 
         <div className="flex items-center gap-3 text-sm lg:text-base text-[#6E7E7A] mb-5 flex-wrap">
           <span className="font-semibold text-[#a43d17]">{book.author}</span>
           <span className="w-1.5 h-1.5 rounded-full bg-[#dec0b7]" />
-          <span>{book.category}</span>
+          <span>{categoryLabel}</span>
           <span className="w-1.5 h-1.5 rounded-full bg-[#dec0b7]" />
           <span className="flex items-center text-[#C95631] text-sm font-bold">
             <Flame className="w-4 h-4 mr-1 fill-current" />
@@ -81,6 +90,7 @@ export const EditorsChoiceHero: React.FC<EditorsChoiceHeroProps> = ({
 
         <div className="flex items-center gap-4">
           <button
+            type="button"
             onClick={() => onReadNow(book)}
             className="bg-[#ed7248] text-white px-8 lg:px-10 py-3.5 rounded-full font-bold text-xs lg:text-sm uppercase tracking-wide orange-glow hover:bg-[#C95631] hover:-translate-y-0.5 transition-all flex items-center gap-2"
           >
@@ -89,7 +99,11 @@ export const EditorsChoiceHero: React.FC<EditorsChoiceHeroProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={() => onToggleBookmark(book)}
+            aria-label={isBookmarked
+              ? (language === 'sw' ? 'Ondoa kwenye maktaba' : 'Remove from library')
+              : (language === 'sw' ? 'Ongeza kwenye maktaba' : 'Add to library')}
             className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
               isBookmarked
                 ? 'bg-[#a43d17] border-[#a43d17] text-white'

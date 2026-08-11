@@ -7,6 +7,25 @@
   ],
   "published_books": [
     {
+      "slug": "i-returned-on-the-day-of-division",
+      "title": "I Returned on the Day of Division",
+      "title_sw": "Nilirudi Siku ya Mgawanyo",
+      "author": "Safiya Amani",
+      "category": "Life & Rebirth",
+      "rating": 4.96,
+      "description": "A 1980s Kenyan woman stands against family exploitation on the day of property division and builds an independent agricultural empire.",
+      "description_sw": "Hadithi ya mwanamke wa Kenya wa miaka ya 1980 anayesimama dhidi ya dhuluma za kifamilia siku ya mgawanyo wa mali na kujenga milki ya kibiashara.",
+      "cover_url": "/covers/i_returned_on_the_day_of_division_en.jpg",
+      "cover_sw_url": "/covers/nilirudi_siku_ya_mgawanyo_sw.jpg",
+      "tags": [
+        "Rebirth",
+        "Kenya 1980s",
+        "Family Drama",
+        "Entrepreneurship"
+      ],
+      "status": "published"
+    },
+    {
       "slug": "i-returned-before-the-wedding",
       "title": "I Returned Before the Wedding",
       "title_sw": "Nilirudi Kabla ya Harusi",

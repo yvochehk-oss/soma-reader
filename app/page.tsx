@@ -7,6 +7,7 @@ import { BookCover } from "@/app/components/book-cover";
 import { listPublishedBooks, type Book } from "@/app/lib/content-repository";
 import { T } from "@/app/components/language-provider";
 import { getContentLocale } from "@/app/lib/content-locale";
+import { SiteFooter } from "@/app/components/site-footer";
 
 export const dynamic = "force-dynamic";
 
@@ -170,6 +171,7 @@ export default async function Home() {
         </section>
       </main>
 
+      <SiteFooter />
       <BottomNav active="home" />
     </div>
   );

@@ -55,4 +55,4 @@ export interface ReaderSettings {
   spacing: 'compact' | 'comfortable'; // Paragraph spacing
 }
 
-export type ActiveNavTab = 'Home' | 'Romance' | 'Thriller' | 'Popular' | 'Library' | 'Free Zone' | 'Completed' | 'Bilingual';
+export type ActiveNavTab = 'Home' | 'Classics' | 'Modern' | 'Romance' | 'Thriller' | 'Popular' | 'Library' | 'Free Zone' | 'Completed' | 'Bilingual';

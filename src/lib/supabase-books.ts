@@ -1,4 +1,5 @@
 import type { Book, Chapter, Language } from '../types';
+import { classicFirstPublication } from '../data/classic-publication';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://uamaohjbrjervzsjxwyg.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_bLhT1CNl-DrFn_wz6gmp6A_fJPGBY2G';
@@ -35,7 +36,17 @@ function headers() {
 }
 
 function titleCase(value: string) {
-  return value.replace(/[-_]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+  const normalized = value.trim().toLowerCase().replace(/[_]+/g, '-');
+  const canonical: Record<string, string> = {
+    romance: 'Romance',
+    thriller: 'Thriller',
+    'sci-fi': 'Sci-Fi',
+    historical: 'Historical',
+    fantasy: 'Fantasy',
+    contemporary: 'Contemporary',
+    'urban-fantasy': 'Urban Fantasy',
+  };
+  return canonical[normalized] ?? value.replace(/[-_]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 async function readJson<T>(url: string): Promise<T> {
@@ -44,7 +55,20 @@ async function readJson<T>(url: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function fetchLiveBooksFromSupabase(): Promise<Book[]> {
+async function fetchPublishedBookRows(): Promise<BookRow[]> {
+  // Generated during every production build and preloaded by index.html. The
+  // direct query remains a development/failure fallback.
+  try {
+    const response = await fetch('/catalog/books.json');
+    if (response.ok) return response.json() as Promise<BookRow[]>;
+  } catch {
+    // Continue with the live Supabase fallback below.
+  }
+
+  return fetchPublishedBookRowsFromSupabase();
+}
+
+async function fetchPublishedBookRowsFromSupabase(): Promise<BookRow[]> {
   const now = new Date().toISOString();
   const query = new URLSearchParams({
     select: 'id,parent_book_id,slug,title,author_name,description,cover_url,language_code,category,tags,total_chapters,is_featured,published_at,created_at',
@@ -52,7 +76,18 @@ export async function fetchLiveBooksFromSupabase(): Promise<Book[]> {
     or: `(published_at.is.null,published_at.lte.${now})`,
     order: 'is_featured.desc,created_at.desc',
   });
-  const rows = await readJson<BookRow[]>(`${SUPABASE_URL}/rest/v1/books?${query}`);
+  return readJson<BookRow[]>(`${SUPABASE_URL}/rest/v1/books?${query}`);
+}
+
+export async function fetchLiveBooksFromSupabase(): Promise<Book[]> {
+  return mapBookRows(await fetchPublishedBookRows());
+}
+
+export async function refreshLiveBooksFromSupabase(): Promise<Book[]> {
+  return mapBookRows(await fetchPublishedBookRowsFromSupabase());
+}
+
+function mapBookRows(rows: BookRow[]): Book[] {
   const pairedIds = new Set(rows.flatMap((row) => [row.parent_book_id, rows.some((candidate) => candidate.parent_book_id === row.id) ? row.id : null]).filter(Boolean));
 
   return rows.map((row, index) => {
@@ -83,7 +118,10 @@ export async function fetchLiveBooksFromSupabase(): Promise<Book[]> {
       isBilingualAvailable,
       chaptersCount: row.total_chapters,
       chapters: [],
-      publishedYear: String(new Date(row.published_at || row.created_at).getFullYear()),
+      // `published_at` is the Soma upload time, not the work's publication
+      // date. Show a verified catalogue value for classics and omit the field
+      // for other books rather than presenting a false year.
+      publishedYear: classicFirstPublication(row.slug) ?? '',
       tags,
     };
   });
@@ -99,14 +137,20 @@ export function selectLocalizedBooks(books: Book[], language: Language): Book[] 
   }
 
   return [...groups.values()]
-    .map((versions) => {
+    .flatMap((versions) => {
       const english = versions.find((book) => book.language === 'en');
       const swahili = versions.find((book) => book.language === 'sw');
-      const selected = versions.find((book) => book.language === language) ?? english ?? swahili ?? versions[0];
+      const selected = versions.find((book) => book.language === language);
+
+      // The catalogue is language-specific. A paired edition may still be used
+      // by the detail/reader language switch, but it must never be used as a
+      // fallback card on the homepage for the other language.
+      if (!selected) return [];
+
       const root = selected.parentBookId ? byDatabaseId.get(selected.parentBookId) : selected;
       const availableLanguages = new Set(versions.map((book) => book.language).filter(Boolean));
 
-      return {
+      return [{
         ...selected,
         title: english?.title ?? root?.title ?? selected.title,
         titleSwahili: swahili?.title,
@@ -115,7 +159,7 @@ export function selectLocalizedBooks(books: Book[], language: Language): Book[] 
         rank: Math.min(...versions.map((book) => book.rank ?? Number.MAX_SAFE_INTEGER)),
         status: availableLanguages.size > 1 ? 'Bilingual' as const : selected.status,
         isBilingualAvailable: availableLanguages.size > 1,
-      };
+      }];
     })
     .sort((a, b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER));
 }

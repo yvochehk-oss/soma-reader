@@ -1,12 +1,15 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const SITE_URL = "https://somanovel.uk";
+const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "contact@somanovel.uk";
 const source = await readFile(resolve("src/lib/supabase-books.ts"), "utf8");
 const sourceValue = (constant) => source.match(new RegExp(`const ${constant} =[^']*'([^']+)'`))?.[1];
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || sourceValue("SUPABASE_URL");
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || sourceValue("SUPABASE_ANON_KEY");
 const output = resolve("public/books");
+const publicCatalogueOutput = resolve("public/catalog/books.json");
+const homeIndexPath = resolve("index.html");
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) throw new Error("Supabase public configuration is required to build SEO pages.");
 
@@ -26,6 +29,7 @@ const absoluteUrl = (value) => {
   }
 };
 const languageLabel = (language) => language === "sw" ? "Kiswahili" : "English";
+const legalFooter = `<footer style="clear:both;margin-top:40px;padding-top:18px;border-top:1px solid #d9dfd8;font-size:14px"><strong>Soma Novel</strong><nav aria-label="Legal and site information" style="display:flex;flex-wrap:wrap;gap:12px 18px;margin-top:10px"><a href="/about">About</a><a href="/contact">Contact</a><a href="/privacy-policy">Privacy Policy</a><a href="/cookie-policy">Cookie Policy</a><a href="/terms">Terms of Service</a><a href="mailto:${CONTACT_EMAIL}">Email us</a></nav></footer>`;
 
 async function fetchRows(path) {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -36,17 +40,50 @@ async function fetchRows(path) {
 }
 
 const booksQuery = new URLSearchParams({
-  select: "id,parent_book_id,slug,title,author_name,description,cover_url,language_code,category,tags,total_chapters,published_at,updated_at",
+  select: "id,parent_book_id,slug,title,author_name,description,cover_url,language_code,category,tags,total_chapters,is_featured,published_at,created_at,updated_at",
   status: "eq.published",
+  or: `(published_at.is.null,published_at.lte.${new Date().toISOString()})`,
   order: "is_featured.desc,created_at.desc",
 });
 const books = await fetchRows(`books?${booksQuery}`);
+
+// The browser can preload this same-origin catalogue while the JavaScript
+// bundle downloads. This removes the cross-origin Supabase request from the
+// homepage's critical rendering path while keeping the catalogue generated
+// from the exact records used for the static SEO pages.
+await mkdir(resolve("public/catalog"), { recursive: true });
+await writeFile(publicCatalogueOutput, `${JSON.stringify(books)}\n`);
+
+const isClassicRow = (book) => /(?:^|[\s_-])(?:classics?|literature)(?:$|[\s_-])|classic-literature|literature-classic/.test(
+  [book.category, ...(book.tags || [])].join(" ").toLowerCase(),
+);
+const homeHeroBook = books.find((book) => book.is_featured && book.language_code === "en" && !isClassicRow(book) && book.cover_url)
+  || books.find((book) => book.language_code === "en" && !isClassicRow(book) && book.cover_url);
+const homeIndex = await readFile(homeIndexPath, "utf8");
+const featuredPreloadPattern = /<!-- HOME_FEATURED_PRELOAD_START -->[\s\S]*?<!-- HOME_FEATURED_PRELOAD_END -->/;
+if (!featuredPreloadPattern.test(homeIndex)) throw new Error("Homepage featured-cover preload markers are missing.");
+if (homeHeroBook) {
+  const featuredCover = absoluteUrl(homeHeroBook.cover_url);
+  const featuredOrigin = new URL(featuredCover).origin;
+  const featuredPreload = `<!-- HOME_FEATURED_PRELOAD_START -->\n    <link rel="preconnect" href="${escapeHtml(featuredOrigin)}" crossorigin />\n    <link rel="preload" as="image" href="${escapeHtml(featuredCover)}" fetchpriority="high" />\n    <!-- HOME_FEATURED_PRELOAD_END -->`;
+  const updatedHomeIndex = homeIndex.replace(featuredPreloadPattern, featuredPreload);
+  await writeFile(homeIndexPath, updatedHomeIndex);
+} else {
+  await writeFile(homeIndexPath, homeIndex.replace(
+    featuredPreloadPattern,
+    '<!-- HOME_FEATURED_PRELOAD_START -->\n    <!-- No English modern cover is available to preload. -->\n    <!-- HOME_FEATURED_PRELOAD_END -->',
+  ));
+}
 const byRoot = new Map();
 for (const book of books) {
   const root = book.parent_book_id || book.id;
   byRoot.set(root, [...(byRoot.get(root) || []), book]);
 }
 
+// This directory is fully generated from the current published catalogue.
+// Recreate it on every run so deleted or renamed slugs cannot survive as stale
+// static HTML and continue returning 200 after the database record is gone.
+await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 const pages = [];
 
@@ -115,10 +152,10 @@ for (const book of books) {
   <img src="${escapeHtml(cover)}" alt="Cover of ${escapeHtml(book.title)}">
   <h1>${escapeHtml(book.title)}</h1>
   <p class="meta">By ${escapeHtml(book.author_name || "Soma Originals")} · ${chapters.length} chapters · Free to read</p>
-  ${languageLinks}
-  <p>${escapeHtml(book.description || `Read ${book.title} free on Soma Novel.`)}</p>
+${languageLinks ? `  ${languageLinks}\n` : ""}  <p>${escapeHtml(book.description || `Read ${book.title} free on Soma Novel.`)}</p>
   <p><a href="${readerHref}">Read on Soma Novel</a></p>
   <h2>Chapters</h2><ol>${chapterList}</ol>
+  ${legalFooter}
 </body></html>`;
   const directory = resolve(output, book.slug);
   await mkdir(directory, { recursive: true });
@@ -126,7 +163,7 @@ for (const book of books) {
   pages.push({ canonical, title: book.title, updated: book.updated_at || book.published_at });
 }
 
-const catalogue = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>English & Kiswahili Web Novels | Soma Novel</title><meta name="description" content="Browse free English and Kiswahili web novels from East Africa on Soma Novel."><link rel="canonical" href="${SITE_URL}/books/"><meta name="robots" content="index,follow"><style>body{max-width:860px;margin:0 auto;padding:32px 20px;font:17px/1.6 system-ui,sans-serif;background:#f8f7f2;color:#102321}a{color:#9e3c19}li{margin:12px 0}</style></head><body><nav><a href="/">Soma Novel</a></nav><h1>English & Kiswahili Web Novels</h1><p>Free stories from East Africa, available in English and Kiswahili.</p><ul>${pages.map((page) => `<li><a href="${page.canonical.replace(SITE_URL, "")}">${escapeHtml(page.title)}</a></li>`).join("\n")}</ul></body></html>`;
+const catalogue = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>English & Kiswahili Web Novels | Soma Novel</title><meta name="description" content="Browse free English and Kiswahili web novels from East Africa on Soma Novel."><link rel="canonical" href="${SITE_URL}/books/"><meta name="robots" content="index,follow"><style>body{max-width:860px;margin:0 auto;padding:32px 20px;font:17px/1.6 system-ui,sans-serif;background:#f8f7f2;color:#102321}a{color:#9e3c19}li{margin:12px 0}</style></head><body><nav><a href="/">Soma Novel</a></nav><h1>English & Kiswahili Web Novels</h1><p>Free stories from East Africa, available in English and Kiswahili.</p><ul>${pages.map((page) => `<li><a href="${page.canonical.replace(SITE_URL, "")}">${escapeHtml(page.title)}</a></li>`).join("\n")}</ul>${legalFooter}</body></html>`;
 await writeFile(resolve(output, "index.html"), catalogue);
 
 const today = new Date().toISOString().slice(0, 10);
@@ -135,4 +172,4 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://w
 await writeFile(resolve("public/sitemap.xml"), sitemap);
 await writeFile(resolve("public/robots.txt"), `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\n# Allow search and answer engines, but do not grant model-training crawlers access.\nUser-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: Googlebot\nAllow: /\n\nUser-agent: GPTBot\nDisallow: /\n\nUser-agent: Google-Extended\nDisallow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 await writeFile(resolve("public/llms.txt"), `# Soma Novel\n\n> Free English and Kiswahili web novels from East Africa.\n\nSoma Novel publishes original web fiction in English and Kiswahili. Book details and chapter lists are available as public HTML pages under /books/.\n\n## Catalogue\n\n- ${SITE_URL}/books/\n- ${SITE_URL}/sitemap.xml\n\n## Use\n\nPlease attribute Soma Novel and link to the canonical book page when citing a title or synopsis. Do not reproduce full chapter text.\n`);
-console.log(`Generated ${pages.length} public book pages, sitemap.xml, robots.txt, and llms.txt.`);
+console.log(`Generated ${pages.length} public book pages, the browser catalogue, sitemap.xml, robots.txt, and llms.txt.`);

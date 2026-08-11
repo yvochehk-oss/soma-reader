@@ -194,7 +194,7 @@ export function ReaderShell({ children, bookSlug, chapterNumber, bookId, chapter
     window.scrollTo({ top: maxScroll * percent / 100, behavior: "smooth" });
   }
   function handleReaderTap(event: React.MouseEvent<HTMLDivElement>) {
-    if ((event.target as HTMLElement).closest("a,button,select,input,label,textarea")) return;
+    if ((event.target as HTMLElement).closest("a,button,select,input,label,textarea,.adsbygoogle,.reader-ad")) return;
     const width = window.innerWidth;
     if (event.clientX <= width * 0.3) turnPage("previous");
     else if (event.clientX >= width * 0.7) turnPage("next");

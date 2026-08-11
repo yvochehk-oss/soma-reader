@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { PwaRegister } from "@/app/components/pwa-register";
 import { LanguageProvider } from "@/app/components/language-provider";
+import { CookieConsent } from "@/app/components/cookie-consent";
+import { SITE_URL } from "@/app/lib/site-config";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: "Soma — Stories that stay with you", template: "%s · Soma" },
   description: "A simple home for stories from Kenya, in English and Kiswahili.",
   applicationName: "Soma",
@@ -19,7 +22,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;800;900&family=Georgia:wght@400;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body><LanguageProvider><PwaRegister />{children}</LanguageProvider></body>
+      <body><LanguageProvider><PwaRegister /><CookieConsent />{children}</LanguageProvider></body>
     </html>
   );
 }

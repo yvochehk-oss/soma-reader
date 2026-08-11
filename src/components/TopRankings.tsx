@@ -15,6 +15,9 @@ export const TopRankings: React.FC<TopRankingsProps> = ({
   onSelectBook,
   onViewAllRankings,
 }) => {
+  const categoryLabel = (category: string) => language === 'sw'
+    ? ({ Romance: 'Mapenzi', Thriller: 'Kusisimua', 'Sci-Fi': 'Sayansi ya Kubuni', Historical: 'Kihistoria', Fantasy: 'Fantasia', Contemporary: 'Kisasa', 'Urban Fantasy': 'Fantasia ya Mjini' } as Record<string, string>)[category] ?? category
+    : category;
   // Get top 3 ranked books
   const rankedBooks = books.filter((b) => b.rank).sort((a, b) => (a.rank || 0) - (b.rank || 0)).slice(0, 3);
 
@@ -56,10 +59,12 @@ export const TopRankings: React.FC<TopRankingsProps> = ({
         {rankedBooks.map((book, index) => {
           const badge = rankBadges[index] || rankBadges[0];
           return (
-            <div
+            <button
+              type="button"
               key={book.id}
               onClick={() => onSelectBook(book)}
-              className="flex gap-4 p-5 rounded-2xl bg-white hover:shadow-xl transition-all relative border border-[#dec0b7]/30 overflow-hidden group hover:-translate-y-1 cursor-pointer"
+              aria-label={`${language === 'sw' ? 'Fungua' : 'Open'} ${language === 'sw' && book.titleSwahili ? book.titleSwahili : book.title}`}
+              className="flex w-full gap-4 p-5 rounded-2xl bg-white hover:shadow-xl transition-all relative border border-[#dec0b7]/30 overflow-hidden group hover:-translate-y-1 cursor-pointer text-left"
             >
               {/* Background Blur Glow */}
               <div
@@ -103,7 +108,7 @@ export const TopRankings: React.FC<TopRankingsProps> = ({
 
                 <div className="flex items-center gap-2.5 mt-3 pt-2 border-t border-gray-100">
                   <span className="bg-[#d6ede9] text-[#0a1f1d] px-2 py-0.5 rounded text-[10px] lg:text-[11px] font-bold uppercase tracking-wider">
-                    {book.category}
+                    {categoryLabel(book.category)}
                   </span>
                   <span className="flex items-center text-[#C95631] text-xs font-extrabold ml-auto">
                     <Flame className="w-3.5 h-3.5 mr-0.5 fill-current" />
@@ -111,7 +116,7 @@ export const TopRankings: React.FC<TopRankingsProps> = ({
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

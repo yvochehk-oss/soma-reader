@@ -74,6 +74,41 @@ function parseHeading(line) {
   return { number, title, language };
 }
 
+const EXCLUDED_PATH_PART = /(?:^|[_. -])(?:backup|archive|old|publication|pre[_ -]?s\d|mobile[_ .-]?work|reports?|audit|outline|planning|research|design|prompts?|video|\.agent|\.reasonix)(?:$|[_. -])/i;
+const BLOCKED_PATH_PART = /(?:禁止发布|隔离|do[_ -]?not[_ -]?publish|写作中转)/i;
+
+export function isExcludedManuscriptPath(path) {
+  return String(path).split(/[\\/]+/).some((part) => /^(?:\..+\.mobile_work|mobile_.+_work)$/i.test(part) || EXCLUDED_PATH_PART.test(part) || BLOCKED_PATH_PART.test(part));
+}
+
+export function chapterDiagnostics(markdown) {
+  const normalized = markdown.replace(/\r\n?/g, "\n");
+  const glued = [];
+  for (const [index, line] of normalized.split("\n").entries()) {
+    const marker = line.search(/#{1,6}\s+(?:Chapter|Sura(?:\s+ya)?)\s+/i);
+    if (marker > 0) glued.push(index + 1);
+  }
+  const chapters = parseChapters(markdown);
+  const numbers = chapters.map((chapter) => chapter.number);
+  const continuous = numbers.length > 0 && numbers.every((number, index) => number === index + 1) && new Set(numbers).size === numbers.length;
+  return { chapters, gluedHeadingLines: glued, continuous };
+}
+
+export function assertPublishableChapters(markdown, sourceName = "manuscript") {
+  const diagnostic = chapterDiagnostics(markdown);
+  if (diagnostic.gluedHeadingLines.length) {
+    throw new Error(`${sourceName} has chapter headings glued to prose on line(s) ${diagnostic.gluedHeadingLines.join(", ")}. Put every Chapter/Sura heading on its own line before uploading.`);
+  }
+  if (!diagnostic.chapters.length) throw new Error(`${sourceName} has no recognizable Chapter/Sura headings.`);
+  if (!diagnostic.continuous) {
+    throw new Error(`${sourceName} chapter numbers must be unique and continuous from 1. Found: ${diagnostic.chapters.map((chapter) => chapter.number).join(", ")}.`);
+  }
+  if (diagnostic.chapters.length === 1 && /(?:^|\n).+#{1,6}\s+(?:Chapter|Sura(?:\s+ya)?)\s+/i.test(markdown)) {
+    throw new Error(`${sourceName} appears to contain multiple chapters but only one standalone heading was parsed.`);
+  }
+  return diagnostic.chapters;
+}
+
 export function parseChapters(markdown, status = "draft") {
   const body = markdown.replace(/\r\n?/g, "\n").replace(/^---[\s\S]*?---\s*/, "").trim();
   const lines = body.split(/\r?\n/);
@@ -106,23 +141,36 @@ export function inferLanguage(markdown, fileName = "") {
 }
 
 export function inferTitle(markdown, fileName) {
-  const firstHeading = markdown.match(/^#\s+(.+)$/m)?.[1]?.trim();
-  if (firstHeading && !/^(?:Chapter|Sura(?:\s+ya)?)\b/i.test(firstHeading)) {
-    return firstHeading.toLowerCase().replace(/\b\p{L}/gu, (letter) => letter.toUpperCase());
+  const body = markdown.replace(/\r\n?/g, "\n").replace(/^---[\s\S]*?---\s*/, "");
+  const frontMatter = body.split(/^(?:#{1,6}\s+)?(?:Chapter|Sura(?:\s+ya)?)\s+/im, 1)[0];
+  const titleHeading = frontMatter.match(/^#\s+([^#\s].*)$/m)?.[1]?.trim();
+  if (titleHeading && !/^(?:Chapter|Sura(?:\s+ya)?)\b/i.test(titleHeading)) {
+    return titleHeading.toLowerCase().replace(/\b\p{L}/gu, (letter) => letter.toUpperCase());
   }
   return fileName
     .replace(/\.(?:md|txt)$/i, "")
+    .replace(/^mobile[_ -]+/i, "")
     .replace(/(?:_final)?_(?:en|sw)(?:_final)?(?:_expanded)?(?:_v\d+(?:_\d+)*)?$/i, "")
     .replace(/_TOLEO_LILILOPANULIWA$/i, "")
     .replace(/_/g, " ")
     .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase());
 }
 
+export function inferAuthor(markdown) {
+  const body = markdown.replace(/\r\n?/g, "\n").replace(/^---[\s\S]*?---\s*/, "");
+  const frontMatter = body.split(/^(?:#{1,6}\s+)?(?:Chapter|Sura(?:\s+ya)?)\s+/im, 1)[0];
+  const labelled = frontMatter.match(/^\s*(?:\*{1,2}|_{1,2})?(?:Author|Mwandishi)\s*:\s*(.+?)(?:\*{1,2}|_{1,2})?\s*$/im)?.[1]?.trim();
+  if (labelled) return labelled;
+  const byline = frontMatter.match(/^##\s+([^#\n]+)$/m)?.[1]?.trim();
+  return byline && !/^(?:Chapter|Sura(?:\s+ya)?)\b/i.test(byline) && byline.split(/\s+/).length <= 5 ? byline : null;
+}
+
 export function manuscriptScore(fileName) {
   const lower = fileName.toLowerCase();
   if (!/\.(?:md|txt)$/.test(lower)) return -Infinity;
-  if (/(report|audit|outline|bible|concept|synopsis|ledger|notes|readme|validation|prompt|narration)/.test(lower)) return -Infinity;
+  if (isExcludedManuscriptPath(fileName) || /(report|audit|outline|bible|concept|synopsis|ledger|notes|readme|validation|prompt|narration)/.test(lower)) return -Infinity;
   let score = 0;
+  if (/mobile_/.test(lower)) score += 100;
   if (/final/.test(lower)) score += 50;
   if (/(?:_final_(?:en|sw)|_(?:en|sw)_final)/.test(lower)) score += 50;
   if (/full_story/.test(lower)) score += 20;

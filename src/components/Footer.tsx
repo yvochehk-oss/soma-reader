@@ -18,10 +18,15 @@ export const Footer: React.FC<FooterProps> = ({ language }) => {
           </p>
         </div>
 
-        <div className="flex gap-8 text-xs font-semibold text-[#e7fefa]">
+        <div className="flex flex-wrap gap-x-6 gap-y-3 text-xs font-semibold text-[#e7fefa]">
           <a href="/books/" className="hover:text-[#ed7248] transition-colors">
             {language === 'sw' ? 'Vinjari vitabu' : 'Browse books'}
           </a>
+          <a href="/about" className="hover:text-[#ed7248] transition-colors">About</a>
+          <a href="/contact" className="hover:text-[#ed7248] transition-colors">Contact</a>
+          <a href="/privacy-policy" className="hover:text-[#ed7248] transition-colors">Privacy</a>
+          <a href="/cookie-policy" className="hover:text-[#ed7248] transition-colors">Cookies</a>
+          <a href="/terms" className="hover:text-[#ed7248] transition-colors">Terms</a>
         </div>
       </div>
 

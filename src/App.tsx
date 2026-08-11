@@ -16,9 +16,16 @@ import { Footer } from './components/Footer';
 import { Book, Chapter, Language, ActiveNavTab, UserLibraryItem } from './types';
 import { GoogleAdBanner } from './components/GoogleAdBanner';
 import { getAllLocalImportedBooks } from './lib/local-book-parser';
-import { fetchBookChaptersFromSupabase, fetchLiveBooksFromSupabase, selectLocalizedBooks } from './lib/supabase-books';
+import { fetchBookChaptersFromSupabase, fetchLiveBooksFromSupabase, refreshLiveBooksFromSupabase, selectLocalizedBooks } from './lib/supabase-books';
+import { CookieConsent } from './components/CookieConsent';
+import { ClassicLibrary } from './components/ClassicLibrary';
 
 const CATEGORIES = ['All', 'Romance', 'Thriller', 'Sci-Fi', 'Historical', 'Fantasy', 'Contemporary', 'Urban Fantasy'];
+
+function isClassicBook(book: Book) {
+  const searchable = [book.category, ...book.tags].join(' ').toLowerCase();
+  return /(?:^|[\s_-])(?:classics?|literature)(?:$|[\s_-])|classic-literature|literature-classic/.test(searchable);
+}
 
 function readerLocation(book: Book, chapter: Chapter) {
   const url = new URL(window.location.href);
@@ -57,6 +64,19 @@ export default function App() {
     setBooksError(null);
     try {
       setOnlineBooks(await fetchLiveBooksFromSupabase());
+      const refreshCatalogue = async () => {
+        try {
+          const freshBooks = await refreshLiveBooksFromSupabase();
+          setOnlineBooks((current) => JSON.stringify(current) === JSON.stringify(freshBooks) ? current : freshBooks);
+        } catch (error) {
+          console.warn('The background catalogue refresh failed; keeping the deployed snapshot.', error);
+        }
+      };
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => { void refreshCatalogue(); }, { timeout: 5000 });
+      } else {
+        globalThis.setTimeout(() => { void refreshCatalogue(); }, 3000);
+      }
     } catch (error) {
       console.error('Failed to load Supabase books:', error);
       setOnlineBooks([]);
@@ -100,36 +120,55 @@ export default function App() {
     );
   };
 
-  const editorChoiceBook = localizedOnlineBooks.find((b) => b.isEditorChoice) || localizedOnlineBooks[0];
+  const classicBooks = useMemo(
+    () => onlineBooks.filter((book) => book.language === 'en' && isClassicBook(book)),
+    [onlineBooks]
+  );
+  const modernBooks = useMemo(
+    () => localizedOnlineBooks.filter((book) => !isClassicBook(book)),
+    [localizedOnlineBooks]
+  );
+  const isModernSurface = activeTab === 'Home' || activeTab === 'Modern';
+  const visibleBooks = activeTab === 'Classics' ? classicBooks : modernBooks;
+  const headerSearchBooks = activeTab === 'Classics'
+    ? classicBooks
+    : [...localImportedBooks, ...modernBooks];
+  const editorChoiceBook = modernBooks.find((b) => b.isEditorChoice) || modernBooks[0];
 
   const savedBooks = localizedOnlineBooks.filter((b) => savedBookIds.includes(b.id));
 
   // Handle Tab Filtering
   const getFilteredBooksForTab = () => {
+    if (activeTab === 'Classics') {
+      return classicBooks;
+    }
+    if (activeTab === 'Modern') return modernBooks;
     if (activeTab === 'Popular') {
       // Return all books sorted by rating (or just all books as requested)
-      return localizedOnlineBooks;
+      return modernBooks;
     }
     if (activeTab === 'Romance' || activeTab === 'Thriller') {
-      return localizedOnlineBooks.filter((b) => b.category.toLowerCase() === activeTab.toLowerCase());
+      return modernBooks.filter((b) => b.category.toLowerCase() === activeTab.toLowerCase());
     }
     if (activeTab === 'Free Zone') {
-      return localizedOnlineBooks.filter((b) => b.status === 'Free' || b.status === 'Hot' || b.status === 'Bilingual');
+      return modernBooks.filter((b) => b.status === 'Free' || b.status === 'Hot' || b.status === 'Bilingual');
     }
     if (activeTab === 'Completed') {
-      return localizedOnlineBooks.filter((b) => b.status === 'Completed');
+      return modernBooks.filter((b) => b.status === 'Completed');
     }
     if (activeTab === 'Bilingual') {
-      return localizedOnlineBooks.filter((b) => b.isBilingualAvailable);
+      return modernBooks.filter((b) => b.isBilingualAvailable);
     }
-    return localizedOnlineBooks;
+    return modernBooks;
   };
 
   const displayedBooks = getFilteredBooksForTab();
 
   const tabTitle = language === 'sw'
-    ? ({
+      ? ({
         Home: 'Nyumbani',
+        Classics: 'Klasiki za Kiingereza',
+        Modern: 'Riwaya za Kisasa',
         Romance: 'Mapenzi',
         Thriller: 'Kusisimua',
         Popular: 'Maarufu',
@@ -264,6 +303,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F8F7F2] text-[#0a1f1d] font-sans-ui flex flex-col pt-[60px] md:pt-[70px] selection:bg-[#ed7248] selection:text-white overflow-x-hidden">
+      <CookieConsent />
       {/* Desktop Header */}
       <Header
         activeTab={activeTab}
@@ -272,7 +312,7 @@ export default function App() {
         setLanguage={setLanguage}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        allBooks={[...localImportedBooks, ...localizedOnlineBooks]}
+        allBooks={headerSearchBooks}
         onSelectBook={handleSelectBook}
         savedBooksCount={savedBookIds.length + localImportedBooks.length}
         onOpenLibrary={() => setIsLibraryOpen(true)}
@@ -287,7 +327,7 @@ export default function App() {
         setLanguage={setLanguage}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        allBooks={[...localImportedBooks, ...localizedOnlineBooks]}
+        allBooks={headerSearchBooks}
         onSelectBook={handleSelectBook}
         savedBooksCount={savedBookIds.length + localImportedBooks.length}
         onOpenLibrary={() => setIsLibraryOpen(true)}
@@ -296,27 +336,48 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-12 pb-24 md:pb-16 pt-4 flex-1 flex flex-col gap-8 lg:gap-12">
+        {activeTab !== 'Classics' && (
+          <h1 className="sr-only">
+            {language === 'sw' ? 'Soma — Riwaya za kisasa kwa simu' : 'Soma — Modern web novels for mobile reading'}
+          </h1>
+        )}
         {/* Quick Entrance Grid */}
-        <QuickEntryGrid
+        {activeTab !== 'Classics' && <QuickEntryGrid
           language={language}
           onSelectTab={(tab) => {
             setActiveTab(tab);
             window.scrollTo({ top: 300, behavior: 'smooth' });
           }}
           onOpenImportModal={() => setIsImportModalOpen(true)}
-        />
+        />}
 
-        {booksLoading && <div className="py-16 text-center text-sm font-semibold text-[#6E7E7A]" role="status">{language === 'sw' ? 'Inapakia maktaba…' : 'Loading the library…'}</div>}
+        {booksLoading && (
+          <section
+            className="min-h-[620px] overflow-hidden rounded-3xl border border-[#dec0b7]/30 bg-white shadow-sm md:min-h-[480px]"
+            role="status"
+            aria-label={language === 'sw' ? 'Inapakia maktaba' : 'Loading the library'}
+          >
+            <div className="grid min-h-[620px] animate-pulse grid-rows-[280px_1fr] md:min-h-[480px] md:grid-cols-2 md:grid-rows-1">
+              <div className="bg-[#e8ece8]" />
+              <div className="flex flex-col justify-center gap-4 p-7 md:p-10">
+                <div className="h-3 w-24 rounded-full bg-[#e7d8d1]" />
+                <div className="h-8 w-4/5 rounded-lg bg-[#dce5e1]" />
+                <div className="h-4 w-2/3 rounded-full bg-[#e8ece8]" />
+                <span className="sr-only">{language === 'sw' ? 'Inapakia maktaba…' : 'Loading the library…'}</span>
+              </div>
+            </div>
+          </section>
+        )}
         {!booksLoading && booksError && (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center" role="alert">
             <p className="text-sm font-semibold text-red-800">{booksError}</p>
             <button type="button" onClick={loadOnlineBooks} className="mt-3 rounded-full bg-[#a43d17] px-5 py-2 text-xs font-bold text-white">{language === 'sw' ? 'Jaribu tena' : 'Try again'}</button>
           </div>
         )}
-        {!booksLoading && !booksError && localizedOnlineBooks.length === 0 && <div className="py-16 text-center text-sm font-semibold text-[#6E7E7A]" role="status">{language === 'sw' ? 'Hakuna vitabu vilivyochapishwa bado.' : 'No published books are available yet.'}</div>}
+        {!booksLoading && !booksError && visibleBooks.length === 0 && activeTab !== 'Classics' && <div className="py-16 text-center text-sm font-semibold text-[#6E7E7A]" role="status">{language === 'sw' ? 'Hakuna vitabu vilivyochapishwa bado.' : 'No published books are available yet.'}</div>}
 
         {/* Home Screen Layout */}
-        {!booksLoading && !booksError && editorChoiceBook && activeTab === 'Home' && (
+        {!booksLoading && !booksError && isModernSurface && editorChoiceBook && (
           <>
             {/* Editor's Choice Hero Banner */}
             <EditorsChoiceHero
@@ -333,7 +394,7 @@ export default function App() {
 
           {/* Top Rankings */}
             <TopRankings
-              books={localizedOnlineBooks}
+              books={modernBooks}
               language={language}
               onSelectBook={handleSelectBook}
               onViewAllRankings={() => setActiveTab('Popular')}
@@ -358,8 +419,12 @@ export default function App() {
           </>
         )}
 
+        {!booksLoading && !booksError && activeTab === 'Classics' && (
+          <ClassicLibrary books={classicBooks} language={language} onSelectBook={handleSelectBook} />
+        )}
+
         {/* Tab Sub-views (Romance, Thriller, Rankings, Free Zone, Completed, Bilingual) */}
-        {!booksLoading && !booksError && localizedOnlineBooks.length > 0 && activeTab !== 'Home' && (
+        {!booksLoading && !booksError && modernBooks.length > 0 && !isModernSurface && activeTab !== 'Classics' && (
           <section className="flex flex-col gap-6 animate-in fade-in duration-300">
             <div className="flex items-center justify-between border-b border-[#dec0b7]/30 pb-4">
               <div>
