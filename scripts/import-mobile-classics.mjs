@@ -18,6 +18,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uamaohjbrj
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_bLhT1CNl-DrFn_wz6gmp6A_fJPGBY2G';
 const CATALOG_PATH = resolve(process.env.CLASSICS_CATALOG_PATH || fileURLToPath(new URL('../classics_catalog.json', import.meta.url)));
 const PUBLISH = args.includes('--publish');
+const MAX_UPLOAD_ATTEMPTS = 5;
 const CATEGORY_LABELS = new Set(['Romance', 'Thriller', 'Sci-Fi', 'Historical', 'Fantasy', 'Contemporary', 'Urban Fantasy']);
 
 const romance = new Set(['Anna Karenina', 'Anne of Green Gables', 'Emma', 'Jane Eyre', 'Little Women', 'Mansfield Park', 'Northanger Abbey', 'Persuasion', 'Pride and Prejudice', 'Sense and Sensibility', "Tess of the d'Urbervilles", 'The Enchanted April']);
@@ -81,6 +82,28 @@ async function existingBooks() {
 function getToken() {
   if (process.env.SOMA_IMPORT_TOKEN) return process.env.SOMA_IMPORT_TOKEN;
   try { return execFileSync('security', ['find-generic-password', '-s', 'Soma Book Import Token', '-w'], { encoding: 'utf8' }).trim(); } catch { return ''; }
+}
+
+function wait(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+async function uploadBook(apiUrl, token, item) {
+  for (let attempt = 1; attempt <= MAX_UPLOAD_ATTEMPTS; attempt += 1) {
+    const payload = item.updateMode === 'chapters-only' ? { updateMode: 'chapters-only', books: [item.book] } : { books: [item.book] };
+    const response = await fetch(apiUrl, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+    const result = await response.json().catch(() => ({}));
+    if (response.ok) return result;
+    const transient = response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500;
+    if (!transient || attempt === MAX_UPLOAD_ATTEMPTS) {
+      throw new Error(`Import failed for ${item.book.title} (${response.status}): ${result.error ?? 'Unknown error'}`);
+    }
+    const retryAfter = Number(response.headers.get('retry-after'));
+    const delay = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 2 ** (attempt - 1) * 1000;
+    console.warn(`Transient import failure for ${item.book.title} (${response.status}); retrying in ${delay / 1000}s (${attempt}/${MAX_UPLOAD_ATTEMPTS - 1}).`);
+    await wait(delay);
+  }
+  throw new Error(`Import failed for ${item.book.title}: retry loop exhausted.`);
 }
 
 const catalog = await readJson(CATALOG_PATH, []);
@@ -152,10 +175,7 @@ if (!token) throw new Error('No import token found. Save it in Keychain as “So
 let importedBooks = 0;
 let importedChapters = 0;
 for (const [index, item] of prepared.entries()) {
-  const payload = item.updateMode === 'chapters-only' ? { updateMode: 'chapters-only', books: [item.book] } : { books: [item.book] };
-  const response = await fetch(API_URL, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(`Import failed for ${item.book.title} (${response.status}): ${result.error ?? 'Unknown error'}`);
+  const result = await uploadBook(API_URL, token, item);
   importedBooks += Number(result.importedBooks || 0);
   importedChapters += Number(result.importedChapters || 0);
   console.log(`Uploaded ${index + 1}/${prepared.length}: ${item.book.title} (${item.book.chapters.length} chapters)`);
