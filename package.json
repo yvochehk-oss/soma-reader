@@ -1,5 +1,5 @@
 {
-  "name": "react-example",
+  "name": "soma-novel",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -19,7 +19,9 @@
     "clean": "rm -rf dist server.js",
     "typecheck:vite": "tsc -p tsconfig.vite.json --noEmit",
     "lint": "npm run typecheck:vite",
-    "import:books": "node scripts/upload-soma-books.mjs"
+    "import:books": "node scripts/upload-soma-books.mjs",
+    "release:books": "node scripts/release-soma-books.mjs",
+    "test:book-release": "node --test scripts/tests/soma-book-metadata.test.mjs scripts/tests/soma-book-release.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

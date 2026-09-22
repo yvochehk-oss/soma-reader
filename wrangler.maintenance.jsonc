@@ -1,10 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "soma-monthly-maintenance",
+  "account_id": "02bc5c920536191bcf39eb43402411d4",
   "main": "workers/monthly-maintenance.ts",
   "compatibility_date": "2026-07-26",
   "triggers": { "crons": ["0 2 1 * *"] },
   "vars": {
-    "MAINTENANCE_TARGET": "https://read.20140128.xyz/api/internal/monthly-report"
+    "MAINTENANCE_TARGET": "https://somanovel.uk/api/internal/monthly-report"
   }
 }

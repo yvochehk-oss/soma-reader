@@ -83,7 +83,7 @@ export const TopRankings: React.FC<TopRankingsProps> = ({
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop';
                   }}
-                  className="w-[90px] lg:w-[105px] rounded-lg shadow-md object-cover aspect-[2/3] group-hover:shadow-xl transition-shadow"
+                  className="w-[90px] lg:w-[105px] rounded-lg shadow-md object-cover object-top aspect-[3/4] group-hover:shadow-xl transition-shadow"
                 />
                 <div
                   className={`absolute -top-3 -left-3 w-9 h-9 rounded-full bg-gradient-to-br ${badge.gradient} text-white font-black flex items-center justify-center border-2 border-white shadow-md text-base z-10`}

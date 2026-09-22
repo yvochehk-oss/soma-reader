@@ -50,7 +50,7 @@ export const EditorsChoiceHero: React.FC<EditorsChoiceHeroProps> = ({
               decoding="async"
               width="420"
               height="630"
-              className="w-[130px] md:w-[170px] lg:w-[210px] rounded-lg shadow-2xl object-cover aspect-[2/3] border-4 border-white/40"
+              className="w-[130px] md:w-[170px] lg:w-[210px] rounded-lg shadow-2xl object-cover object-top aspect-[3/4] border-4 border-white/40"
             />
           </button>
           <div className="bg-[#ed7248] text-white text-[11px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest mb-4 hidden md:block shadow-md">

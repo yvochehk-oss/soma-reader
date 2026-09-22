@@ -30,6 +30,66 @@ test("does not apply the classics gate to modern fiction", () => {
   assert.equal(validateClassicIntegrity({ title: "Modern", tags: ["Contemporary"], chapters: [{ title: "Chapter 1", content: "No!" }] }), null);
 });
 
+test("published imports require the canonical site taxonomy and tags", async () => {
+  const base = {
+    slug: "modern-book",
+    title: "Modern Book",
+    author: "Author",
+    language: "en",
+    description: "A complete synopsis.",
+    coverUrl: "/covers/modern.jpg",
+    status: "published",
+    chapters: [{ number: 1, title: "Chapter 1", content: "Text", status: "published" }],
+  };
+  await assert.rejects(importBooks({} as never, { books: [{ ...base, category: "other", tags: ["Fiction"] }] }), /canonical category/);
+  await assert.rejects(importBooks({} as never, { books: [{ ...base, category: "Contemporary", tags: [] }] }), /at least one tag/);
+});
+
+test("full imports persist a versioned URL for newly uploaded covers", async () => {
+  const calls: Array<{ table: string; operation: string; values?: unknown }> = [];
+  const client = {
+    storage: {
+      from() {
+        return {
+          async upload() { return { error: null }; },
+          getPublicUrl() { return { data: { publicUrl: "https://example.test/storage/v1/object/public/covers/imports/versioned/cover.jpg" } }; },
+        };
+      },
+    },
+    from(table: string) {
+      if (table === "books") return {
+        upsert(values: unknown) {
+          calls.push({ table, operation: "upsert", values });
+          return { async select() { return { data: [{ id: "book-1", slug: "versioned", title: "Versioned" }], error: null }; } };
+        },
+        update(values: unknown) {
+          calls.push({ table, operation: "update", values });
+          return { async eq() { return { error: null }; } };
+        },
+      };
+      if (table === "chapters") return {
+        async upsert(values: unknown) { calls.push({ table, operation: "upsert", values }); return { error: null }; },
+        delete() { return { eq() { return { async not() { return { error: null }; } }; } }; },
+      };
+      throw new Error(`Unexpected table ${table}`);
+    },
+  };
+  await importBooks(client as never, { books: [{
+    slug: "versioned",
+    title: "Versioned",
+    author: "Author",
+    language: "en",
+    category: "Contemporary",
+    tags: ["Literary Fiction"],
+    description: "A complete synopsis.",
+    coverDataUrl: "data:image/jpeg;base64,/9j/2Q==",
+    status: "published",
+    chapters: [{ number: 1, title: "Chapter 1", content: "Text", status: "published" }],
+  }] });
+  const bookUpsert = calls.find((call) => call.table === "books" && call.operation === "upsert")?.values as Array<{ cover_url: string }>;
+  assert.match(bookUpsert[0].cover_url, /cover\.jpg\?v=\d+$/);
+});
+
 test("requires integrity evidence for English Classics", () => {
   assert.match(validateClassicIntegrity({ title: "Classic", tags: ["English Classics"], chapters: [{ title: "Chapter 1", content: "Text" }] }) ?? "", /must include integrity metadata/);
 });

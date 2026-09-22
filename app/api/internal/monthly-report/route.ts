@@ -18,12 +18,14 @@ export async function POST(request: Request) {
   if (!expectedSecret || request.headers.get("x-soma-cron-secret") !== expectedSecret) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const resendApiKey = await getServerSecret("RESEND_API_KEY");
   if (!resendApiKey) return NextResponse.json({ error: "RESEND_API_KEY is not configured" }, { status: 503 });
+  const recipient = await getServerSecret("REPORT_RECIPIENT");
+  if (!recipient) return NextResponse.json({ error: "REPORT_RECIPIENT is not configured" }, { status: 503 });
+  const resendFrom = (await getServerSecret("RESEND_FROM")) ?? "Soma Reports <reports@somanovel.uk>";
   try {
     const admin = await createAdminClient();
     const { start, end } = monthWindow();
     const periodStart = dateOnly(start);
     const periodEnd = dateOnly(end);
-    const recipient = await getServerSecret("REPORT_RECIPIENT") ?? "yvoche@icloud.com";
     const retentionCutoff = new Date(Date.now() - 90 * 86_400_000).toISOString();
     const { data: existing, error: existingError } = await admin.from("monthly_report_runs").select("id,status").eq("period_start", periodStart).maybeSingle();
     if (existingError) throw existingError;
@@ -53,7 +55,7 @@ export async function POST(request: Request) {
     rows.forEach((row) => totals.set(row.event_type, (totals.get(row.event_type) ?? 0) + Number(row.event_count)));
     const tableRows = rows.map((row) => `<tr><td>${htmlEscape(row.book_id ? bookNames.get(row.book_id) ?? "Deleted book" : "All books")}</td><td>${htmlEscape(row.event_type)}</td><td>${Number(row.event_count).toLocaleString()}</td><td>${Number(row.unique_readers).toLocaleString()}</td></tr>`).join("") || "<tr><td colspan=\"4\">No reading events were recorded.</td></tr>";
     const body = `<h1>Soma monthly reader report</h1><p><strong>${periodStart}</strong> to <strong>${periodEnd}</strong></p><ul><li>Book detail views: ${totals.get("book_view") ?? 0}</li><li>Chapter starts: ${totals.get("chapter_start") ?? 0}</li><li>Chapter completions: ${totals.get("chapter_complete") ?? 0}</li><li>Bookshelf additions: ${totals.get("bookshelf_add") ?? 0}</li><li>Offline downloads: ${totals.get("offline_download") ?? 0}</li></ul><table border="1" cellpadding="8" cellspacing="0"><thead><tr><th>Book</th><th>Event</th><th>Events</th><th>Unique readers</th></tr></thead><tbody>${tableRows}</tbody></table><p>Raw events older than 90 days will be cleared only after this message is accepted by Resend.</p>`;
-    const emailResponse = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" }, body: JSON.stringify({ from: "Soma Reports <reports@20140128.xyz>", to: [recipient], subject: `Soma monthly report: ${periodStart}`, html: body }) });
+    const emailResponse = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" }, body: JSON.stringify({ from: resendFrom, to: [recipient], subject: `Soma monthly report: ${periodStart}`, html: body }) });
     const email = await emailResponse.json() as { id?: string; message?: string };
     if (!emailResponse.ok || !email.id) {
       await admin.from("monthly_report_runs").update({ status: "failed", error_message: email.message ?? `Resend HTTP ${emailResponse.status}` }).eq("id", runId);

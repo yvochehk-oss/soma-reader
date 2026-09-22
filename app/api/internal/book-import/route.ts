@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { importBooks } from "@/app/lib/book-import";
+import { inspectBookRelease } from "@/app/lib/book-release-audit";
 import { createAdminClient, getServerSecret } from "@/app/lib/supabase/admin";
 
 async function authorize(request: Request) {
@@ -14,6 +15,16 @@ async function authorize(request: Request) {
   return expectedBytes.length === providedBytes.length && timingSafeEqual(expectedBytes, providedBytes);
 }
 
+function unauthorized() {
+  return NextResponse.json({ error: "Unauthorized" }, {
+    status: 401,
+    headers: {
+      "Cache-Control": "no-store",
+      "WWW-Authenticate": 'Bearer realm="soma-internal"',
+    },
+  });
+}
+
 function coverPath(url: string | null) {
   if (!url) return null;
   const marker = "/storage/v1/object/public/covers/";
@@ -21,8 +32,24 @@ function coverPath(url: string | null) {
   return index < 0 ? null : decodeURIComponent(url.slice(index + marker.length).split("?")[0]);
 }
 
+export async function GET(request: Request) {
+  if (!(await authorize(request))) return unauthorized();
+  try {
+    const slugs = [...new Set(new URL(request.url).searchParams.getAll("slug").map((slug) => slug.trim()))];
+    if (!slugs.length || slugs.length > 20 || slugs.some((slug) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))) {
+      return NextResponse.json({ error: "Provide between 1 and 20 valid slug query parameters." }, { status: 400 });
+    }
+    const books = await inspectBookRelease(await createAdminClient(), slugs);
+    return NextResponse.json({ ok: true, books, missingSlugs: slugs.filter((slug) => !books.some((book) => book.slug === slug)) }, {
+      headers: { "Cache-Control": "no-store" },
+    });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Release audit failed" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
-  if (!(await authorize(request))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await authorize(request))) return unauthorized();
   try {
     return NextResponse.json(await importBooks(await createAdminClient(), await request.json()));
   } catch (error) {
@@ -31,7 +58,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!(await authorize(request))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await authorize(request))) return unauthorized();
   try {
     const payload = await request.json().catch(() => ({})) as { slugs?: unknown; deleteAll?: unknown; confirmation?: unknown };
     const deleteAll = payload.deleteAll === true && payload.confirmation === "DELETE ALL SOMA BOOKS";

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { createClient } from "@/app/lib/supabase/browser";
 import { supabaseIsConfigured } from "@/app/lib/reader-client";
 import { useTranslation } from "@/app/components/language-provider";
+import { getSiteUrl } from "@/app/lib/site";
 
 export function LoginForm({ next }: { next: string }) {
   const { t } = useTranslation();
@@ -13,8 +14,7 @@ export function LoginForm({ next }: { next: string }) {
   const [status, setStatus] = useState("");
   const [sending, setSending] = useState(false);
   function callbackUrl() {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || location.origin;
-    return `${siteUrl}/auth/callback?next=${encodeURIComponent(next)}`;
+    return `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(next)}`;
   }
   async function emailLogin() {
     if (!supabaseIsConfigured()) { setStatus("Supabase is not connected yet."); return; }

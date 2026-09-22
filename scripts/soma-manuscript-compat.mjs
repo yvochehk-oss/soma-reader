@@ -55,22 +55,31 @@ function parseHeading(line) {
   if (!match) return null;
   const language = /^chapter$/i.test(match[2]) ? "en" : "sw";
   const remainder = match[3].trim();
-  const separator = remainder.search(/\s*[:：]\s*/);
-  let numberText = separator >= 0 ? remainder.slice(0, separator).trim() : remainder;
-  let title = separator >= 0 ? remainder.slice(separator).replace(/^\s*[:：]\s*/, "").trim() : "";
 
-  if (separator < 0) {
-    const decimal = /^(\d+)\s+(.+)$/.exec(remainder);
-    if (decimal) {
-      numberText = decimal[1];
-      title = decimal[2].trim();
+  let numberText = remainder;
+  let title = "";
+
+  const delimMatch = /^(\d+|[a-zA-Z\s]+?)\s*[:：–—\-]\s*(.*)$/.exec(remainder);
+  if (delimMatch && chapterNumber(delimMatch[1], language)) {
+    numberText = delimMatch[1].trim();
+    title = delimMatch[2].trim();
+  } else {
+    const separator = remainder.search(/\s*[:：]\s*/);
+    if (separator >= 0) {
+      numberText = remainder.slice(0, separator).trim();
+      title = remainder.slice(separator).replace(/^\s*[:：]\s*/, "").trim();
+    } else {
+      const decimal = /^(\d+)\s+(.+)$/.exec(remainder);
+      if (decimal) {
+        numberText = decimal[1];
+        title = decimal[2].trim();
+      }
     }
   }
 
   const number = chapterNumber(numberText, language);
   if (!number || number < 1) return null;
-  // Plain-text chapter lines need a colon; Markdown headings may omit it.
-  if (!match[1] && separator < 0) return null;
+  if (!match[1] && !remainder.match(/[:：–—\-]/)) return null;
   return { number, title, language };
 }
 
@@ -169,6 +178,9 @@ export function manuscriptScore(fileName) {
   const lower = fileName.toLowerCase();
   if (!/\.(?:md|txt)$/.test(lower)) return -Infinity;
   if (isExcludedManuscriptPath(fileName) || /(report|audit|outline|bible|concept|synopsis|ledger|notes|readme|validation|prompt|narration)/.test(lower)) return -Infinity;
+  // A project may keep a draft beside its final manuscript, as well as
+  // full-review and QA documents. They are evidence, not uploadable prose.
+  if (/(?:^|[_ .-])(?:draft|review|qa)(?:[_ .-]|\.(?:md|txt)$)/.test(lower) || /full[_ .-]?review/.test(lower)) return -Infinity;
   let score = 0;
   if (/mobile_/.test(lower)) score += 100;
   if (/final/.test(lower)) score += 50;

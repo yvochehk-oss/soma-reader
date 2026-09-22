@@ -77,7 +77,7 @@ export const PopularGrid: React.FC<PopularGridProps> = ({
             aria-label={`${language === 'sw' ? 'Fungua' : 'Open'} ${language === 'sw' && book.titleSwahili ? book.titleSwahili : book.title}`}
             className="flex w-full flex-col gap-2.5 group cursor-pointer text-left rounded-xl focus-visible:ring-4 focus-visible:ring-[#a43d17]/25"
           >
-            <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 bg-gray-100">
+            <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 bg-gray-100">
               <img
                 src={optimizedCoverUrl(book.coverImage, 480)}
                 srcSet={responsiveCoverSourceSet(book.coverImage)}
@@ -100,7 +100,7 @@ export const PopularGrid: React.FC<PopularGridProps> = ({
                   image.onerror = null;
                   image.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop';
                 }}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
               />
 
               {/* Status Badge */}

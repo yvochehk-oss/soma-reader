@@ -53,6 +53,12 @@ test("backup, quarantine, reports and formatter work directories are excluded", 
   assert.equal(manuscriptScore("/book/09_s2_backup_2026/mobile_title_final_en.md"), -Infinity);
 });
 
+test("drafts and review artifacts beside final manuscripts are excluded", () => {
+  assert.equal(manuscriptScore("/book/title_sw_draft.md"), -Infinity);
+  assert.equal(manuscriptScore("/book/sw_full_review.md"), -Infinity);
+  assert.equal(manuscriptScore("/book/mobile_title_final_sw.md") > -Infinity, true);
+});
+
 test("root scan treats direct manuscripts independently and pairs nested languages", () => {
   const root = mkdtempSync(join(tmpdir(), "soma-upload-test-"));
   try {

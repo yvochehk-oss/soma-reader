@@ -2,19 +2,32 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
   "name": "soma-reader",
+  "account_id": "02bc5c920536191bcf39eb43402411d4",
   "compatibility_date": "2026-07-26",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1,
+  },
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "soma-reader"
-    }
+      "service": "soma-reader",
+    },
   ],
   "images": {
-    "binding": "IMAGES"
-  }
+    "binding": "IMAGES",
+  },
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://somanovel.uk",
+    "NEXT_PUBLIC_CANONICAL_URL": "https://somanovel.uk",
+    "NEXT_PUBLIC_CONTACT_EMAIL": "contact@somanovel.uk",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://uamaohjbrjervzsjxwyg.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_bLhT1CNl-DrFn_wz6gmp6A_fJPGBY2G",
+    "RESEND_FROM": "Soma Reports <reports@somanovel.uk>",
+  },
 }

@@ -1,11 +1,22 @@
 # Publishing HTML — Supabase + Cloudflare
 
-Research/architecture update: 2026-08-09.
+Research/architecture update: 2026-08-11.
+
+## Current Soma release handoff
+
+Formatting completion and site publication are separate gates. After `audit --require-formal` passes, use the dedicated `publish-soma-books` Skill and the repository orchestrator:
+
+```bash
+npm run release:books -- "/absolute/books/folder" --publish --deploy --dry-run
+npm run release:books -- "/absolute/books/folder" --publish --deploy
+```
+
+The production command validates metadata, uploads, independently verifies Supabase, rebuilds the static catalogue/SEO pages, performs a Wrangler dry-run, deploys, checks live reader/SEO/cover/sitemap URLs, and writes a release audit. A formatter `publication.json` proves formatting provenance; it does not prove the website release completed.
 
 ## Recommended split of responsibilities
 
 ```text
-format-books-mobile v4.2.2-format-only
+format-books-mobile v4.3.0-format-only
         ↓
 mobile_book.html ─────────────→ Cloudflare static asset / frontend build
         │

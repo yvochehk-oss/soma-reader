@@ -13,9 +13,16 @@ if (auditOutIndex >= 0 && !args[auditOutIndex + 1]) throw new Error('--audit-out
 const consumed = new Set(auditOutIndex >= 0 ? [auditOutIndex, auditOutIndex + 1] : []);
 const rootArg = args.find((value, index) => !consumed.has(index) && !value.startsWith('--'));
 const ROOT = resolve(rootArg || '/Users/yvoche/AI开发/000.非洲最终正文/0.2英文经典手机版');
-const API_URL = process.env.SOMA_IMPORT_API || 'https://read.20140128.xyz/api/internal/book-import';
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uamaohjbrjervzsjxwyg.supabase.co';
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_bLhT1CNl-DrFn_wz6gmp6A_fJPGBY2G';
+const API_URL = process.env.SOMA_IMPORT_API || 'https://somanovel.uk/api/internal/book-import';
+import { getSupabasePublicConfig } from './lib/soma-public-config.mjs';
+
+let SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+let SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  const { url, key } = await getSupabasePublicConfig();
+  SUPABASE_URL = SUPABASE_URL || url;
+  SUPABASE_ANON_KEY = SUPABASE_ANON_KEY || key;
+}
 const CATALOG_PATH = resolve(process.env.CLASSICS_CATALOG_PATH || fileURLToPath(new URL('../classics_catalog.json', import.meta.url)));
 const PUBLISH = args.includes('--publish');
 const MAX_UPLOAD_ATTEMPTS = 5;
@@ -81,6 +88,7 @@ async function existingBooks() {
 
 function getToken() {
   if (process.env.SOMA_IMPORT_TOKEN) return process.env.SOMA_IMPORT_TOKEN;
+  if (process.env.BOOK_IMPORT_TOKEN) return process.env.BOOK_IMPORT_TOKEN;
   try { return execFileSync('security', ['find-generic-password', '-s', 'Soma Book Import Token', '-w'], { encoding: 'utf8' }).trim(); } catch { return ''; }
 }
 
@@ -171,7 +179,7 @@ console.log(`Audit written to ${auditPath}`);
 if (!PUBLISH) { console.log('Dry run complete; no books uploaded.'); process.exit(0); }
 
 const token = getToken();
-if (!token) throw new Error('No import token found. Save it in Keychain as “Soma Book Import Token” or set SOMA_IMPORT_TOKEN.');
+if (!token) throw new Error('No import token found. Save it in Keychain as “Soma Book Import Token” or set SOMA_IMPORT_TOKEN (or BOOK_IMPORT_TOKEN).');
 let importedBooks = 0;
 let importedChapters = 0;
 for (const [index, item] of prepared.entries()) {

@@ -1,9 +1,17 @@
 import type { Book, Chapter, Language } from '../types';
 import { classicFirstPublication } from '../data/classic-publication';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://uamaohjbrjervzsjxwyg.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_bLhT1CNl-DrFn_wz6gmp6A_fJPGBY2G';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const FALLBACK_COVER = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop';
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  // Surface the misconfiguration to the developer console early, but keep the
+  // catalogue loader usable in pure static contexts (the prebuilt
+  // /catalog/books.json snapshot already covers the homepage).
+  // eslint-disable-next-line no-console
+  console.warn('[Soma] VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is missing; live Supabase fallback will be skipped.');
+}
 
 type BookRow = {
   id: string;
@@ -32,7 +40,11 @@ type ChapterRow = {
 };
 
 function headers() {
-  return { apikey: SUPABASE_ANON_KEY, authorization: `Bearer ${SUPABASE_ANON_KEY}` };
+  return { apikey: SUPABASE_ANON_KEY ?? "", authorization: `Bearer ${SUPABASE_ANON_KEY ?? ""}` };
+}
+
+function canCallSupabase() {
+  return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 }
 
 function titleCase(value: string) {
@@ -57,7 +69,8 @@ async function readJson<T>(url: string): Promise<T> {
 
 async function fetchPublishedBookRows(): Promise<BookRow[]> {
   // Generated during every production build and preloaded by index.html. The
-  // direct query remains a development/failure fallback.
+  // direct query remains a development/failure fallback when Supabase is
+  // explicitly configured.
   try {
     const response = await fetch('/catalog/books.json');
     if (response.ok) return response.json() as Promise<BookRow[]>;
@@ -65,10 +78,12 @@ async function fetchPublishedBookRows(): Promise<BookRow[]> {
     // Continue with the live Supabase fallback below.
   }
 
+  if (!canCallSupabase()) return [];
   return fetchPublishedBookRowsFromSupabase();
 }
 
 async function fetchPublishedBookRowsFromSupabase(): Promise<BookRow[]> {
+  if (!canCallSupabase()) return [];
   const now = new Date().toISOString();
   const query = new URLSearchParams({
     select: 'id,parent_book_id,slug,title,author_name,description,cover_url,language_code,category,tags,total_chapters,is_featured,published_at,created_at',
@@ -84,6 +99,10 @@ export async function fetchLiveBooksFromSupabase(): Promise<Book[]> {
 }
 
 export async function refreshLiveBooksFromSupabase(): Promise<Book[]> {
+  // The deployed catalogue is a complete, build-time snapshot. Treat missing
+  // live configuration as a failed refresh so callers retain that snapshot
+  // instead of replacing a visible library with an empty array.
+  if (!canCallSupabase()) throw new Error('Supabase is not configured for live catalogue refresh.');
   return mapBookRows(await fetchPublishedBookRowsFromSupabase());
 }
 
@@ -165,6 +184,7 @@ export function selectLocalizedBooks(books: Book[], language: Language): Book[] 
 }
 
 export async function fetchBookChaptersFromSupabase(book: Book): Promise<Chapter[]> {
+  if (!canCallSupabase()) throw new Error(`Supabase is not configured; cannot load chapters for ${book.title}.`);
   if (!book.databaseId) throw new Error(`Missing database ID for ${book.title}.`);
   const now = new Date().toISOString();
   const query = new URLSearchParams({

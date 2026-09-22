@@ -389,8 +389,9 @@ export default function App() {
             onToggleBookmark={toggleBookmark}
           />
 
-          {/* Keep advertising below the first reading decision while ads load. */}
-          <GoogleAdBanner slotId="5566778899" format="auto" className="my-0" />
+          {/* Advertising placement on the homepage uses auto-ads so we don't
+              reference a slot ID that has not been approved by AdSense yet. */}
+          <GoogleAdBanner format="auto" className="my-0" />
 
           {/* Top Rankings */}
             <TopRankings

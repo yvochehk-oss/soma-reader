@@ -10,6 +10,7 @@ export function optimizedCoverUrl(source: string, width: number) {
     url.search = '';
     if (version) url.searchParams.set('v', version);
     url.searchParams.set('width', String(width));
+    url.searchParams.set('resize', 'contain');
     url.searchParams.set('quality', '76');
     return url.toString();
   } catch {

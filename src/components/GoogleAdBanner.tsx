@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { ADSENSE_PUBLISHER_ID } from '../../app/lib/adsense';
 
 const ADSENSE_CONSENT_KEY = 'soma-ads-consent';
 const ADSENSE_CONSENT_EVENT = 'soma-ads-consent-changed';
@@ -8,17 +9,25 @@ function hasAdsConsent() {
 }
 
 interface GoogleAdBannerProps {
-  slotId: string;
+  /**
+   * AdSense ad unit slot ID. When omitted, the banner runs in `auto-ads`
+   * mode: it only registers the page with the previously loaded
+   * `adsbygoogle.js` and lets AdSense pick the most appropriate placement.
+   * Use auto-ads on the homepage where there is no specific ad unit, and
+   * use a real slot ID on dedicated ad placements that the AdSense review
+   * team has approved.
+   */
+  slotId?: string;
   format?: 'auto' | 'fluid' | 'rectangle';
   className?: string;
 }
 
 export const GoogleAdBanner: React.FC<GoogleAdBannerProps> = ({
   slotId,
-  format = "auto",
-  className = "",
+  format = 'auto',
+  className = '',
 }) => {
-  const publisherId = import.meta.env.VITE_GOOGLE_ADSENSE_PUB_ID || "ca-pub-6127427193371021";
+  const publisherId = import.meta.env.VITE_GOOGLE_ADSENSE_PUB_ID || ADSENSE_PUBLISHER_ID;
 
   useEffect(() => {
     const pushAd = () => {
@@ -27,7 +36,7 @@ export const GoogleAdBanner: React.FC<GoogleAdBannerProps> = ({
         // @ts-ignore
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       } catch (e) {
-        console.warn("Google AdSense push error:", e);
+        console.warn('Google AdSense push error:', e);
       }
     };
     pushAd();
@@ -36,13 +45,13 @@ export const GoogleAdBanner: React.FC<GoogleAdBannerProps> = ({
   }, [publisherId]);
 
   return (
-    <div className={`w-full flex justify-center my-4 overflow-hidden min-h-[90px] ${className}`}>
+    <div className={`w-full flex justify-center my-4 overflow-hidden min-h-[90px] ${className}`} aria-label="Advertisement">
       <ins
         className="adsbygoogle"
         style={{ display: 'block', width: '100%' }}
-        data-ad-client={publisherId}
-        data-ad-slot={slotId}
+        {...(slotId ? { 'data-ad-slot': slotId } : {})}
         data-ad-format={format}
+        data-ad-client={publisherId}
         data-full-width-responsive="true"
       />
     </div>

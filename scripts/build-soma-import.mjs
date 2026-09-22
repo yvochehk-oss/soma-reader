@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-import { execFileSync } from "node:child_process";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { basename, extname, join, resolve } from "node:path";
 import { assertPublishableChapters, inferAuthor, inferLanguage, inferTitle, isExcludedManuscriptPath, manuscriptScore } from "./soma-manuscript-compat.mjs";
+import { assertPublicationMetadata, normalizeCategory, normalizeTags, validateStoryMetadataShape } from "./lib/soma-book-metadata.mjs";
+import { fetchJsonWithRetry, getImportToken } from "./lib/soma-release-http.mjs";
+import { validateCliOptions } from "./lib/soma-cli.mjs";
 
 function usage() {
-  console.error("Usage: node scripts/build-soma-import.mjs <book-folder> [--manuscript file] [--cover file] [--language en|sw] [--title title] [--slug existing-slug] [--out file.json] [--author name] [--category category] [--description text] [--translation-of original-slug] [--publish] [--upload]");
+  console.error("Usage: node scripts/build-soma-import.mjs <book-folder> [--manuscript file] [--cover file] [--language en|sw] [--title title] [--slug existing-slug] [--out file.json] [--author name] [--category category] [--tags tag1,tag2] [--description text] [--translation-of original-slug] [--publish|--draft] [--upload]");
   process.exit(1);
 }
 
@@ -31,7 +33,18 @@ async function walk(folder) {
 }
 
 async function optionalJson(path) {
-  try { return JSON.parse(await readFile(path, "utf8")); } catch { return {}; }
+  let source;
+  try {
+    source = await readFile(path, "utf8");
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") return {};
+    throw error;
+  }
+  try {
+    return JSON.parse(source);
+  } catch {
+    throw new Error(`${path} contains invalid JSON.`);
+  }
 }
 
 async function optionalText(path) {
@@ -62,9 +75,15 @@ function extractDetailSynopsis(markdown) {
 
 const folderArg = process.argv[2];
 if (!folderArg || folderArg.startsWith("--")) usage();
+validateCliOptions(process.argv.slice(3), {
+  valueFlags: ["--manuscript", "--cover", "--language", "--title", "--slug", "--out", "--author", "--category", "--tags", "--description", "--translation-of", "--api-url"],
+  booleanFlags: ["--publish", "--draft", "--upload"],
+});
+if (process.argv.includes("--publish") && process.argv.includes("--draft")) throw new Error("Choose only one mode: --publish or --draft.");
 
 const folder = resolve(folderArg);
 const metadata = await optionalJson(join(folder, "story_meta.json"));
+validateStoryMetadataShape(metadata, join(folder, "story_meta.json"));
 const files = await walk(folder);
 const explicitManuscript = option("--manuscript", "");
 let manuscriptPath = explicitManuscript ? resolve(folder, explicitManuscript) : null;
@@ -91,10 +110,11 @@ if (language !== "en" && language !== "sw") throw new Error("Language must be en
 const explicitCover = option("--cover", "");
 const coverPath = explicitCover ? resolve(folder, explicitCover) : files.map((path) => ({ path, score: coverScore(path, language) })).filter((item) => item.score > -Infinity).sort((left, right) => right.score - left.score || left.path.localeCompare(right.path))[0]?.path;
 const coverBytes = coverPath ? await readFile(coverPath) : null;
-const title = String(option("--title", "") || metadata.title || inferTitle(markdown, basename(manuscriptPath)) || basename(folder).replace(/_斯瓦希里语版$/, "")).trim();
+const title = String(option("--title", "") || (language === "en" ? (metadata.title_en || metadata.titleEn) : (metadata.title_sw || metadata.titleSw)) || metadata.title || inferTitle(markdown, basename(manuscriptPath)) || basename(folder).replace(/_斯瓦希里语版$/, "")).trim();
 const synopsisPath = join(folder, "book_synopsis.md");
 const synopsis = await optionalText(synopsisPath).then(extractDetailSynopsis);
-const description = option("--description", synopsis || String(metadata.description ?? "").trim()).trim();
+const metaDescription = language === "en" ? (metadata.description_en || metadata.descriptionEn) : (metadata.description_sw || metadata.descriptionSw);
+const description = option("--description", metaDescription || (language === "sw" ? synopsis : "") || String(metadata.description ?? "").trim()).trim();
 const status = process.argv.includes("--publish") ? "published" : "draft";
 const chapters = assertPublishableChapters(markdown, manuscriptPath).map((chapter) => ({ ...chapter, status }));
 if (process.argv.includes("--publish") && !description) {
@@ -105,13 +125,16 @@ if (process.argv.includes("--publish") && !coverBytes) throw new Error(`“${tit
 const extension = coverPath ? extname(coverPath).toLowerCase() : "";
 const mime = extension === ".png" ? "image/png" : extension === ".webp" ? "image/webp" : "image/jpeg";
 const coverDataUrl = coverBytes ? `data:${mime};base64,${coverBytes.toString("base64")}` : undefined;
+const category = normalizeCategory(option("--category", metadata.category ?? "")) || "Other";
+const tags = normalizeTags(option("--tags", metadata.tags ?? []));
 const payload = {
   books: [{
     slug: option("--slug", "") || slugify(title) + (language === "sw" ? "-sw" : ""),
     title,
     author: option("--author", String(metadata.author ?? "").trim() || inferAuthor(markdown) || "Soma Originals"),
     language,
-    category: option("--category", "thriller"),
+    category,
+    tags,
     description,
     status,
     translationOfSlug: option("--translation-of", String(metadata.translation_of_slug ?? metadata.translationOfSlug ?? "")) || undefined,
@@ -120,16 +143,24 @@ const payload = {
   }],
 };
 
+if (status === "published") {
+  const normalized = assertPublicationMetadata(payload.books[0], `“${title}”`);
+  payload.books[0].category = normalized.category;
+  payload.books[0].tags = normalized.tags;
+}
+
 const output = resolve(option("--out", join(folder, "soma-import.json")));
 await writeFile(output, `${JSON.stringify(payload, null, 2)}\n`);
 console.log(`Created ${output} (${language.toUpperCase()}, ${chapters.length} chapters, ${coverBytes ? "cover included" : "draft without cover"}).`);
 
 if (process.argv.includes("--upload")) {
-  const apiUrl = option("--api-url", "https://read.20140128.xyz/api/internal/book-import");
-  const token = process.env.SOMA_IMPORT_TOKEN || execFileSync("security", ["find-generic-password", "-s", "Soma Book Import Token", "-w"], { encoding: "utf8" }).trim();
-  if (!token) throw new Error("No import token found. Set SOMA_IMPORT_TOKEN or save it in Keychain as 'Soma Book Import Token'.");
-  const response = await fetch(apiUrl, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
-  const result = await response.json().catch(() => ({}));
+  if (!process.argv.includes("--publish") && !process.argv.includes("--draft")) {
+    throw new Error("Direct upload requires an explicit --publish or --draft mode.");
+  }
+  const apiUrl = option("--api-url", "https://somanovel.uk/api/internal/book-import");
+  const token = getImportToken();
+  if (!token) throw new Error("No import token found. Set SOMA_IMPORT_TOKEN (or BOOK_IMPORT_TOKEN) or save it in Keychain as 'Soma Book Import Token'.");
+  const { response, result } = await fetchJsonWithRetry(apiUrl, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }, { label: `Upload ${title}` });
   if (!response.ok) throw new Error(`Upload failed (${response.status}): ${result.error ?? "Unknown error"}`);
   console.log(`Uploaded ${result.importedBooks} book(s) and ${result.importedChapters} chapter(s).`);
 }

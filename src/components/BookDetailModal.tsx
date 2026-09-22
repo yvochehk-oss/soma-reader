@@ -122,7 +122,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
               decoding="async"
               width="240"
               height="360"
-              className="w-24 sm:w-32 aspect-[2/3] object-cover rounded-xl shadow-2xl border-2 border-white shrink-0"
+              className="w-24 sm:w-32 aspect-[3/4] object-cover object-top rounded-xl shadow-2xl border-2 border-white shrink-0"
             />
             <div className="text-white min-w-0 flex-1 drop-shadow-md">
               <span className="bg-[#ed7248] text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider mb-1 inline-block">

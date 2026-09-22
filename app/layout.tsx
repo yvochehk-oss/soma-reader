@@ -4,6 +4,7 @@ import { PwaRegister } from "@/app/components/pwa-register";
 import { LanguageProvider } from "@/app/components/language-provider";
 import { CookieConsent } from "@/app/components/cookie-consent";
 import { SITE_URL } from "@/app/lib/site-config";
+import { ADSENSE_PUBLISHER_ID } from "@/app/lib/adsense";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -11,12 +12,23 @@ export const metadata: Metadata = {
   description: "A simple home for stories from Kenya, in English and Kiswahili.",
   applicationName: "Soma",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Soma" },
+  other: {
+    "google-adsense-account": ADSENSE_PUBLISHER_ID,
+    "google-adsense-platform-account": ADSENSE_PUBLISHER_ID,
+    "google-adsense-platform-domain": "somanovel.uk",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <head>
+        <meta name="google-adsense-account" content={ADSENSE_PUBLISHER_ID} />
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUBLISHER_ID}`}
+          crossOrigin="anonymous"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;800;900&family=Georgia:wght@400;700&display=swap" rel="stylesheet" />

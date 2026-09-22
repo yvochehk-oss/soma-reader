@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, X } from 'lucide-react';
+import { ArrowRight, Search, Sparkles, X } from 'lucide-react';
 import { Book, Language } from '../types';
 import { PopularGrid } from './PopularGrid';
 
@@ -71,6 +71,53 @@ export const ClassicLibrary: React.FC<ClassicLibraryProps> = ({ books, language,
 
   return (
     <section className="flex flex-col gap-7 animate-in fade-in duration-300">
+      <div className="order-first rounded-3xl border-2 border-[#a43d17]/25 bg-white p-4 shadow-[0_14px_36px_rgba(164,61,23,0.12)] sm:p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fff0eb] text-[#a43d17]">
+            <Search className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <label htmlFor="classic-library-search" className="text-base font-black text-[#0a1f1d]">
+            {language === 'sw' ? 'Tafuta Klasiki za Kiingereza' : 'Find an English Classic'}
+          </label>
+        </div>
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#a43d17]" aria-hidden="true" />
+          <input
+            id="classic-library-search"
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') setSearchQuery('');
+            }}
+            placeholder={language === 'sw'
+              ? 'Kichwa, mwandishi, aina au lebo…'
+              : 'Title, author, genre, or tag…'}
+            aria-describedby="classic-search-status"
+            className="h-14 w-full rounded-2xl border-2 border-[#dec0b7]/50 bg-[#fffdf9] pl-12 pr-12 text-base font-semibold text-[#0a1f1d] outline-none transition focus:border-[#a43d17] focus:ring-4 focus:ring-[#ed7248]/15"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              aria-label={language === 'sw' ? 'Futa utafutaji' : 'Clear search'}
+              className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-[#6E7E7A] transition hover:bg-[#e1f8f5] hover:text-[#a43d17]"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
+        <p id="classic-search-status" role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#657571]">
+          {normalizedQuery
+            ? language === 'sw'
+              ? `Matokeo ${visibleBooks.length}`
+              : `${visibleBooks.length} ${visibleBooks.length === 1 ? 'result' : 'results'}`
+            : language === 'sw'
+              ? `Tafuta miongoni mwa vitabu ${visibleBooks.length} vya klasiki`
+              : `Search across ${visibleBooks.length} English classics`}
+        </p>
+      </div>
+
       <div className="rounded-3xl border border-[#dec0b7]/35 bg-[#e7fefa]/70 px-6 py-7 sm:px-10 sm:py-9">
         <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#a43d17]">
           {language === 'sw' ? 'Kiingereza pekee' : 'English only'}
@@ -95,8 +142,33 @@ export const ClassicLibrary: React.FC<ClassicLibraryProps> = ({ books, language,
         </p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <figure className="overflow-hidden rounded-3xl border border-[#dec0b7]/35 bg-white/75 shadow-sm">
+      <section className="rounded-[2rem] border-2 border-[#a43d17]/30 bg-gradient-to-br from-[#fff7f2] via-white to-[#e7fefa] p-4 shadow-[0_16px_42px_rgba(164,61,23,0.12)] sm:p-6">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[#a43d17]">
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              {language === 'sw' ? 'Usomaji ulioboreshwa kwa simu' : 'Designed for phone reading'}
+            </p>
+            <h2 className="mt-2 text-2xl font-black leading-tight text-[#0a1f1d] sm:text-3xl">
+              {language === 'sw' ? 'Ona tofauti kwa sekunde chache' : 'See the difference in seconds'}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#50615e] sm:text-base">
+              {language === 'sw'
+                ? 'Toleo la Soma huweka matukio muhimu, mazungumzo na mawazo katika nafasi inayopumua vizuri kwenye skrini ndogo.'
+                : 'Soma gives key moments, dialogue, and inner thoughts room to breathe on a small screen.'}
+            </p>
+          </div>
+          <a
+            href="/classics/reader-preview.html"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-[#a43d17] px-5 py-3 text-sm font-extrabold text-white shadow-md transition hover:bg-[#7f2e10]"
+          >
+            {language === 'sw' ? 'Fungua mfano kamili' : 'Open full demo'}
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </a>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-2">
+        <figure className="overflow-hidden rounded-3xl border-2 border-[#a43d17]/30 bg-white shadow-md">
           <img
             src="/classics/reader-comparison-tale-of-two-cities.webp"
             alt={language === 'sw' ? 'Kitabu cha asili na toleo la Soma la A Tale of Two Cities' : 'Original book and Soma edition comparison for A Tale of Two Cities'}
@@ -107,9 +179,9 @@ export const ClassicLibrary: React.FC<ClassicLibraryProps> = ({ books, language,
             className="aspect-video w-full object-cover"
           />
           <figcaption className="px-5 py-4">
-            <h2 className="font-extrabold text-base text-[#0a1f1d]">
+            <h3 className="font-extrabold text-base text-[#0a1f1d]">
               {language === 'sw' ? 'A Tale of Two Cities · Asili dhidi ya Soma' : 'A Tale of Two Cities · Original vs Soma'}
-            </h2>
+            </h3>
             <p className="mt-1 text-sm leading-relaxed text-[#657571]">
               {language === 'sw'
                 ? 'Skrini mbili ziko pamoja ili tofauti ya aya ndefu na aya fupi ionekane mara moja.'
@@ -118,7 +190,7 @@ export const ClassicLibrary: React.FC<ClassicLibraryProps> = ({ books, language,
           </figcaption>
         </figure>
 
-        <figure className="overflow-hidden rounded-3xl border border-[#b8dcd5] bg-[#f5fffc] shadow-sm">
+        <figure className="overflow-hidden rounded-3xl border-2 border-[#b8dcd5] bg-[#f5fffc] shadow-md">
           <img
             src="/classics/reader-comparison-war-of-the-worlds.webp"
             alt={language === 'sw' ? 'Kitabu cha asili na toleo la Soma la The War of the Worlds' : 'Original book and Soma edition comparison for The War of the Worlds'}
@@ -129,9 +201,9 @@ export const ClassicLibrary: React.FC<ClassicLibraryProps> = ({ books, language,
             className="aspect-video w-full object-cover"
           />
           <figcaption className="px-5 py-4">
-            <h2 className="font-extrabold text-base text-[#0a1f1d]">
+            <h3 className="font-extrabold text-base text-[#0a1f1d]">
               {language === 'sw' ? 'The War of the Worlds · Asili dhidi ya Soma' : 'The War of the Worlds · Original vs Soma'}
-            </h2>
+            </h3>
             <p className="mt-1 text-sm leading-relaxed text-[#657571]">
               {language === 'sw'
                 ? 'Mfano wa pili unaonyesha jinsi maelezo mazito yanavyoweza kubadilishwa kuwa usomaji mwepesi wa simu.'
@@ -139,49 +211,8 @@ export const ClassicLibrary: React.FC<ClassicLibraryProps> = ({ books, language,
             </p>
           </figcaption>
         </figure>
-      </div>
-
-      <div className="rounded-3xl border border-[#dec0b7]/35 bg-white/75 p-4 sm:p-5 shadow-sm">
-        <label htmlFor="classic-library-search" className="mb-2 block text-sm font-extrabold text-[#0a1f1d]">
-          {language === 'sw' ? 'Tafuta katika Klasiki za Kiingereza' : 'Search English Classics'}
-        </label>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6E7E7A]" aria-hidden="true" />
-          <input
-            id="classic-library-search"
-            type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') setSearchQuery('');
-            }}
-            placeholder={language === 'sw'
-              ? 'Tafuta kwa kichwa, mwandishi, aina au lebo…'
-              : 'Search by title, author, genre, or tag…'}
-            aria-describedby="classic-search-status"
-            className="h-12 w-full rounded-2xl border border-[#dec0b7]/45 bg-[#f8f7f2] pl-12 pr-12 text-base font-medium text-[#0a1f1d] outline-none transition focus:border-[#a43d17] focus:ring-4 focus:ring-[#ed7248]/10"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              aria-label={language === 'sw' ? 'Futa utafutaji' : 'Clear search'}
-              className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[#6E7E7A] transition hover:bg-[#e1f8f5] hover:text-[#a43d17]"
-            >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
-          )}
         </div>
-        <p id="classic-search-status" role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#6E7E7A]">
-          {normalizedQuery
-            ? language === 'sw'
-              ? `Matokeo ${visibleBooks.length}`
-              : `${visibleBooks.length} ${visibleBooks.length === 1 ? 'result' : 'results'}`
-            : language === 'sw'
-              ? `${visibleBooks.length} vitabu vya klasiki`
-              : `${visibleBooks.length} ${visibleBooks.length === 1 ? 'classic' : 'classics'}`}
-        </p>
-      </div>
+      </section>
 
       <PopularGrid
         books={visibleBooks.slice(0, visibleCount)}

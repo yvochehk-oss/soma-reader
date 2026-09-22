@@ -1,0 +1,4 @@
+interface:
+  display_name: "Soma 书籍安全发布"
+  short_description: "校验、上传、SEO、Cloudflare 部署与线上复核"
+  default_prompt: "使用 $publish-soma-books 安全发布一批 Soma 书籍，并输出发布审计报告。"

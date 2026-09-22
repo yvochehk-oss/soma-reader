@@ -38,14 +38,26 @@ await Promise.all([
 // leaving Next.js pages and APIs on the OpenNext handler.
 const workerSource = await readFile(workerPath, "utf8");
 const routeAnchor = "            const url = new URL(request.url);\n";
-const assetRouting = `${routeAnchor}            const viteAssetRequest =\n                url.pathname === "/" ||\n                url.pathname === "/index.html" ||\n                url.pathname.startsWith("/assets/") ||\n                url.pathname.startsWith("/books/") ||\n                url.pathname.startsWith("/catalog/") ||\n                url.pathname.startsWith("/classics/") ||\n                url.pathname.startsWith("/covers/") ||\n                ["/ads.txt", "/icon.svg", "/llms.txt", "/robots.txt", "/sitemap.xml", "/sw.js"].includes(url.pathname);\n            if (viteAssetRequest) {\n                return env.ASSETS.fetch(request);\n            }\n`;
-const alreadyPatched = workerSource.includes("            const viteAssetRequest =\n");
+const assetRouting = `${routeAnchor}            const viteAssetRequest =
+                url.pathname === "/" ||
+                url.pathname === "/index.html" ||
+                url.pathname.startsWith("/assets/") ||
+                url.pathname.startsWith("/books/") ||
+                url.pathname.startsWith("/catalog/") ||
+                url.pathname.startsWith("/classics/") ||
+                url.pathname.startsWith("/covers/") ||
+                ["/ads.txt", "/feed.xml", "/icon.svg", "/llms-full.txt", "/llms.txt", "/robots.txt", "/sitemap.xml", "/sw.js", "/BingSiteAuth.xml", "/543bfd3d2c6d4bdfeb40e179dd025ec4.txt"].includes(url.pathname);
+            if (viteAssetRequest) {
+                return env.ASSETS.fetch(request);
+            }
+`;
+const assetRoutingPattern = / {12}const url = new URL\(request\.url\);[\s\S]*?if \(viteAssetRequest\) \{\n {16}return env\.ASSETS\.fetch\(request\);\n {12}\}\n/;
 
-if (!alreadyPatched && !workerSource.includes(routeAnchor)) {
-  throw new Error("Could not find the OpenNext URL-routing anchor; refusing to publish an unpatched reader shell.");
-}
-
-if (!alreadyPatched) {
+if (assetRoutingPattern.test(workerSource)) {
+  await writeFile(workerPath, workerSource.replace(assetRoutingPattern, assetRouting), "utf8");
+} else if (workerSource.includes(routeAnchor)) {
   await writeFile(workerPath, workerSource.replace(routeAnchor, assetRouting), "utf8");
+} else {
+  throw new Error("Could not find the OpenNext URL-routing anchor; refusing to publish an unpatched reader shell.");
 }
 console.log(`Merged browser-safe Vite assets from ${source} into ${target}.`);

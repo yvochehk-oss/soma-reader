@@ -7,11 +7,11 @@ import { fileURLToPath } from 'node:url';
 
 const rootArg = process.argv.slice(2).find((value) => !value.startsWith('--'));
 const ROOT = resolve(rootArg || '/Users/yvoche/AI开发/000.非洲最终正文/0.2英文经典手机版');
-const API_URL = process.env.SOMA_COVERS_API || 'https://read.20140128.xyz/api/internal/book-covers';
+const API_URL = process.env.SOMA_COVERS_API || 'https://somanovel.uk/api/internal/book-covers';
 const CATALOG_PATH = fileURLToPath(new URL('../classics_catalog.json', import.meta.url));
 
 function slugify(value) { return value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
-function getToken() { if (process.env.SOMA_IMPORT_TOKEN) return process.env.SOMA_IMPORT_TOKEN; try { return execFileSync('security', ['find-generic-password', '-s', 'Soma Book Import Token', '-w'], { encoding: 'utf8' }).trim(); } catch { return ''; } }
+function getToken() { if (process.env.SOMA_IMPORT_TOKEN) return process.env.SOMA_IMPORT_TOKEN; if (process.env.BOOK_IMPORT_TOKEN) return process.env.BOOK_IMPORT_TOKEN; try { return execFileSync('security', ['find-generic-password', '-s', 'Soma Book Import Token', '-w'], { encoding: 'utf8' }).trim(); } catch { return ''; } }
 async function readJson(path) { return JSON.parse(await readFile(path, 'utf8')); }
 async function findCover(folder, preferred) {
   const names = await readdir(folder);

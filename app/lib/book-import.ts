@@ -6,6 +6,7 @@ const MAX_BOOKS = 20;
 // request size for the internal importer.
 const MAX_CHAPTERS_PER_BOOK = 800;
 const MAX_CHAPTERS = 1000;
+const SOMA_CATEGORIES = new Set(["Romance", "Thriller", "Sci-Fi", "Historical", "Fantasy", "Contemporary", "Urban Fantasy"]);
 
 type ChapterInput = { number?: unknown; title?: unknown; content?: unknown; status?: unknown; isFree?: unknown };
 export type ClassicIntegrityInput = {
@@ -138,14 +139,25 @@ function normalizeBook(input: BookInput, index: number, options: { chaptersOnly?
     if (!Number.isInteger(number) || number < 1 || chapterNumbers.has(number) || !chapterTitle || !content) return { error: `Book ${index + 1} has a chapter with a missing title/content or duplicate number.` };
     chapterNumbers.add(number); normalizedChapters.push({ number, title: chapterTitle, content, status: chapter.status === "published" ? "published" : "draft", isFree: chapter.isFree !== false });
   }
-  const tags = Array.isArray(input.tags) ? input.tags.filter((tag): tag is string => typeof tag === "string").map((tag) => tag.trim()).filter(Boolean) : [];
+  const normalizedTags = Array.isArray(input.tags)
+    ? input.tags.filter((tag): tag is string => typeof tag === "string").map((tag) => tag.trim().replace(/\s+/g, " ")).filter(Boolean)
+    : [];
+  const uniqueTags = new Map<string, string>();
+  for (const tag of normalizedTags) if (!uniqueTags.has(tag.toLowerCase())) uniqueTags.set(tag.toLowerCase(), tag);
+  const tags = [...uniqueTags.values()];
+  const category = text(input.category) || "Other";
+  if (!options.chaptersOnly && status === "published" && !SOMA_CATEGORIES.has(category)) {
+    return { error: `Published book ${index + 1} needs a canonical category.` };
+  }
+  if (!options.chaptersOnly && status === "published" && !tags.length) return { error: `Published book ${index + 1} needs at least one tag.` };
+  if (tags.length > 12 || tags.some((tag) => tag.length > 40)) return { error: `Book ${index + 1} has too many tags or a tag longer than 40 characters.` };
   if (!options.deferClassicIntegrity) {
     const integrityError = validateClassicIntegrity({ title, tags, chapters: normalizedChapters, integrity: input.integrity });
     if (integrityError) return { error: `Book ${index + 1} (${title}) ${integrityError}` };
   }
   const translationOfSlug = slugify(text(input.translationOfSlug));
   if (translationOfSlug === slug) return { error: `Book ${index + 1} cannot be a translation of itself.` };
-  return { slug, title, author, language, category: text(input.category) || "other", description: text(input.description), coverUrl, coverDataUrl, tags, status, featured: input.featured === true, translationOfSlug: translationOfSlug || null, chapters: normalizedChapters };
+  return { slug, title, author, language, category, description: text(input.description), coverUrl, coverDataUrl, tags, status, featured: input.featured === true, translationOfSlug: translationOfSlug || null, chapters: normalizedChapters };
 }
 
 type ExistingBookForChapterUpdate = {
@@ -200,7 +212,7 @@ export async function importBooks(supabase: SupabaseClient, payload: { books?: B
   if (new Set(books.map((book) => book.slug)).size !== books.length) throw new Error("Each book needs a unique slug.");
   if (books.reduce((total, book) => total + book.chapters.length, 0) > MAX_CHAPTERS) throw new Error(`A batch can contain at most ${MAX_CHAPTERS} chapters.`);
   if (chaptersOnly) return importChaptersOnly(supabase, books, payload.books);
-  const now = new Date().toISOString(); const coversBySlug = new Map<string, string>();
+  const now = new Date().toISOString(); const coverVersion = Date.now(); const coversBySlug = new Map<string, string>();
   const translatedSlugs = [...new Set(books.map((book) => book.translationOfSlug).filter((slug): slug is string => Boolean(slug)))];
   const externalParentSlugs = translatedSlugs.filter((slug) => !books.some((book) => book.slug === slug));
   const { data: existingParents, error: parentError } = externalParentSlugs.length ? await supabase.from("books").select("id,slug,language_code").in("slug", externalParentSlugs) : { data: [], error: null };
@@ -219,7 +231,7 @@ export async function importBooks(supabase: SupabaseClient, payload: { books?: B
     const path = `imports/${book.slug}/cover.${extension}`;
     const { error } = await supabase.storage.from("covers").upload(path, cover.bytes, { upsert: true, contentType: cover.contentType, cacheControl: "31536000" });
     if (error) throw new Error(`Could not upload cover for ${book.title}: ${error.message}`);
-    const { data } = supabase.storage.from("covers").getPublicUrl(path); coversBySlug.set(book.slug, data.publicUrl);
+    const { data } = supabase.storage.from("covers").getPublicUrl(path); coversBySlug.set(book.slug, `${data.publicUrl}?v=${coverVersion}`);
   }
   // Stage every imported book as a draft so an interrupted multi-request import never exposes
   // a book with only some of its new chapters.

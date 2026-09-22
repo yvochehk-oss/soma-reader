@@ -1,2 +1,1 @@
-# Google AdSense ads.txt verification file for Soma Reader
-google.com, pub-6127427193371021, DIRECT, f08c47fec0942fa0
+google.com, pub-3097294735250340, DIRECT, f08c47fec0942fa0

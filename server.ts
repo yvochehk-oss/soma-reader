@@ -1,3 +1,14 @@
+/**
+ * Local development server for the Soma Novel Vite SPA.
+ *
+ * This file is NOT used by the Cloudflare Workers production deployment, which
+ * runs the OpenNext build of the `/admin` Next.js app and serves the Vite
+ * assets as static files. The Gemini story-assistant endpoint defined here is
+ * therefore only available when running `npm run dev` or `npm start` against
+ * `http://localhost:3000`. Calls to `/api/gemini/story-assistant` from the
+ * deployed site will currently return 404 — that is intentional for now.
+ */
+
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
@@ -122,4 +133,7 @@ ${prompt}
   });
 }
 
-startServer();
+startServer().catch((error) => {
+  console.error("[Soma Server] Failed to start:", error);
+  process.exit(1);
+});

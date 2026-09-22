@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ADSENSE_AUTO_ADS_SCRIPT_URL } from '../../app/lib/adsense';
 
 const CONSENT_KEY = 'soma-ads-consent';
 const CONSENT_EVENT = 'soma-ads-consent-changed';
@@ -7,7 +8,7 @@ function loadAdsenseScript() {
   if (document.querySelector('script[data-soma-adsense]')) return;
   const script = document.createElement('script');
   script.async = true;
-  script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6127427193371021';
+  script.src = ADSENSE_AUTO_ADS_SCRIPT_URL;
   script.crossOrigin = 'anonymous';
   script.setAttribute('data-soma-adsense', 'true');
   document.head.appendChild(script);

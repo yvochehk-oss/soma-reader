@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { ADSENSE_CONSENT_EVENT, ADSENSE_CONSENT_KEY } from "@/app/components/cookie-consent";
+import { ADSENSE_PUBLISHER_ID } from "@/app/lib/adsense";
 
-const PUBLISHER_ID = "ca-pub-6127427193371021";
 const AD_SLOT_ID = "1159270041";
 
 declare global {
@@ -41,9 +41,9 @@ export function GoogleAdSenseUnit() {
         className="adsbygoogle"
         style={{ display: "block" }}
         data-ad-format="fluid"
-        data-ad-layout-key="-gc+t-2a-dp+xg"
-        data-ad-client={PUBLISHER_ID}
+        data-ad-client={ADSENSE_PUBLISHER_ID}
         data-ad-slot={AD_SLOT_ID}
+        data-full-width-responsive="true"
       />
     </div>
   );
