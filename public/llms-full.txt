@@ -1,7 +1,7 @@
 # Soma Novel — Full Directory
 
 > Machine-readable companion to /llms.txt. Generated from the published
-> catalogue on 2026-09-22. Contains 217 titles and
+> catalogue on 2026-09-22. Contains 224 titles and
 > 1000 chapters.
 
 ## About Soma Novel / Kuhusu Soma Novel
@@ -34,23 +34,194 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 
 ## Books / Vitabu
 
-### Bi Harusi Aliyekataliwa na Tajiri: Kuinuka kwa Malkia wa Jua
-
-- Authors: Nia Kendi
-- Language: Kiswahili
-- Category: romance
-- Chapters: 5
-- URL: https://somanovel.uk/books/bi-harusi-aliyekataliwa-na-tajiri-sw/
-- Synopsis: Kwa miaka mitatu, Amani aliishi kama mke wa kimya wa tajiri Hawthorne Vance. Baada ya kupona korongoni, anarudi Nairobi kumlipa kisasi na kudai haki yake.
-
 ### The Billionaire's Rejected Bride: Rise of the Sun Queen
 
 - Authors: Nia Kendi
 - Language: English
 - Category: romance
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-billionaires-rejected-bride/
 - Synopsis: For three years, Amani lived as the quiet wife of tycoon Hawthorne Vance. Surviving a fall into Ol Njorowa chasm, she returns to Nairobi to expose fraud and reclaim her empire.
+
+### Bi Harusi Aliyekataliwa na Tajiri: Kuinuka kwa Malkia wa Jua
+
+- Authors: Nia Kendi
+- Language: Kiswahili
+- Category: romance
+- Chapters: 4
+- URL: https://somanovel.uk/books/bi-harusi-aliyekataliwa-na-tajiri-sw/
+- Synopsis: Kwa miaka mitatu, Amani aliishi kama mke wa kimya wa tajiri Hawthorne Vance. Baada ya kupona korongoni, anarudi Nairobi kumlipa kisasi na kudai haki yake.
+
+### The Ward Door Was Silent
+
+- Authors: Imani Zawadi
+- Language: English
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/the-ward-door-was-silent/
+- Synopsis: A gripping commercial novel 'The Ward Door Was Silent (Mlango wa Wodi Ulikuwa Kimya - Locked English Final v2.3.9)' by Imani Zawadi.
+
+### Bail That Turned Into Debt
+
+- Authors: Malaika Mtoni
+- Language: English
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/bail-that-turned-into-debt/
+- Synopsis: A gripping commercial novel 'Bail That Turned Into Debt' by Malaika Mtoni.
+
+### Tomorrow the Bank Will Know
+
+- Authors: Omari Kivuli
+- Language: English
+- Category: Thriller
+- Chapters: 4
+- URL: https://somanovel.uk/books/tomorrow-the-bank-will-know/
+- Synopsis: A gripping commercial novel 'Tomorrow the Bank Will Know' by Omari Kivuli.
+
+### The Transfer Letter
+
+- Authors: Idris Mwangaza
+- Language: English
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/the-transfer-letter/
+- Synopsis: A gripping commercial novel 'The Transfer Letter' by Idris Mwangaza.
+
+### The Debt That Was Not Mine
+
+- Authors: Soma Originals
+- Language: English
+- Category: Thriller
+- Chapters: 4
+- URL: https://somanovel.uk/books/the-debt-that-was-not-mine/
+- Synopsis: A gripping commercial novel 'The Debt That Was Not Mine' by Soma Originals.
+
+### The Family Commission
+
+- Authors: Taji Amani
+- Language: English
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/the-family-commission/
+- Synopsis: A gripping commercial novel 'The Family Commission' by Taji Amani.
+
+### The Daughter Who Was a Niece
+
+- Authors: Kito Bahari
+- Language: English
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/the-daughter-who-was-a-niece/
+- Synopsis: A gripping commercial novel 'The Daughter Who Was a Niece' by Kito Bahari.
+
+### Simu Isiyokuwa Mkononi
+
+- Authors: Baraka Nuru
+- Language: Kiswahili
+- Category: Contemporary
+- Chapters: 5
+- URL: https://somanovel.uk/books/simu-isiyokuwa-mkononi-sw/
+- Synopsis: Asha Kweka yuko saa ishirini na nne tu kabla ya kuanza clinical placement yake ya mwisho anapopewa barua ya kufukuzwa. Ushahidi mkuu ni simu iliyosajiliwa kwa jina lake na connection ya wearable cheating device. Asha hakuwa ukumbini. Simu haikuwa mkononi mwake. Mtu pekee anayeweza kuthibitisha hilo ni Mariam, roommate na rafiki aliyemsaidia kulipa ada wiki chache zilizopita. Mariam anakataa jina lake litajwe. Asha lazima achague kati ya kulinda urafiki uliojengwa juu ya misaada na ukimya, au kulinda jina lake, taaluma yake na ukweli.
+
+### The Call Out of Reach
+
+- Authors: Baraka Nuru
+- Language: English
+- Category: Contemporary
+- Chapters: 4
+- URL: https://somanovel.uk/books/the-call-out-of-reach/
+- Synopsis: A gripping commercial novel 'The Call Out of Reach' by Baraka Nuru.
+
+### Mizigo Kabla Ya Harusi
+
+- Authors: Neema Mwangaza
+- Language: Kiswahili
+- Category: Contemporary
+- Chapters: 4
+- URL: https://somanovel.uk/books/mizigo-kabla-ya-harusi-sw/
+- Synopsis: Zawadi aliacha salon aliyojenga kwa miaka kwa sababu Kelvin alimwambia, “Miezi michache tu hadi harusi; mimi nitakubeba.” Alipofika ghala kuchukua sanduku la vifaa vya kazi, anagundua Kelvin alipanga mizigo yake kuondolewa kabla hajamwambia kuwa ndoa imekufa. Badala ya kuomba arudishwe nyumbani, Zawadi anaamua kujua tarehe halisi ambayo Kelvin aliacha kuwa mchumba—na tarehe ambayo yeye mwenyewe aliacha kujilinda.
+
+### Luggage Before the Wedding
+
+- Authors: Neema Mwangaza
+- Language: English
+- Category: Contemporary
+- Chapters: 4
+- URL: https://somanovel.uk/books/luggage-before-the-wedding/
+- Synopsis: A gripping commercial novel 'Luggage Before the Wedding' by Neema Mwangaza.
+
+### The Secret Agreement
+
+- Authors: Layla Pendo
+- Language: English
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/the-secret-agreement/
+- Synopsis: A gripping commercial novel 'The Secret Agreement' by Layla Pendo.
+
+### Nyumba Ya Hesabu
+
+- Authors: Imani Zawadi
+- Language: Kiswahili
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/nyumba-ya-hesabu-sw/
+- Synopsis: Amina Sefu is summoned to a closed room at work and handed a suspension notice based on a complaint signed by her mother and younger brother. They claim she stole money left by their late father. Amina has spent years building her reputation by checking other people’s accounts, so the accusation threatens both her salary and her identity. When a records clerk gives her the complete attachment, she discovers that the complaint omitted the page naming the money as a reserve for a family water project and requiring two-person approval. To clear her name, Amina must cross the boundary between workplace evidence and family loyalty: trace the money, inspect the land, learn why her mother signed, and force her brother to admit what he borrowed. Her final choice is not simply whether to expose them, but whether the father’s land will remain a weapon controlled by one person or become a transparent promise shared by all.
+
+### The Accounting House
+
+- Authors: Imani Zawadi
+- Language: English
+- Category: Thriller
+- Chapters: 4
+- URL: https://somanovel.uk/books/the-accounting-house/
+- Synopsis: A gripping commercial novel 'The Accounting House' by Imani Zawadi.
+
+### Mlango Wa Nyumba
+
+- Authors: Rashid Pwani
+- Language: Kiswahili
+- Category: Thriller
+- Chapters: 4
+- URL: https://somanovel.uk/books/mlango-wa-nyumba-sw/
+- Synopsis: Neema amekuwa akituma pesa za rehani, matibabu na matengenezo kwa nyumba ya Mama Asha kwa miaka kumi. Siku moja baada ya mazishi, anarudi Mtoni na kukuta kufuli jipya. Mosi, baba wa kambo aliyemwita baba tangu utotoni, anamwambia kwamba nyumba si yake na imebaki kwa Mosi na Kato pekee. Neema anapoanza kutafuta mahali pa kulala, anagundua kuwa simu ya mama imehifadhi picha za risiti ambazo Mosi hakujua zipo. Kato anajua jambo baya zaidi: alikuwepo wakati hati ya uhamisho ilisomwa, na mama hakuonekana kuelewa kila neno. Neema lazima athibitishe mchango wake bila kubadilisha huzuni kuwa vita ya kumfukuza mtu mwingine. Kila hatua inamrudisha kwenye swali moja: nyumba ya mama ilipaswa kumlinda nani, na ni nani aliyekuwa akitumia mlango huo kumiliki watu?
+
+### The House Door
+
+- Authors: Rashid Pwani
+- Language: English
+- Category: Thriller
+- Chapters: 4
+- URL: https://somanovel.uk/books/the-house-door/
+- Synopsis: A gripping commercial novel 'The House Door' by Rashid Pwani.
+
+### The Name Erased at School
+
+- Authors: Rehema Kisiwa
+- Language: English
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/the-name-erased-at-school/
+- Synopsis: A gripping commercial novel 'The Name Erased at School' by Rehema Kisiwa.
+
+### Returning Is Not Arriving
+
+- Authors: Amara Nuru
+- Language: English
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/returning-is-not-arriving/
+- Synopsis: A gripping commercial novel 'Returning Is Not Arriving' by Amara Nuru.
+
+### Secret Wealth
+
+- Authors: Idris Mwangaza
+- Language: English
+- Category: Thriller
+- Chapters: 4
+- URL: https://somanovel.uk/books/secret-wealth/
+- Synopsis: A gripping commercial novel 'Secret Wealth' by Idris Mwangaza.
 
 ### Dhamana Iliyogeuka Deni
 
@@ -61,15 +232,6 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/dhamana-iliyogeuka-deni-sw/
 - Synopsis: Simulizi ya kusisimua ya Dhamana Iliyogeuka Deni iliyoandikwa na Malaika Mtoni.
 
-### Dhamana Iliyogeuka Deni
-
-- Authors: Malaika Mtoni
-- Language: English
-- Category: Thriller
-- Chapters: 4
-- URL: https://somanovel.uk/books/dhamana-iliyogeuka-deni/
-- Synopsis: A gripping commercial novel 'Dhamana Iliyogeuka Deni' by Malaika Mtoni.
-
 ### Kesho Benki Itajua
 
 - Authors: Omari Kivuli
@@ -78,15 +240,6 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Chapters: 5
 - URL: https://somanovel.uk/books/kesho-benki-itajua-sw/
 - Synopsis: Juma ameficha mkopo alioutumia kufuatilia kazi ya nje kwa sababu alitaka kumletea Rehema “maisha bora” kabla hajamwambia. Wakati mpango unaporomoka, anaficha deni badala ya kuficha mapenzi. Kesho ya kwenda benki kununua nyumba inamlazimisha kuchagua: kuunda uongo mwingine unaoweza kuokoa sura yake kwa siku moja, au kusema ukweli unaoweza kuvunja ndoa lakini kuzuia deni lisimeze miaka yao ijayo.
-
-### Kesho Benki Itajua
-
-- Authors: Omari Kivuli
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/kesho-benki-itajua/
-- Synopsis: A gripping commercial novel 'Kesho Benki Itajua' by Omari Kivuli.
 
 ### Barua Ya Uhamisho
 
@@ -97,15 +250,6 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/barua-ya-uhamisho-sw/
 - Synopsis: Simulizi ya kusisimua ya Barua Ya Uhamisho iliyoandikwa na Idris Mwangaza.
 
-### Barua Ya Uhamisho
-
-- Authors: Idris Mwangaza
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/barua-ya-uhamisho/
-- Synopsis: A gripping commercial novel 'Barua Ya Uhamisho' by Idris Mwangaza.
-
 ### Kamisheni Ya Familia
 
 - Authors: Taji Amani
@@ -115,32 +259,14 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/kamisheni-ya-familia-sw/
 - Synopsis: Juma aliamini uthibitisho bora ni pesa inayorudi mkononi. Baada ya kutoa faida mara tatu, aliwaambia ndugu zake kwamba KukuaPlus haikuwa porojo. Mfumo unapofunga withdrawals, ushahidi unaomfanya aonekane msaliti unatokea kabla hajapata nafasi ya kujitetea. Ili asipoteze familia pamoja na pesa, lazima athibitishe si tu kile alichojua—bali pia kile alichopaswa kujua kabla ya kuwavuta wengine.
 
-### Kamisheni Ya Familia
-
-- Authors: Taji Amani
-- Language: English
-- Category: Thriller
-- Chapters: 4
-- URL: https://somanovel.uk/books/kamisheni-ya-familia/
-- Synopsis: A gripping commercial novel 'Kamisheni Ya Familia' by Taji Amani.
-
 ### Deni Lisilokuwa Langu
 
 - Authors: Soma Originals
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/deni-lisilokuwa-langu-sw/
 - Synopsis: Simulizi ya kusisimua ya Deni Lisilokuwa Langu iliyoandikwa na Soma Originals.
-
-### Deni Lisilokuwa Langu
-
-- Authors: Soma Originals
-- Language: English
-- Category: Thriller
-- Chapters: 4
-- URL: https://somanovel.uk/books/deni-lisilokuwa-langu/
-- Synopsis: A gripping commercial novel 'Deni Lisilokuwa Langu' by Soma Originals.
 
 ### Binti Aliyekuwa Mpwa
 
@@ -151,15 +277,6 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/binti-aliyekuwa-mpwa-sw/
 - Synopsis: Amina alipomkubali Leila nyumbani, aliamini anamsaidia mpwa wa mumewe aliyepoteza utulivu wa kifamilia. Miaka mitatu baadaye neno moja—“Daddy”—linabadilisha kila kumbukumbu ya upendo kuwa ushahidi unaohitaji kutafsiriwa upya. Lakini vita yake si kumfukuza msichana; ni kugundua nani alijua nini, lini, na kwa nini Musa aliwafanya wanawake wawili waishi ndani ya siri moja kwa tafsiri mbili tofauti.
 
-### Binti Aliyekuwa Mpwa
-
-- Authors: Kito Bahari
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/binti-aliyekuwa-mpwa/
-- Synopsis: A gripping commercial novel 'Binti Aliyekuwa Mpwa' by Kito Bahari.
-
 ### Makubaliano Ya Siri
 
 - Authors: Layla Pendo
@@ -169,50 +286,23 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/makubaliano-ya-siri-sw/
 - Synopsis: Zawadi Mrema na Hassan Mollel walijenga Mavuno Link kwa miaka minane kwa mikopo, farmer trust na malori ya kukodi. Wakati Zawadi anapeleka malori matatu ya mahindi kwa Kiwanda cha Unga Kaskazini huku malipo ya zamani bado hayajalipwa, factory manager anasema account ilifungwa tayari. Settlement ina saini halisi ya Hassan. Zawadi anafikiri partner wake ameiba au kuuza kampuni kwa nusu bei, lakini ledger inaonyesha baadhi ya delivery differences ni za kweli. Hassan anapopatikana, anaficha kwamba settlement money ilienda kuzuia benki kuchukua nyumba yake—na nyumba hiyo ndiyo iliyowahi kuwekwa collateral wakati kampuni ilikuwa karibu kufa miaka iliyopita. Zawadi lazima atenganishe shukrani, betrayal, verified debt na future authority bila kuharibu farmers waliomwamini.
 
-### Makubaliano Ya Siri
-
-- Authors: Layla Pendo
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/makubaliano-ya-siri/
-- Synopsis: A gripping commercial novel 'Makubaliano Ya Siri' by Layla Pendo.
-
 ### Jina Lililofutwa Shuleni
 
 - Authors: Rehema Kisiwa
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/jina-lililofutwa-shuleni-sw/
 - Synopsis: Simulizi ya kusisimua ya Jina Lililofutwa Shuleni iliyoandikwa na Rehema Kisiwa.
-
-### Jina Lililofutwa Shuleni
-
-- Authors: Rehema Kisiwa
-- Language: English
-- Category: Thriller
-- Chapters: 4
-- URL: https://somanovel.uk/books/jina-lililofutwa-shuleni/
-- Synopsis: A gripping commercial novel 'Jina Lililofutwa Shuleni' by Rehema Kisiwa.
 
 ### Utajiri Wa Siri
 
 - Authors: Idris Mwangaza
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/utajiri-wa-siri-sw/
 - Synopsis: Hamisi Jengo amefanya kila kitu ambacho watu humwambia mwanaume wa familia afanye: amefanya kazi, ameanzisha biashara, amelipa deni polepole, amesomesha watoto wake na amewasaidia ndugu mara nyingi. Tatizo ni kwamba kila mafanikio mapya yanaonekana kufungua mlango wa ombi jipya. Kwa hiyo ameunda mfumo wake wa kujilinda: ndugu wakija, nyumba inarudi nyuma miaka mitano. Runinga ya pili inaondolewa. Gari la biashara linaegeshwa kwa jirani. Leila anaambiwa asiseme kuhusu contract mpya. Hata mtoto wao Malik anajua sentensi ya kusema: “Baba bado anahangaika.” Kwa Hamisi huo ni ulinzi. Kwa Leila ni uongo unaokula nyumba yao kutoka ndani. Siku Malik anaporudia uongo huo mbele ya mwalimu na mteja wa biashara ya Hamisi anapotokea bila kutarajiwa wakati ndugu wamejaa sebuleni, “umaskini wa kuigiza” unageuka kutoka mbinu ndogo ya kifamilia kuwa tishio kwa ndoa, biashara na uhusiano wa mtoto na ukweli. Ili kuokoa familia yake, Hamisi lazima ajibu swali ambalo pesa pekee haiwezi kujibu: anaweza kuweka mpaka bila kujifanya mtu mwingine?
-
-### Secret Wealth (Utajiri wa Siri - Locked English Final v2.3.9)
-
-- Authors: Idris Mwangaza
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/secret-wealth-utajiri-wa-siri-locked-english-final-v2-3-9/
-- Synopsis: A gripping commercial novel 'Secret Wealth (Utajiri wa Siri - Locked English Final v2.3.9)' by Idris Mwangaza.
 
 ### Mlango Wa Wodi Ulikuwa Kimya
 
@@ -222,15 +312,6 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Chapters: 5
 - URL: https://somanovel.uk/books/mlango-wa-wodi-ulikuwa-kimya-sw/
 - Synopsis: Salma Nuru anajua njia ya Hospitali ya Mkoa wa Bahari kwa macho yaliyofungwa. Ndiko alikopimwa, ndiko alikoambiwa mtoto wake anaendelea vizuri, na ndiko yeye na Musa walipanga kufika siku ya kujifungua. Lakini uchungu unapomshika usiku, wanakuta mlango wa wodi ukiwa wazi na viti vingi tupu. Hakuna tangazo linaloeleza ni huduma gani ipo, ni nani yuko zamu, wala ni hospitali gani inapokea wagonjwa waliohamishwa. Kila dakika ya kutafuta jibu inageuka kuwa pesa ya usafiri, hofu ya familia na hasira dhidi ya mtu asiye sahihi. Salma anapokutana na Neema, muuguzi ambaye amebaki kazini huku wenzake wakishinikiza madai ya muda mrefu, anagundua kwamba mgogoro huu haujaanza leo. Watu wamekuwa wakiziba mashimo ya mfumo kimya kimya kwa miezi, mpaka usiku ambao hawawezi tena. Riwaya inafuata familia na wahudumu wanaolazimika kubadili swali kutoka “nani ametuacha?” kwenda “ni nani alijua huduma ilikuwa inavunjika, na kwa nini hakuna aliyewaambia watu?”
-
-### The Ward Door Was Silent (Mlango wa Wodi Ulikuwa Kimya - Locked English Final v2.3.9)
-
-- Authors: Imani Zawadi
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/the-ward-door-was-silent-mlango-wa-wodi-ulikuwa-kimya-locked-english-final-v2-3-9/
-- Synopsis: A gripping commercial novel 'The Ward Door Was Silent (Mlango wa Wodi Ulikuwa Kimya - Locked English Final v2.3.9)' by Imani Zawadi.
 
 ### Pesa Zilizohamia Kimya
 
@@ -273,7 +354,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Soma Originals
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/dakika-tatu-kabla-ya-alfajiri-sw/
 - Synopsis: Kwenye mji wenye ushindani mkubwa, maisha ya wahusika yanabadilika ghafla baada ya siri nzito na mgongano wa kimaslahi kufichuka. Riwaya hii ya kusisimua inafuatilia mapambano makali na safari ya kutafuta ukweli na haki.
 
@@ -282,7 +363,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Layla Pendo
 - Language: Kiswahili
 - Category: Contemporary
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/ndoto-za-kukodisha-sw/
 - Synopsis: Kwenye mji wenye ushindani mkubwa, maisha ya wahusika yanabadilika ghafla baada ya siri nzito na mgongano wa kimaslahi kufichuka. Riwaya hii ya kusisimua inafuatilia mapambano makali na safari ya kutafuta ukweli na haki.
 
@@ -322,21 +403,12 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/kurudi-si-kufika-sw/
 - Synopsis: Simulizi ya kusisimua ya Sura ya 1 — Mlango Uleule, Nyumba Tofauti iliyoandikwa na Amara Nuru.
 
-### Chapter 1 — The Same Door, a Different Home
-
-- Authors: Amara Nuru
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/chapter-1-the-same-door-a-different-home/
-- Synopsis: A gripping commercial novel 'Chapter 1 — The Same Door, a Different Home' by Amara Nuru.
-
 ### Risiti ya Marehemu
 
 - Authors: Safiya Amani
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/risiti-ya-marehemu-sw/
 - Synopsis: Salma, mjane wa miaka arobaini na sita, anataka kuweka rehani ua wa nyumba za kupangisha ili kumlipia binti yake Leila chuo. Baraka, kijana ambaye familia ilimwona mara moja tu kwenye mazishi kama “mpwa wa mbali”, anafika na risiti ya ada iliyolipwa na marehemu Yusuf. Kabla Salma hajamfukuza, Hassan—mwana wake mkubwa na mtu aliyemsaidia kusimamia mali baada ya kifo—anakiri kuwa alijua Baraka ni nani miaka mitatu iliyopita. Salma anasitisha rehani na kuanza kufukua hesabu za mume wake, akigundua kuwa swali la urithi si “mgeni anataka nini?” pekee, bali “mwana wangu alificha nini, mume wangu aliishi maisha gani, na mimi nataka familia yangu iwe nini sasa?”
 
@@ -399,7 +471,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Kassim Bahari
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-price-of-hope/
 - Synopsis: Salim Mwinyi can repair a phone that has fallen into seawater, but he cannot repair the month in which three customers refuse to pay, his kiosk rent rises, and a box of replacement screens arrives defective. When an old acquaintance tells him about Bwana Tunu—someone who supposedly helps struggling people clear the blockage around business—Salim laughs first. Then he pays once...
 
@@ -444,7 +516,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Nia Kendi
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/store-of-tomorrow/
 - Synopsis: For eleven years, Tunu Sengo has rolled up the metal shutters of Duka la Kesho every morning before the sun clears the tin roofs of Mavuno Street. Her customers trust her to revive phones that others wrote off, suppliers know she pays slowly but without fail, and her landlord knows she has never been more than two days late on rent. Then a sudden rumor spreads through the market: businesses held under certain residency categories are about to be shut down. There is no official notice on her door and no municipal inspector has arrived, yet customers hesitate, suppliers freeze credit, her landlord starts asking uneasy questions, and a competitor three doors down begins measuring her shopfront with hungry eyes. When Tunu visits the municipal office, she uncovers an even harder truth: there is no immediate closure, but there is a strict 21-day compliance window—and her file contains a historical registration flaw that no current receipt can paper over. To save her livelihood without becoming a victim or surrendering the shop to a nominal partner, Tunu must navigate a labyrinth of old documents, resist unlawful harassment, and prove that the business she built with her own hands can remain hers under the law.
 
@@ -462,7 +534,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Daudi Zawadi
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/muhuri-wa-uongo-sw/
 - Synopsis: Elias Mhando amepandishwa kuwa bursar katika shule inayohangaika kulipa walimu wa muda na kukarabati paa kabla ya mvua. Siku chache tu baada ya kushika muhuri wa fedha, ujumbe unaoonekana wa mamlaka ya elimu unaamuru kila shule ichangie gharama ya mchakato wa usaili kabla ya saa sita mchana. Wakuu wa shule jirani wanasema tayari wamelipa. Naibu mkuu wake anataka asipoteze muda. Lakini Elias anaona namba moja isiyolingana na rekodi ya zamani. Akizuia malipo, anaweza kuonekana hana uwezo na kuharibu nafasi yake mpya; akilipa, anaweza kuwa mtu aliyetoa fedha za wanafunzi kwa uongo. Uchunguzi wake unabadilika kutoka swali la shilingi chache kuwa vita kuhusu nani ana haki ya kusema “hii ni rasmi,” na kwa nini watu wenye elimu bado huogopa kuwa wa kwanza kuuliza.
 
@@ -516,7 +588,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Omari Kivuli
 - Language: English
 - Category: Thriller
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/a-child-is-not-a-receipt/
 - Synopsis: A dramatic family saga exploring parental expectations, financial pressures, and emotional independence in modern urban Africa.
 
@@ -561,7 +633,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Bakari Jua
 - Language: English
 - Category: Thriller
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/the-promise-of-a-loan/
 - Synopsis: When a young mechanic Hamisi receives an admission letter to university, his family believes victory is near. But a sudden financial demand forces his father into a hidden credit agreement, putting their family livelihood at stake.
 
@@ -570,7 +642,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Baraka Nuru
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/shadow-of-the-kraal/
 - Synopsis: Deep in the East African cattle country, a brave rancher Baraka Nuru investigates mysterious night raids near the kraal fence. As secrets unravel, he discovers a dangerous conflict between corporate land grabbers and traditional cattle herders.
 
@@ -579,7 +651,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Asha Maridadi
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/ahadi-bila-ufunguo-sw/
 - Synopsis: Mariam Jengo hakulalamika siku nyumba yake ya zamani ilipobomolewa, kwa sababu alishikilia vitu vitatu: barua ya kipaumbele, risiti ya amana, na ahadi kwamba yeye na Tunu wangekuwa miongoni mwa familia za kwanza kupewa nyumba mpya za Makazi ya Tumaini. Miezi kadhaa baadaye, portal inamwambia jambo moja tu: **SOLD OUT**. Ofisini anaambiwa asubiri awamu inayofuata au aongeze fedha kwa nyumba ghali zaidi. Lakini Mariam hana fedha za “kusubiri” huku akilipia chumba cha muda, usafiri wa binti yake, na kibanda chake cha kushona. Anapoanza kulinganisha risiti, namba za unit na barua za majirani, anagundua kuwa swali si tu “nyumba yangu iko wapi?” bali “ni nani anaweza kuthibitisha kwamba foleni hii iliwahi kuwa ya haki?”
 
@@ -588,7 +660,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Asha Maridadi
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/promise-without-a-key/
 - Synopsis: A gripping commercial novel 'Ahadi Bila Ufunguo LOCK' by Asha Maridadi.
 
@@ -597,7 +669,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Daudi Kileo
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/nyumba-baada-ya-maombolezo-sw/
 - Synopsis: Baada ya miaka kumi na saba ya kushona sare, kulipa mabati, kusomesha watoto wa mume wake na kugeuza chumba cha mbele kuwa biashara inayolisha nyumba, Mariam Jengo anadhani msiba mkubwa ni kumzika mumewe. Siku tatu baada ya mazishi, anakuta kufuli jipya kwenye workshop na mstari wa rangi ukigawa ua: upande mmoja “wa familia”, mwingine sehemu anayoruhusiwa kukaa kwa muda. Aliyechora mstari ni Elias, mtoto mkubwa wa marehemu, ambaye anasema hana chuki—anataka tu urithi ukae kwa damu. Mariam hataki kuiba mali ya watoto. Lakini pia hatakubali miaka yake ifutwe kwa sentensi moja. Vita yake si ya kupata nyumba yote; ni ya kulazimisha familia ihesabu kile ambacho kila mtu alitoa, alichukua na aliahidi.
 
@@ -646,21 +718,12 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/daktari-wa-mpaka-sw/
 - Synopsis: Dkt. Malik Juma anarudi nyumbani akiwa na nia ya kuthibitisha kwamba hospitali ndogo si kituo cha kusubiri ambulance. Siku yake ya kwanza, kijana mwenye maumivu ya kifua anafika wakati familia yake ikitaka transfer ya haraka kwenda hospitali kubwa. Malik anaona kwamba mgonjwa anaweza kutibiwa hapo kwanza, lakini kila dakika inayopita inabadilisha swali: je, anapigania hadhi ya hospitali yake, au usalama wa mtu anayemwamini? Tatizo linapovuma kama ushahidi kwamba mfumo mpya wa malipo unalazimisha wagonjwa kubaki hospitali ndogo, Malik lazima afungue rekodi, maamuzi na hofu za timu yake mwenyewe—na akubali kwamba daktari bora si yule anayesema “tunaweza”, bali yule anayejua lini uwezo una mwisho.
 
-### Daktari Wa Mpaka
-
-- Authors: Jabari Mtoni
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/daktari-wa-mpaka/
-- Synopsis: Dkt. Malik Juma anarudi nyumbani akiwa na nia ya kuthibitisha kwamba hospitali ndogo si kituo cha kusubiri ambulance. Siku yake ya kwanza, kijana mwenye maumivu ya kifua anafika wakati familia yake ikitaka transfer ya haraka kwenda hospitali kubwa. Malik anaona kwamba mgonjwa anaweza kutibiwa hapo kwanza, lakini kila dakika inayopita inabadilisha swali: je, anapigania hadhi ya hospitali yake, au usalama wa mtu anayemwamini? Tatizo linapovuma kama ushahidi kwamba mfumo mpya wa malipo unalazimisha wagonjwa kubaki hospitali ndogo, Malik lazima afungue rekodi, maamuzi na hofu za timu yake mwenyewe—na akubali kwamba daktari bora si yule anayesema “tunaweza”, bali yule anayejua lini uwezo una mwisho.
-
 ### Kivuli cha Jina la Mama
 
 - Authors: Neema Mwangaza
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/kivuli-cha-jina-la-mama-sw/
 - Synopsis: Mariam Sengo amekulia akisikia sentensi moja kutoka kwa mama yake: “Ukifika mlangoni na jina lako halijulikani, watu watakufanya usubiri.” Wema aliijenga biashara yake kutoka lori moja la kukodi hadi kampuni ndogo inayosambaza bidhaa kwa maduka ya mji wa Kizinga Pwani. Sasa jina lake linajulikana kwenye biashara, kwenye parent development committee ya Shule ya Sekondari Tumaini Kuu, na kwenye vikundi vya wazazi vinavyoweza kumfikia mkuu wa shule ndani ya dakika mbili. Mariam hakuwahi kufikiria kwamba jina hilo lingekuwa tatizo hadi siku ambayo ujumbe wa mama yake unaonekana kwenye group ya wanafunzi: ombi la “kumwangalia Mariam kwa karibu” wakati wa uchaguzi wa student leadership na kumruhusu kuingia kwenye workshop maalum ambayo nafasi zake zimejaa. Wema haoni kama ameomba kitu kibaya; anasema amejitolea kwa shule, amesaidia kukusanya fedha za maabara, na mtoto wake amefanya kazi kwa bidii. Lakini Mariam anapoanza kusikia watu wakisema kila alama, kila recommendation na kila nafasi yake ni matokeo ya jina la mama yake, anagundua kwamba upendeleo hauhitaji kumpa mtu kitu ili kumuumiza—wakati mwingine unatosha kuwafanya wengine waamini kwamba hakuweza kukipata mwenyewe. Riwaya inafuata pambano la mama na binti juu ya swali la karibu sana: mzazi ana haki ya kutumia kila mlango anaoujua kumsaidia mtoto, au upendo una mpaka unaoanza pale msaada unapoondoa uwezo wa mtoto kuamini mafanikio yake mwenyewe?
 
@@ -669,7 +732,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Layla Pendo
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/sauti-kabla-ya-kengele-sw/
 - Synopsis: Amina Kweka aliamini kuwa sheria kali za Shule ya Sekondari ya Bweni ya Mwangaza zilikuwa bei ya nafasi yake ya kufika chuo. Lakini shughuli ya wanafunzi iliyokuwa imeidhinishwa inapofutwa dakika za mwisho, hasira iliyokusanywa kwa miezi inapasuka. Usiku mmoja unatosha kufunga shule na kurudisha mamia ya watoto nyumbani. Mama yake Amina analazimika kuacha oda za sare ili kumchukua, familia nyingine zinatafuta nauli na malazi, na uongozi unadai wanafunzi hawakuwahi kutumia njia rasmi za malalamiko. Amina anajua si kweli—kwa sababu baadhi ya barua zilizopuuzwa zilipitia mikononi mwake katika chumba cha redio. Ili kuzuia shule yake kugeuka uwanja wa lawama, lazima athibitishe tofauti kati ya nidhamu na ukimya bila kujifanya shujaa wa vurugu.
 
@@ -687,7 +750,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Malaika Mtoni
 - Language: Kiswahili
 - Category: Contemporary
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/baada-ya-mlango-kufunguliwa-sw/
 - Synopsis: Mzee asiyejulikana anayeingia dukani kujikinga na mvua anafungua mlango wa historia ya siri iliyozikwa kwa miaka thelathini na kubadili maisha ya Amina milele.
 
@@ -696,7 +759,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Malaika Mtoni
 - Language: English
 - Category: Contemporary
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/after-the-door-opened/
 - Synopsis: An elderly stranger who steps into a laundromat to escape the rain opens a doorway to thirty years of buried family secrets that change Amina's life forever.
 
@@ -732,7 +795,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Kassim Bakari
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-account-that-wasn-t-there/
 - Synopsis: Enticed by promises of extraordinary returns in a secretive investment club, Juma puts all his family's hard-earned savings into a lucrative fund—only to discover that the high-yield bank account never existed in the first place.
 
@@ -741,7 +804,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Elias Mwinyi
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/sekunde-ambazo-hatukuamini-sw/
 - Synopsis: Mtetemo wa kwanza unapoanza na mfumo wa dharura kutoa onyo lisilowezekana, Elias anapaswa kuchagua kati ya kuamini namba za kompyuta au hisia za baba yake ili kuokoa familia.
 
@@ -750,7 +813,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Elias Mwinyi
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-seconds-we-stopped-believing/
 - Synopsis: Mtetemo wa kwanza unapoanza na mfumo wa dharura kutoa onyo lisilowezekana, Elias anapaswa kuchagua kati ya kuamini namba za kompyuta au hisia za baba yake ili kuokoa familia.
 
@@ -759,7 +822,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Zuhura Simba
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/kiambatisho-kilichoenda-kwa-wote-sw/
 - Synopsis: Barua pepe moja yenye kiambatisho cha siri inatumwa kimakosa kwa wafanyakazi wote elfu tatu wa shirika kubwa. Ndani yake kuna orodha ya wafanyakazi watakaofutwa kazi na fedha zilizoibwa.
 
@@ -795,7 +858,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Nia Kendi
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/orodha-ya-wasiostahili-sw/
 - Synopsis: Kwenye mji wenye ushindani mkubwa, maisha ya wahusika yanabadilika ghafla baada ya siri nzito na mgongano wa kimaslahi kufichuka. Riwaya hii ya kusisimua inafuatilia mapambano makali na safari ya kutafuta ukweli na haki.
 
@@ -804,7 +867,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Nia Kendi
 - Language: English
 - Category: Thriller
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/the-list-of-the-undeserving/
 - Synopsis: University student Wema finds her tuition account frozen without warning under a cold administrative tag: ACCOUNT UNDER REVIEW. Digging into the campus financial registry, she exposes a corrupt scheme that secretly strips scholarships from deserving students.
 
@@ -813,7 +876,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Amara Nuru
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/risiti-isiyolingana-sw/
 - Synopsis: Kwenye mji wenye ushindani mkubwa, maisha ya wahusika yanabadilika ghafla baada ya siri nzito na mgongano wa kimaslahi kufichuka. Riwaya hii ya kusisimua inafuatilia mapambano makali na safari ya kutafuta ukweli na haki.
 
@@ -831,7 +894,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Omari Kivuli
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/mizigo-isiyo-na-wenyewe-sw/
 - Synopsis: Kwenye mji wenye ushindani mkubwa, maisha ya wahusika yanabadilika ghafla baada ya siri nzito na mgongano wa kimaslahi kufichuka. Riwaya hii ya kusisimua inafuatilia mapambano makali na safari ya kutafuta ukweli na haki.
 
@@ -840,7 +903,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Omari Kivuli
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/cargo-without-owners/
 - Synopsis: When three unrelated second-hand items across Dar es Salaam appear online bearing the exact same official cargo stamp, warehouse fraud investigator Musa uncovers a shadowy trafficking ring exploiting unclaimed shipping containers.
 
@@ -849,7 +912,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Safiya Amani
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/hatua-zilizonyamaza-sw/
 - Synopsis: Kwenye mji wenye ushindani mkubwa, maisha ya wahusika yanabadilika ghafla baada ya siri nzito na mgongano wa kimaslahi kufichuka. Riwaya hii ya kusisimua inafuatilia mapambano makali na safari ya kutafuta ukweli na haki.
 
@@ -858,7 +921,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Safiya Amani
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-steps-that-fell-silent/
 - Synopsis: When a dedicated member of a close-knit dawn walking club fails to show up and leaves an empty chair at the morning cafe, shopkeeper Asha investigates the silence and uncovers a quiet conspiracy lurking behind their peaceful neighborhood.
 
@@ -867,7 +930,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Soma Originals
 - Language: Kiswahili
 - Category: Contemporary
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/mbegu-za-majivu-sw/
 - Synopsis: Kwenye mji wenye ushindani mkubwa, maisha ya wahusika yanabadilika ghafla baada ya siri nzito na mgongano wa kimaslahi kufichuka. Riwaya hii ya kusisimua inafuatilia mapambano makali na safari ya kutafuta ukweli na haki.
 
@@ -885,7 +948,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Baraka Nuru
 - Language: English
 - Category: Thriller
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/the-last-voice-cannot-be-erased/
 - Synopsis: Late one night in Mombasa's Old Town, sound archivist Khamis Mtevu receives a salt-scarred audio cassette dredged from the ocean. As he restores the damaged recording, he recovers the final dying words of a whistleblower that powerful tycoons thought were buried forever.
 
@@ -894,7 +957,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Zainabu Kivuli
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/mkataba-wa-kioo-cheusi-sw/
 - Synopsis: Kwenye mji wenye ushindani mkubwa, maisha ya wahusika yanabadilika ghafla baada ya siri nzito na mgongano wa kimaslahi kufichuka. Riwaya hii ya kusisimua inafuatilia mapambano makali na safari ya kutafuta ukweli na haki.
 
@@ -903,7 +966,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Zainabu Kivuli
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-black-mirror-contract/
 - Synopsis: When a mysterious 19th-century black mirror arrives at Vesper House auction with an altered consignor name, provenance expert Naila discovers her own name carved beneath decades of cured varnish. Unraveling the mirror's dark history pulls her into a lethal corporate inheritance feud.
 
@@ -921,7 +984,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Asha Maridadi
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/kabla-lango-halijafungwa-sw/
 - Synopsis: Maua Kilonzo alikuwa anafunga orodha ya mwisho ya mabasi saa kumi na moja jioni wakati kelele ilipasua lango la shule. Kioo cha ofisi ya dispatch kilikuwa kimefunikwa na alama za vidole vya watoto, na nyuma yake madereva wawili walikuwa wakibishana kuhusu route iliyochelewa. Sauti ya chuma kugongwa na kelele ya mzazi ilifungua pazia la siri nzito inayotishia maisha ya wanafunzi wote, na kumfanya Maua kuanza msako wa kishujaa kabla lango halijafungwa.
 
@@ -939,7 +1002,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Malaika Mtoni
 - Language: Kiswahili
 - Category: Fantasy
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/dawa-ya-usiku-sw/
 - Synopsis: Hadithi ya fantasia ya kimapenzi huko Mombasa, ikimfuata mfanyabiashara huru wa dawa za asili anayetengeneza tiba maalum kwa mtandao wa siri wa usiku huku akilinda urithi wa familia yake.
 
@@ -984,7 +1047,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Kito Bahari
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/mgeni-wa-chumba-407-sw/
 - Synopsis: Mgeni wa ajabu anayeingia Chumba cha 407 hotelini na kufichua siri na njama kubwa za uongozi kupitia ukaguzi wa kadi za kuingilia.
 
@@ -1038,7 +1101,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Friedrich Nietzsche
 - Language: English
 - Category: Contemporary
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/thus-spake-zarathustra/
 - Synopsis: Thus Spake Zarathustra by Friedrich Nietzsche, a public-domain English classic presented in a clean, phone-friendly edition. Browse this contemporary classic free on Soma.
 
@@ -1137,7 +1200,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Frances Hodgson Burnett
 - Language: English
 - Category: Fantasy
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-secret-garden/
 - Synopsis: The Secret Garden by Frances Hodgson Burnett, a public-domain English classic presented in a clean, phone-friendly edition. Browse this fantasy classic free on Soma.
 
@@ -1146,7 +1209,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Nathaniel Hawthorne
 - Language: English
 - Category: Historical
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-scarlet-letter/
 - Synopsis: The Scarlet Letter by Nathaniel Hawthorne, a public-domain English classic presented in a clean, phone-friendly edition. Browse this historical classic free on Soma.
 
@@ -1155,7 +1218,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Arthur Conan Doyle
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-return-of-sherlock-holmes/
 - Synopsis: The Return of Sherlock Holmes by Arthur Conan Doyle, a public-domain English classic presented in a clean, phone-friendly edition. Browse this thriller classic free on Soma.
 
@@ -1164,7 +1227,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Plato
 - Language: English
 - Category: Historical
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-republic/
 - Synopsis: The Republic by Plato, a public-domain English classic presented in a clean, phone-friendly edition. Browse this historical classic free on Soma.
 
@@ -1191,7 +1254,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Oscar Wilde
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-picture-of-dorian-gray/
 - Synopsis: The Picture of Dorian Gray by Oscar Wilde, a public-domain English classic presented in a clean, phone-friendly edition. Browse this thriller classic free on Soma.
 
@@ -1209,7 +1272,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Homer
 - Language: English
 - Category: Historical
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/the-odyssey/
 - Synopsis: The Odyssey by Homer, a public-domain English classic presented in a clean, phone-friendly edition. Browse this historical classic free on Soma.
 
@@ -1317,7 +1380,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Elizabeth von Arnim
 - Language: English
 - Category: Romance
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/the-enchanted-april/
 - Synopsis: The Enchanted April by Elizabeth von Arnim, a public-domain English classic presented in a clean, phone-friendly edition. Browse this romance classic free on Soma.
 
@@ -1434,7 +1497,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Jane Austen
 - Language: English
 - Category: Romance
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/persuasion/
 - Synopsis: Persuasion by Jane Austen, a public-domain English classic presented in a clean, phone-friendly edition. Browse this romance classic free on Soma.
 
@@ -1452,7 +1515,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Jane Austen
 - Language: English
 - Category: Romance
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/northanger-abbey/
 - Synopsis: Northanger Abbey by Jane Austen, a public-domain English classic presented in a clean, phone-friendly edition. Browse this romance classic free on Soma.
 
@@ -1497,7 +1560,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Jane Austen
 - Language: English
 - Category: Romance
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/mansfield-park/
 - Synopsis: Mansfield Park by Jane Austen, a public-domain English classic presented in a clean, phone-friendly edition. Browse this romance classic free on Soma.
 
@@ -1506,7 +1569,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Louisa May Alcott
 - Language: English
 - Category: Romance
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/little-women/
 - Synopsis: Little Women by Louisa May Alcott, a public-domain English classic presented in a clean, phone-friendly edition. Browse this romance classic free on Soma.
 
@@ -1515,7 +1578,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Thomas Hobbes
 - Language: English
 - Category: Historical
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/leviathan/
 - Synopsis: Leviathan by Thomas Hobbes, a public-domain English classic presented in a clean, phone-friendly edition. Browse this historical classic free on Soma.
 
@@ -1632,7 +1695,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Friedrich Nietzsche
 - Language: English
 - Category: Contemporary
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/beyond-good-and-evil/
 - Synopsis: Beyond Good and Evil by Friedrich Nietzsche, a public-domain English classic presented in a clean, phone-friendly edition. Browse this contemporary classic free on Soma.
 
@@ -1722,7 +1785,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Layla Pendo
 - Language: Kiswahili
 - Category: Contemporary
-- Chapters: 4
+- Chapters: 5
 - URL: https://somanovel.uk/books/nyumba-isiyouzwa-sw/
 - Synopsis: Hadithi ya kusisimua ya familia ya Mombasa inayogundua kuwa nyumba yao ya zamani iliyouzwa kwa siri wakati wao bado wanaishi ndani, na mapambano ya kisheria na ya kifamilia kuirudisha.
 
@@ -1758,7 +1821,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Jabari Mtoni
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/mlio-wa-daraja-sw/
 - Synopsis: Mhandisi Malik Odhiambo asikia mpigo wa hatari kwenye daraja la Nairobi, kisha aona sahihi ya mkaguzi aliyekufa kwenye hati zinazomlaumu kwa chuma bandia. Uchunguzi wake wafichua njama ya kutengeneza dharura kwa mikataba ya faida.
 
@@ -1771,15 +1834,6 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/the-sound-of-the-bridge/
 - Synopsis: Structural engineer Malik Odhiambo hears a fatal pulse in a Nairobi bridge, then finds a dead inspector's signature on records blaming him for counterfeit steel. His search reveals a conspiracy that manufactures emergencies for lucrative contracts.
 
-### The Daughter Who Awoke on Proposal Day
-
-- Authors: Amani Bakari
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/the-daughter-who-awoke-on-proposal-day/
-- Synopsis: On the morning of her proposal, Zawadi wakes to a stolen code, a family alliance built on fraud and a future chosen without her. She turns the betrayal into the first move of a powerful new life on the coast.
-
 ### Binti Aliyeamka Siku ya Posa
 
 - Authors: Amani Bakari
@@ -1789,14 +1843,14 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/binti-aliyeamka-siku-ya-posa-sw/
 - Synopsis: Asubuhi ya siku yake ya posa, Zawadi anaamka na kugundua msimbo wake umeibiwa, muungano wa familia umejengwa juu ya udanganyifu, na maisha yake yamechaguliwa bila yeye. Anageuza usaliti huo kuwa hatua ya kwanza ya maisha mapya yenye nguvu katika pwani.
 
-### Nilifukuzwa Siku Ya Harusi
+### The Daughter Who Awoke on Proposal Day
 
-- Authors: Soma Originals
-- Language: Kiswahili
+- Authors: Amani Bakari
+- Language: English
 - Category: Thriller
 - Chapters: 5
-- URL: https://somanovel.uk/books/nilifukuzwa-siku-ya-harusi-sw/
-- Synopsis: Anapofutwa kazi siku ya harusi yake, mwanamke agundua kuwa kufukuzwa ni sehemu ya njama ya kutwaa kazi yake na kumnyamazisha. Arudi na ushahidi, washirika na ujasiri wa kudai jina lake mbele ya umma.
+- URL: https://somanovel.uk/books/the-daughter-who-awoke-on-proposal-day/
+- Synopsis: On the morning of her proposal, Zawadi wakes to a stolen code, a family alliance built on fraud and a future chosen without her. She turns the betrayal into the first move of a powerful new life on the coast.
 
 ### Fired On My Wedding Day
 
@@ -1807,12 +1861,21 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/fired-on-my-wedding-day/
 - Synopsis: Dismissed on her wedding day, a woman discovers that the firing is part of a scheme to seize her work and silence her. She returns with the evidence, the allies and the courage to reclaim her name in public.
 
-### Kipimo Cha Mwisho
+### Nilifukuzwa Siku Ya Harusi
 
 - Authors: Soma Originals
 - Language: Kiswahili
 - Category: Thriller
 - Chapters: 5
+- URL: https://somanovel.uk/books/nilifukuzwa-siku-ya-harusi-sw/
+- Synopsis: Anapofutwa kazi siku ya harusi yake, mwanamke agundua kuwa kufukuzwa ni sehemu ya njama ya kutwaa kazi yake na kumnyamazisha. Arudi na ushahidi, washirika na ujasiri wa kudai jina lake mbele ya umma.
+
+### Kipimo Cha Mwisho
+
+- Authors: Soma Originals
+- Language: Kiswahili
+- Category: Thriller
+- Chapters: 4
 - URL: https://somanovel.uk/books/kipimo-cha-mwisho-sw/
 - Synopsis: Mkaguzi makini agundua kuwa kipimo kimoja kilichopotea kinaweza kuamua mustakabali wa familia. Viongozi wenye nguvu wanapobadilisha kumbukumbu, anakimbia kupata ushahidi wa kwanza kabla ya hukumu ya umma kuwa ya kudumu.
 
@@ -1825,15 +1888,6 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/the-final-measure/
 - Synopsis: A careful auditor finds that one missing measurement could decide a family's future. As powerful officials rewrite the records, she races to recover the original evidence before a public verdict becomes permanent.
 
-### Container Forty-Seven
-
-- Authors: Safiya Amani
-- Language: English
-- Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/container-forty-seven/
-- Synopsis: A sealed shipping container in Mombasa links a missing worker, a falsified manifest and a dangerous corporate secret. One investigator must open Container Forty-Seven before the evidence is moved—or buried.
-
 ### Kontena la Arobaini na Saba
 
 - Authors: Safiya Amani
@@ -1843,14 +1897,14 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/kontena-la-arobaini-na-saba-sw/
 - Synopsis: Kontena lililofungwa Mombasa linaunganisha mfanyakazi aliyepotea, manifesti bandia na siri hatari ya kampuni. Mpelelezi mmoja lazima alifungue Kontena la Arobaini na Saba kabla ushahidi haujahamishwa au kufukiwa.
 
-### DAKIKA TISINI ZA GIZA
+### Container Forty-Seven
 
-- Authors: Asha Maridadi
-- Language: Kiswahili
+- Authors: Safiya Amani
+- Language: English
 - Category: Thriller
-- Chapters: 4
-- URL: https://somanovel.uk/books/dakika-tisini-za-giza-sw/
-- Synopsis: Nairobi inapopoteza umeme kwa dakika tisini, fundi mchanga agundua kuwa giza ni kifuniko cha wizi uliopangwa. Kila dakika huleta hatari mpya anapofuatilia njia ya siri hadi kwa walioamuru giza.
+- Chapters: 5
+- URL: https://somanovel.uk/books/container-forty-seven/
+- Synopsis: A sealed shipping container in Mombasa links a missing worker, a falsified manifest and a dangerous corporate secret. One investigator must open Container Forty-Seven before the evidence is moved—or buried.
 
 ### NINETY MINUTES OF DARKNESS
 
@@ -1860,6 +1914,15 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Chapters: 4
 - URL: https://somanovel.uk/books/ninety-minutes-of-darkness/
 - Synopsis: When Nairobi loses power for ninety minutes, a young technician discovers the blackout is a cover for a coordinated theft. Every minute brings a new danger as she follows the hidden circuit back to the people who ordered the darkness.
+
+### DAKIKA TISINI ZA GIZA
+
+- Authors: Asha Maridadi
+- Language: Kiswahili
+- Category: Thriller
+- Chapters: 4
+- URL: https://somanovel.uk/books/dakika-tisini-za-giza-sw/
+- Synopsis: Nairobi inapopoteza umeme kwa dakika tisini, fundi mchanga agundua kuwa giza ni kifuniko cha wizi uliopangwa. Kila dakika huleta hatari mpya anapofuatilia njia ya siri hadi kwa walioamuru giza.
 
 ### Zuri Malkia Wa Mitindo
 
@@ -1884,7 +1947,7 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Soma Originals
 - Language: English
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/voices-beneath-the-baobab/
 - Synopsis: A village hears voices beneath an ancient baobab after a developer announces a sudden eviction. A teacher and a reluctant heir follow the clues through oral history, missing documents and a land deal built on silence.
 
@@ -1893,18 +1956,9 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Authors: Soma Originals
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
+- Chapters: 4
 - URL: https://somanovel.uk/books/sauti-chini-ya-mbuyu-sw/
 - Synopsis: Kijiji chasikia sauti chini ya mbuyu wa kale baada ya mwekezaji kutangaza kufukuzwa kwao. Mwalimu na mrithi asiyetaka hufuata dalili kupitia historia ya simulizi, hati zilizopotea na dili la ardhi lililojengwa juu ya ukimya.
-
-### Nilirudi Kabla Ya Harusi
-
-- Authors: Soma Originals
-- Language: Kiswahili
-- Category: Thriller
-- Chapters: 4
-- URL: https://somanovel.uk/books/nilirudi-kabla-ya-harusi-sw/
-- Synopsis: Anarudi Nairobi kabla ya harusi na kukuta biashara ya familia, jina lake na mustakabali wake vimeahidiwa kwa mtu mwingine. Ukweli wa usaliti huo humpa nafasi moja ya kudai kila kitu mbele ya umma.
 
 ### I Returned Before The Wedding
 
@@ -1915,14 +1969,14 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/i-returned-before-the-wedding/
 - Synopsis: She returns to Nairobi before her wedding and finds the family business, her name and her future already promised to someone else. The truth behind the betrayal gives her one chance to reclaim everything in public.
 
-### Dakika Saba Za Mwisho
+### Nilirudi Kabla Ya Harusi
 
 - Authors: Soma Originals
 - Language: Kiswahili
 - Category: Thriller
-- Chapters: 5
-- URL: https://somanovel.uk/books/dakika-saba-za-mwisho-sw/
-- Synopsis: Hati ya mwisho iliyopotea, sajili iliyofungwa na dakika saba kabla ya uhamisho wa lazima vinahatarisha nyumba za jamii. Karani aliyedharauliwa ageuza kumbukumbu zilizopuuzwa kuwa ushahidi wa kusimamisha mauzo.
+- Chapters: 4
+- URL: https://somanovel.uk/books/nilirudi-kabla-ya-harusi-sw/
+- Synopsis: Anarudi Nairobi kabla ya harusi na kukuta biashara ya familia, jina lake na mustakabali wake vimeahidiwa kwa mtu mwingine. Ukweli wa usaliti huo humpa nafasi moja ya kudai kila kitu mbele ya umma.
 
 ### The Last Seven Minutes
 
@@ -1933,14 +1987,14 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/the-last-seven-minutes/
 - Synopsis: A missing title deed, a locked registry and seven minutes before a forced transfer put one community's homes at risk. A dismissed clerk turns overlooked records into the proof that can stop the sale.
 
-### HATI YA MWISHO
+### Dakika Saba Za Mwisho
 
-- Authors: Asha Maridadi
+- Authors: Soma Originals
 - Language: Kiswahili
 - Category: Thriller
 - Chapters: 5
-- URL: https://somanovel.uk/books/hati-ya-mwisho-sw/
-- Synopsis: Hati ya mwisho inapopotea kwenye ofisi yenye msongamano, karani anayetuhumiwa afuatilia njia yake kupitia sahihi bandia na makubaliano ya siri ya mwekezaji mwenye nguvu.
+- URL: https://somanovel.uk/books/dakika-saba-za-mwisho-sw/
+- Synopsis: Hati ya mwisho iliyopotea, sajili iliyofungwa na dakika saba kabla ya uhamisho wa lazima vinahatarisha nyumba za jamii. Karani aliyedharauliwa ageuza kumbukumbu zilizopuuzwa kuwa ushahidi wa kusimamisha mauzo.
 
 ### THE LAST TITLE DEED
 
@@ -1951,14 +2005,14 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/the-last-title-deed/
 - Synopsis: When the last title deed disappears from a crowded land office, an accused clerk follows its trail through forged signatures and a powerful developer's secret bargain.
 
-### I Returned On The Day Of Division
+### HATI YA MWISHO
 
-- Authors: Safiya Amani
-- Language: English
+- Authors: Asha Maridadi
+- Language: Kiswahili
 - Category: Thriller
 - Chapters: 5
-- URL: https://somanovel.uk/books/i-returned-on-the-day-of-division/
-- Synopsis: On the day her family divides its land, a woman returns with evidence that the inheritance was rigged. She must face the relatives who erased her and force the real accounts into the open.
+- URL: https://somanovel.uk/books/hati-ya-mwisho-sw/
+- Synopsis: Hati ya mwisho inapopotea kwenye ofisi yenye msongamano, karani anayetuhumiwa afuatilia njia yake kupitia sahihi bandia na makubaliano ya siri ya mwekezaji mwenye nguvu.
 
 ### Nilirudi Siku Ya Mgawanyo
 
@@ -1968,6 +2022,15 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - Chapters: 5
 - URL: https://somanovel.uk/books/nilirudi-siku-ya-mgawanyo-sw/
 - Synopsis: Siku ambayo familia yake inagawanya ardhi, mwanamke arudi na ushahidi kuwa urithi ulipangwa kwa udanganyifu. Lazima awakabili ndugu waliomfuta na kuweka hesabu za kweli wazi.
+
+### I Returned On The Day Of Division
+
+- Authors: Safiya Amani
+- Language: English
+- Category: Thriller
+- Chapters: 5
+- URL: https://somanovel.uk/books/i-returned-on-the-day-of-division/
+- Synopsis: On the day her family divides its land, a woman returns with evidence that the inheritance was rigged. She must face the relatives who erased her and force the real accounts into the open.
 
 ### The Daughter They Rejected
 
