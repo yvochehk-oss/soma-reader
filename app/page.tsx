@@ -119,9 +119,9 @@ export default async function Home() {
               <p>{featured.description}</p>
               <span className="book-card-author"><T id="by" /> {featured.author}</span>
               <div className="hero-action-buttons">
-                <Link href={`/read/${featured.slug}/1`} className="button button-primary">
+                <a href={`/read/${featured.slug}/1`} className="button button-primary">
                   <T id="readNow" /> <span>→</span>
-                </Link>
+                </a>
                 <Link href={`/book/${featured.slug}`} className="button button-secondary">
                   <T id="theStory" />
                 </Link>

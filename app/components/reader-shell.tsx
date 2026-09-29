@@ -36,13 +36,13 @@ function toDownloaded(bookSlug: string, chapter: ChapterToDownload): DownloadedC
   return { key: `${bookSlug}:${chapter.number}`, bookSlug, chapterNumber: chapter.number, title: chapter.title, content: chapter.content, downloadedAt: new Date().toISOString() };
 }
 
-export function ReaderShell({ children, bookSlug, chapterNumber, bookId, chapterId, chapters }: {
+export function ReaderShell({ children, bookSlug, chapterNumber, bookId, chapterId, chapter }: {
   children: React.ReactNode;
   bookSlug: string;
   chapterNumber: number;
   bookId?: string;
   chapterId?: string;
-  chapters: ChapterToDownload[];
+  chapter: ChapterToDownload;
 }) {
   const { t } = useTranslation();
   const [preferences, setPreferences] = useState<ReaderPreferences>(DEFAULT_PREFERENCES);
@@ -59,7 +59,7 @@ export function ReaderShell({ children, bookSlug, chapterNumber, bookId, chapter
   const progressWriteTimer = useRef<number | undefined>(undefined);
   const latestScrollPercent = useRef(0);
   const lastStoredPercent = useRef<number | undefined>(undefined);
-  const activeChapter = chapters.find((item) => item.number === chapterNumber);
+  const activeChapter = chapter.number === chapterNumber ? chapter : undefined;
 
   useEffect(() => {
     const storedPreference = readStoredJson("soma-reader-settings");
@@ -93,12 +93,21 @@ export function ReaderShell({ children, bookSlug, chapterNumber, bookId, chapter
   useEffect(() => {
     if (!activeChapter) return;
     void saveDownloadedChapter(toDownloaded(bookSlug, activeChapter));
-    const next = chapters.find((item) => item.number === chapterNumber + 1);
-    if (next) {
-      void saveDownloadedChapter(toDownloaded(bookSlug, next));
-      cacheReaderUrls([`/read/${bookSlug}/${next.number}`]);
-    }
-  }, [activeChapter, bookSlug, chapterNumber, chapters]);
+    if (!navigator.onLine) return;
+    void (async () => {
+      try {
+        const response = await fetch(`/api/books/${encodeURIComponent(bookSlug)}/chapters?from=${chapterNumber + 1}&limit=1`);
+        if (!response.ok) return;
+        const payload = await response.json() as { chapters?: ChapterToDownload[] };
+        const next = Array.isArray(payload.chapters) ? payload.chapters[0] : undefined;
+        if (!next) return;
+        await saveDownloadedChapter(toDownloaded(bookSlug, next));
+        cacheReaderUrls([`/read/${bookSlug}/${next.number}`]);
+      } catch {
+        // The current chapter remains saved even if speculative next-chapter caching fails.
+      }
+    })();
+  }, [activeChapter, bookSlug, chapterNumber]);
 
   useEffect(() => {
     const syncFullscreen = () => setFullscreen(Boolean(document.fullscreenElement));
@@ -176,12 +185,23 @@ export function ReaderShell({ children, bookSlug, chapterNumber, bookId, chapter
   function changeFontSize(delta: number) { setPreferences((current) => ({ ...current, fontSize: Math.min(25, Math.max(17, current.fontSize + delta)) })); }
   async function download(count: number) {
     setDownloading(true);
-    const selected = chapters.filter((item) => item.number >= chapterNumber).slice(0, count);
     try {
+      let selected: ChapterToDownload[];
+      if (count === 1 && activeChapter) {
+        selected = [activeChapter];
+      } else {
+        const response = await fetch(`/api/books/${encodeURIComponent(bookSlug)}/chapters?from=${chapterNumber}&limit=${count}`);
+        if (!response.ok) throw new Error("Could not download chapters. Please try again while online.");
+        const payload = await response.json() as { chapters?: ChapterToDownload[] };
+        selected = Array.isArray(payload.chapters) ? payload.chapters.slice(0, count) : [];
+        if (!selected.length) throw new Error("No chapters were available to download.");
+      }
       await Promise.all(selected.map((chapter) => saveDownloadedChapter(toDownloaded(bookSlug, chapter))));
       cacheReaderUrls(selected.map((chapter) => `/read/${bookSlug}/${chapter.number}`));
       void trackEvent({ eventType: "offline_download", bookId, chapterId });
       setControlNote(t("downloaded"));
+    } catch (error) {
+      setControlNote(error instanceof Error ? error.message : "Could not download chapters. Please try again while online.");
     } finally { setDownloading(false); }
   }
   async function toggleFullscreen() { if (document.fullscreenElement) await document.exitFullscreen(); else if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen(); else setControlNote(t("fullscreenUnavailable")); }

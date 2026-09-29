@@ -6,6 +6,6 @@
  * this constant if the AdSense account ever changes.
  */
 
-export const ADSENSE_PUBLISHER_ID = "ca-pub-3097294735250340";
+export const ADSENSE_PUBLISHER_ID = "ca-pub-6785168010810140";
 export const ADSENSE_AUTO_ADS_SCRIPT_URL =
   `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUBLISHER_ID}`;

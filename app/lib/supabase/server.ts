@@ -21,6 +21,17 @@ export async function getPublicSupabaseEnv() {
   }
 }
 
+export async function createPublicClient() {
+  const { url, key } = await getPublicSupabaseEnv();
+  if (!url || !key) throw new Error("Supabase public environment variables are missing.");
+  return createServerClient(url, key, {
+    cookies: {
+      getAll() { return []; },
+      setAll() {},
+    },
+  });
+}
+
 export async function createClient() {
   const cookieStore = await cookies();
   const { url, key } = await getPublicSupabaseEnv();
@@ -34,3 +45,4 @@ export async function createClient() {
     },
   });
 }
+

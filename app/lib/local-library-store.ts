@@ -77,6 +77,21 @@ export async function listLocalBooks(): Promise<StoredLocalBook[]> {
   return books.sort((a, b) => b.addedAt.localeCompare(a.addedAt));
 }
 
+export async function getLocalBookById(id: string): Promise<StoredLocalBook | null> {
+  const db = await getDB();
+  try {
+    return await new Promise<StoredLocalBook | null>((resolve, reject) => {
+      const tx = db.transaction(STORE, "readonly");
+      const req = tx.objectStore(STORE).get(id);
+      req.onsuccess = () => resolve((req.result as StoredLocalBook | undefined) ?? null);
+      req.onerror = () => reject(req.error);
+      tx.onerror = () => reject(tx.error);
+    });
+  } finally {
+    db.close();
+  }
+}
+
 export async function getLocalBookBySlug(slug: string): Promise<StoredLocalBook | null> {
   const books = await listLocalBooks();
   return books.find((b) => b.slug === slug || b.id === slug) || null;

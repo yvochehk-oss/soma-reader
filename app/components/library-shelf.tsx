@@ -34,7 +34,7 @@ export function LibraryShelf({ books }: { books: Book[] }) {
   if (!loaded) return <div className="empty-state"><p>Loading…</p></div>;
   if (!saved.length && !continued) return <div className="empty-state"><h2>{t("emptyShelf")}</h2><p>{t("emptyShelfText")}</p><Link href="/discover" className="button button-primary">{t("exploreStories")} <span>→</span></Link></div>;
   return <>
-    {continued?.book && <section className="continue-card"><div><p className="eyebrow">{t("continueReading")}</p><h2>{continued.book.title}</h2><p className="book-card-meta">{t("chapter", { number: String(continued.chapter_number).padStart(2, "0") })} · {continued.scroll_percent}%</p></div><Link href={`/read/${continued.book.slug}/${continued.chapter_number}`} className="button button-primary">{t("continue")} <span>→</span></Link></section>}
+    {continued?.book && <section className="continue-card"><div><p className="eyebrow">{t("continueReading")}</p><h2>{continued.book.title}</h2><p className="book-card-meta">{t("chapter", { number: String(continued.chapter_number).padStart(2, "0") })} · {continued.scroll_percent}%</p></div><a href={`/read/${continued.book.slug}/${continued.chapter_number}`} className="button button-primary">{t("continue")} <span>→</span></a></section>}
     {saved.length > 0 && <><div className="section-heading library-heading"><div><p className="eyebrow">{t("savedLater")}</p><h2>{t("shelfGrowing")}</h2></div></div><div className="book-grid">{saved.map((book) => <BookCard key={book.slug} book={book} />)}</div></>}
   </>;
 }

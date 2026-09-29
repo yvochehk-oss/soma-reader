@@ -46,8 +46,8 @@
   ],
   "catalogue_layout": {
     "original_web_fiction": {
-      "en_count": 151,
-      "sw_count": 73,
+      "en_count": 158,
+      "sw_count": 79,
       "bilingual": true
     },
     "re_typeset_classics": {
@@ -79,5 +79,5 @@
     "sitemap_books_sw": "https://somanovel.uk/sitemap-books-sw.xml",
     "sitemap_chapters": "https://somanovel.uk/sitemap-chapters.xml"
   },
-  "generated_at": "2026-09-22T15:54:50.141Z"
+  "generated_at": "2026-09-29T04:12:05.399Z"
 }

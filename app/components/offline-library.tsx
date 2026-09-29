@@ -108,12 +108,12 @@ export function OfflineLibrary() {
                 </div>
                 <div className="mt-4 pt-3 border-t border-line flex justify-between items-center">
                   <span className="text-[11px] text-muted">🔒 Encrypted on Device</span>
-                  <Link
-                    href={`/read/${b.slug}/1`}
+                  <a
+                    href={`/local-read?id=${encodeURIComponent(b.id)}&chapter=1`}
                     className="text-xs font-bold text-orange-dark flex items-center gap-1 hover:underline"
                   >
                     Read Local Book <span>→</span>
-                  </Link>
+                  </a>
                 </div>
               </div>
             ))}
@@ -159,11 +159,11 @@ export function OfflineLibrary() {
                   {group
                     .sort((a, b) => a.chapterNumber - b.chapterNumber)
                     .map((chapter) => (
-                      <Link key={chapter.key} href={`/read/${chapter.bookSlug}/${chapter.chapterNumber}`}>
+                      <a key={chapter.key} href={`/read/${chapter.bookSlug}/${chapter.chapterNumber}`}>
                         <span>{String(chapter.chapterNumber).padStart(2, "0")}</span>
                         {chapter.title}
                         <b>→</b>
-                      </Link>
+                      </a>
                     ))}
                 </div>
               </section>

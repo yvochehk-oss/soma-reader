@@ -5,7 +5,7 @@ import { T } from "@/app/components/language-provider";
 
 export function BookCard({ book, compact = false }: { book: Book; compact?: boolean }) {
   return (
-    <Link href={`/book/${book.slug}`} className={`book-card ${compact ? "book-card-compact" : ""}`}>
+    <Link href={`/books/${book.slug}/`} className={`book-card ${compact ? "book-card-compact" : ""}`}>
       <BookCover book={book} size={compact ? "small" : "medium"} />
       <span className="book-card-copy">
         <span className="book-card-title">{book.title}</span>

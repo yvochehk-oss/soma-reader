@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://somanovel.uk/sitemap-home.xml</loc>
+    <lastmod>2026-09-29</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://somanovel.uk/sitemap-books-en.xml</loc>
+    <lastmod>2026-09-29</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://somanovel.uk/sitemap-books-sw.xml</loc>
+    <lastmod>2026-09-29</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://somanovel.uk/sitemap-chapters.xml</loc>
+    <lastmod>2026-09-29</lastmod>
+  </sitemap>
+</sitemapindex>

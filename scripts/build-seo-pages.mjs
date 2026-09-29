@@ -1,14 +1,17 @@
 import { execFileSync } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { getSupabasePublicConfig } from "./lib/soma-public-config.mjs";
+import { buildReaderArtifacts, renderStaticReaderPage, serializeReaderJson, staticReaderHtmlRelativePath } from "./lib/static-reader.mjs";
 
-const ADSENSE_PUBLISHER_ID = "ca-pub-3097294735250340";
+const ADSENSE_PUBLISHER_ID = "ca-pub-6785168010810140";
 const SITE_URL = "https://somanovel.uk";
 const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "contact@somanovel.uk";
 const { url: SUPABASE_URL, key: SUPABASE_ANON_KEY } = await getSupabasePublicConfig();
 const output = resolve("public/books");
 const publicCatalogueOutput = resolve("public/catalog/books.json");
+const staticReaderOutput = resolve("public/read");
+const readerDataOutput = resolve("public/reader-data");
 const homeIndexPath = resolve("index.html");
 
 const escapeHtml = (value = "") => String(value)
@@ -30,22 +33,41 @@ const languageLabel = (language) => language === "sw" ? "Kiswahili" : "English";
 const legalFooter = `<footer style="clear:both;margin-top:40px;padding-top:18px;border-top:1px solid #d9dfd8;font-size:14px"><strong>Soma Novel</strong><nav aria-label="Legal and site information" style="display:flex;flex-wrap:wrap;gap:12px 18px;margin-top:10px"><a href="/about">About</a><a href="/contact">Contact</a><a href="/privacy-policy">Privacy Policy</a><a href="/cookie-policy">Cookie Policy</a><a href="/terms">Terms of Service</a><a href="mailto:${CONTACT_EMAIL}">Email us</a></nav></footer>`;
 
 async function fetchRows(path) {
-  const url = `${SUPABASE_URL}/rest/v1/${path}`;
-  const raw = execFileSync("curl", [
-    "-s", "-S",
-    url,
-    "-H", `apikey: ${SUPABASE_ANON_KEY}`,
-    "-H", `authorization: Bearer ${SUPABASE_ANON_KEY}`,
-    "-H", "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
-  ], { encoding: "utf8", maxBuffer: 50 * 1024 * 1024 });
-  return JSON.parse(raw);
+  const [resource, query = ""] = path.split("?", 2);
+  const parameters = new URLSearchParams(query);
+  const pageSize = 1_000;
+  const rows = [];
+  const seenIds = new Set();
+  for (let offset = 0; ; offset += pageSize) {
+    const pageParameters = new URLSearchParams(parameters);
+    pageParameters.set("limit", String(pageSize));
+    pageParameters.set("offset", String(offset));
+    const url = `${SUPABASE_URL}/rest/v1/${resource}?${pageParameters}`;
+    const raw = execFileSync("curl", [
+      "-s", "-S",
+      url,
+      "-H", `apikey: ${SUPABASE_ANON_KEY}`,
+      "-H", `authorization: Bearer ${SUPABASE_ANON_KEY}`,
+      "-H", "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+    ], { encoding: "utf8", maxBuffer: 100 * 1024 * 1024 });
+    const batch = JSON.parse(raw);
+    if (!Array.isArray(batch)) throw new Error(`Supabase ${resource} query did not return a row array.`);
+    for (const row of batch) {
+      if (row?.id == null) continue;
+      const id = String(row.id);
+      if (seenIds.has(id)) throw new Error(`Supabase ${resource} pagination repeated row id ${id}; refusing an incomplete static build.`);
+      seenIds.add(id);
+    }
+    rows.push(...batch);
+    if (batch.length < pageSize) return rows;
+  }
 }
 
 const booksQuery = new URLSearchParams({
   select: "id,parent_book_id,slug,title,author_name,description,cover_url,language_code,category,tags,total_chapters,is_featured,published_at,created_at,updated_at",
   status: "eq.published",
   or: `(published_at.is.null,published_at.lte.${new Date(Date.now() + 5 * 60 * 1000).toISOString()})`,
-  order: "is_featured.desc,created_at.desc",
+  order: "is_featured.desc,created_at.desc,id.asc",
 });
 const books = await fetchRows(`books?${booksQuery}`);
 
@@ -87,10 +109,22 @@ for (const book of books) {
 // static HTML and continue returning 200 after the database record is gone.
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
+// These generated trees are recreated from the published source rows each
+// build. Removing both first prevents unpublished or deleted chapters from
+// surviving as reachable static assets after a later release.
+await Promise.all([
+  rm(staticReaderOutput, { recursive: true, force: true }),
+  rm(readerDataOutput, { recursive: true, force: true }),
+]);
+await Promise.all([
+  mkdir(staticReaderOutput, { recursive: true }),
+  mkdir(readerDataOutput, { recursive: true }),
+]);
 const allChapters = await fetchRows(`chapters?${new URLSearchParams({
-  select: "book_id,chapter_number,title,word_count",
+  select: "id,book_id,chapter_number,title,content,word_count",
   status: "eq.published",
-  order: "chapter_number.asc",
+  or: `(published_at.is.null,published_at.lte.${new Date(Date.now() + 5 * 60 * 1000).toISOString()})`,
+  order: "book_id.asc,chapter_number.asc,id.asc",
 })}`);
 const chaptersByBookId = new Map();
 for (const ch of allChapters) {
@@ -98,6 +132,46 @@ for (const ch of allChapters) {
     chaptersByBookId.set(ch.book_id, []);
   }
   chaptersByBookId.get(ch.book_id).push(ch);
+}
+
+let generatedReaderPages = 0;
+let generatedReaderDataFiles = 0;
+let generatedReaderBytes = 0;
+for (const book of books) {
+  const chapters = chaptersByBookId.get(book.id) || [];
+  if (!chapters.length) continue;
+  if (Number.isInteger(Number(book.total_chapters)) && Number(book.total_chapters) > 0 && Number(book.total_chapters) !== chapters.length) {
+    throw new Error(`${book.slug}: books.total_chapters is ${book.total_chapters}, but the published chapter query returned ${chapters.length}; refusing to publish an incomplete reader tree.`);
+  }
+  const artifacts = buildReaderArtifacts(book, chapters);
+  const bookDataDirectory = resolve(readerDataOutput, book.slug);
+  await mkdir(bookDataDirectory, { recursive: true });
+  const manifestText = serializeReaderJson(artifacts.manifest);
+  await writeFile(resolve(bookDataDirectory, "manifest.json"), manifestText);
+  generatedReaderDataFiles += 1;
+  generatedReaderBytes += Buffer.byteLength(manifestText);
+
+  for (let chapterIndex = 0; chapterIndex < artifacts.chapterJson.length; chapterIndex += 1) {
+    const [number, data] = artifacts.chapterJson[chapterIndex];
+    const chapter = artifacts.chapters[chapterIndex];
+    const chapterPagePath = resolve(staticReaderOutput, staticReaderHtmlRelativePath(book.slug, number));
+    await mkdir(dirname(chapterPagePath), { recursive: true });
+    const jsonText = serializeReaderJson(data);
+    const pageText = renderStaticReaderPage({
+      book,
+      chapter,
+      previousChapter: artifacts.chapters[chapterIndex - 1],
+      nextChapter: artifacts.chapters[chapterIndex + 1],
+      siteUrl: SITE_URL,
+    });
+    await Promise.all([
+      writeFile(resolve(bookDataDirectory, `${number}.json`), jsonText),
+      writeFile(chapterPagePath, pageText),
+    ]);
+    generatedReaderPages += 1;
+    generatedReaderDataFiles += 1;
+    generatedReaderBytes += Buffer.byteLength(jsonText) + Buffer.byteLength(pageText);
+  }
 }
 
 const pages = [];
@@ -810,4 +884,4 @@ ${pages.map((page) => `    <item>
 `;
 await writeFile(resolve("public/feed.xml"), rss);
 
-console.log(`Generated ${pages.length} public book pages, ${chapterUrls.length} chapter URLs, the browser catalogue, sitemap.xml, robots.txt, llms.txt, llms-full.txt, and feed.xml.`);
+console.log(`Generated ${pages.length} public book pages, ${generatedReaderPages} static reader pages, ${generatedReaderDataFiles} reader data files (${generatedReaderBytes} bytes), ${chapterUrls.length} chapter URLs, the browser catalogue, sitemap.xml, robots.txt, llms.txt, llms-full.txt, and feed.xml.`);
