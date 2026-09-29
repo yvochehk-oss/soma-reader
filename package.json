@@ -21,7 +21,7 @@
     "lint": "npm run typecheck:vite",
     "import:books": "node scripts/upload-soma-books.mjs",
     "release:books": "node scripts/release-soma-books.mjs",
-    "test:book-release": "node --test scripts/tests/soma-book-metadata.test.mjs scripts/tests/soma-book-release.test.mjs"
+    "test:book-release": "node --test scripts/tests/soma-book-metadata.test.mjs scripts/tests/soma-book-release.test.mjs scripts/tests/static-reader-build.test.mjs scripts/tests/reader-static.test.mjs scripts/tests/cloudflare-static-asset-limits.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
