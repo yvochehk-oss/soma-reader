@@ -23,7 +23,7 @@ function assertBookSlug(slug) {
 }
 
 function chapterPath(slug, number) {
-  return `/reader-data/${encodeURIComponent(slug)}/${number}.json`;
+  return `/read/${encodeURIComponent(slug)}/${number}`;
 }
 
 function readerPath(slug, number) {
@@ -89,23 +89,7 @@ export function buildReaderArtifacts(book, chapters) {
     }),
   };
 
-  const chapterJson = ordered.map((chapter) => {
-    const number = Number(chapter.chapter_number ?? chapter.number);
-    const paragraphs = splitParagraphs(chapter.content);
-    return [number, {
-      schemaVersion: 1,
-      book: bookData,
-      chapter: {
-        id: String(chapter.id ?? ""),
-        number,
-        title: String(chapter.title ?? `Chapter ${number}`),
-        content: String(chapter.content),
-        paragraphs,
-      },
-    }];
-  });
-
-  return { book: bookData, chapters: ordered, manifest, chapterJson };
+  return { book: bookData, chapters: ordered, manifest };
 }
 
 function consentMarkup(language) {
@@ -150,7 +134,6 @@ export function renderStaticReaderPage({ book, chapter, previousChapter, nextCha
   const previousUrl = previousNumber ? readerPath(book.slug, previousNumber) : "";
   const nextUrl = nextNumber ? readerPath(book.slug, nextNumber) : bookHref;
   const manifestUrl = `/reader-data/${encodeURIComponent(book.slug)}/manifest.json`;
-  const currentDataUrl = chapterPath(book.slug, number);
   const coverUrl = String(book.cover_url ?? book.coverUrl ?? "");
   const description = paragraphs[0].replace(/\s+/g, " ").slice(0, 320);
   const chapterLabel = language === "sw" ? `Sura ya ${String(number).padStart(2, "0")}` : `Chapter ${String(number).padStart(2, "0")}`;
@@ -209,7 +192,7 @@ export function renderStaticReaderPage({ book, chapter, previousChapter, nextCha
   <div class="reader-page reader-theme-sepia" style="--reader-size:20px;--reader-line-height:1.95" data-reader
     data-book-slug="${escapeHtml(book.slug)}" data-book-id="${escapeHtml(book.id ?? "")}" data-chapter-id="${escapeHtml(chapter.id ?? "")}"
     data-chapter-number="${number}" data-language="${language}" data-title="${escapeHtml(bookTitle)}" data-author="${escapeHtml(author)}"
-    data-cover-url="${escapeHtml(coverUrl)}" data-manifest-url="${manifestUrl}" data-chapter-url="${currentDataUrl}"
+    data-cover-url="${escapeHtml(coverUrl)}" data-manifest-url="${manifestUrl}"
     data-previous-url="${previousUrl}" data-next-url="${nextUrl}">
     <nav class="reader-top" aria-label="${language === "sw" ? "Urambazaji wa msomaji" : "Reader navigation"}">
       <a href="${bookHref}" data-reader-back>${escapeHtml(backLinkText)}</a>
@@ -246,6 +229,3 @@ export function renderStaticReaderPage({ book, chapter, previousChapter, nextCha
 </html>`;
 }
 
-export function serializeReaderJson(value) {
-  return `${JSON.stringify(value)}\n`;
-}

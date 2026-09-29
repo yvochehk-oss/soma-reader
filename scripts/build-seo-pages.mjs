@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { getSupabasePublicConfig } from "./lib/soma-public-config.mjs";
-import { buildReaderArtifacts, renderStaticReaderPage, serializeReaderJson, staticReaderHtmlRelativePath } from "./lib/static-reader.mjs";
+import { buildReaderArtifacts, renderStaticReaderPage, staticReaderHtmlRelativePath } from "./lib/static-reader.mjs";
 
 const ADSENSE_PUBLISHER_ID = "ca-pub-6785168010810140";
 const SITE_URL = "https://somanovel.uk";
@@ -135,7 +135,7 @@ for (const ch of allChapters) {
 }
 
 let generatedReaderPages = 0;
-let generatedReaderDataFiles = 0;
+let generatedReaderFiles = 0;
 let generatedReaderBytes = 0;
 for (const book of books) {
   const chapters = chaptersByBookId.get(book.id) || [];
@@ -146,17 +146,16 @@ for (const book of books) {
   const artifacts = buildReaderArtifacts(book, chapters);
   const bookDataDirectory = resolve(readerDataOutput, book.slug);
   await mkdir(bookDataDirectory, { recursive: true });
-  const manifestText = serializeReaderJson(artifacts.manifest);
+  const manifestText = `${JSON.stringify(artifacts.manifest)}\n`;
   await writeFile(resolve(bookDataDirectory, "manifest.json"), manifestText);
-  generatedReaderDataFiles += 1;
+  generatedReaderFiles += 1;
   generatedReaderBytes += Buffer.byteLength(manifestText);
 
-  for (let chapterIndex = 0; chapterIndex < artifacts.chapterJson.length; chapterIndex += 1) {
-    const [number, data] = artifacts.chapterJson[chapterIndex];
+  for (let chapterIndex = 0; chapterIndex < artifacts.chapters.length; chapterIndex += 1) {
     const chapter = artifacts.chapters[chapterIndex];
+    const number = Number(chapter.chapter_number ?? chapter.number);
     const chapterPagePath = resolve(staticReaderOutput, staticReaderHtmlRelativePath(book.slug, number));
     await mkdir(dirname(chapterPagePath), { recursive: true });
-    const jsonText = serializeReaderJson(data);
     const pageText = renderStaticReaderPage({
       book,
       chapter,
@@ -164,13 +163,10 @@ for (const book of books) {
       nextChapter: artifacts.chapters[chapterIndex + 1],
       siteUrl: SITE_URL,
     });
-    await Promise.all([
-      writeFile(resolve(bookDataDirectory, `${number}.json`), jsonText),
-      writeFile(chapterPagePath, pageText),
-    ]);
+    await writeFile(chapterPagePath, pageText);
     generatedReaderPages += 1;
-    generatedReaderDataFiles += 1;
-    generatedReaderBytes += Buffer.byteLength(jsonText) + Buffer.byteLength(pageText);
+    generatedReaderFiles += 1;
+    generatedReaderBytes += Buffer.byteLength(pageText);
   }
 }
 
@@ -884,4 +880,4 @@ ${pages.map((page) => `    <item>
 `;
 await writeFile(resolve("public/feed.xml"), rss);
 
-console.log(`Generated ${pages.length} public book pages, ${generatedReaderPages} static reader pages, ${generatedReaderDataFiles} reader data files (${generatedReaderBytes} bytes), ${chapterUrls.length} chapter URLs, the browser catalogue, sitemap.xml, robots.txt, llms.txt, llms-full.txt, and feed.xml.`);
+console.log(`Generated ${pages.length} public book pages, ${generatedReaderPages} static reader pages, ${generatedReaderFiles} reader files (manifests + HTML, ${generatedReaderBytes} bytes), ${chapterUrls.length} chapter URLs, the browser catalogue, sitemap.xml, robots.txt, llms.txt, llms-full.txt, and feed.xml.`);

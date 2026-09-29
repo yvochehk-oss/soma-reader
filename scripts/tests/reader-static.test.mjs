@@ -30,16 +30,16 @@ test("reader JSON validation accepts the documented schema and rejects mismatche
   assert.equal(reader.normalizeChapter({ ...payload, schemaVersion: 2 }, "river-story", 2), null);
 });
 
-test("manifest only accepts same-book static chapter-data URLs and unique chapter numbers", () => {
+test("manifest only accepts same-book /read/ chapter HTML URLs and unique chapter numbers", () => {
   const manifest = reader.normalizeManifest({
     schemaVersion: 1,
     book: { slug: "river-story", totalChapters: 4 },
     chapters: [
-      { number: 3, title: "Three", url: "/reader-data/river-story/3.json" },
-      { number: 1, title: "One", url: "/reader-data/river-story/1.json" },
-      { number: 2, title: "External", url: "https://attacker.invalid/reader-data/river-story/2.json" },
-      { number: 1, title: "Duplicate", url: "/reader-data/river-story/1.json" },
-      { number: 4, title: "Wrong book", url: "/reader-data/other-story/4.json" },
+      { number: 3, title: "Three", url: "/read/river-story/3" },
+      { number: 1, title: "One", url: "/read/river-story/1" },
+      { number: 2, title: "External", url: "https://attacker.invalid/read/river-story/2" },
+      { number: 1, title: "Duplicate", url: "/read/river-story/1" },
+      { number: 4, title: "Wrong book", url: "/read/other-story/4" },
     ],
   }, "river-story", "https://somanovel.uk/read/river-story/1");
 
@@ -50,7 +50,7 @@ test("manifest only accepts same-book static chapter-data URLs and unique chapte
 });
 
 test("manifest reconciliation is authoritative only when every declared chapter is present once", () => {
-  const chapter = (number) => ({ number, url: `/reader-data/river-story/${number}.json` });
+  const chapter = (number) => ({ number, url: `/read/river-story/${number}` });
   const complete = reader.normalizeManifest({
     schemaVersion: 1, book: { slug: "river-story", totalChapters: 3 }, chapters: [chapter(1), chapter(2), chapter(3)],
   }, "river-story", "https://somanovel.uk/");
@@ -62,11 +62,11 @@ test("manifest reconciliation is authoritative only when every declared chapter 
   assert.equal(incomplete.complete, false);
 });
 
-test("URL validation rejects cross-origin URLs and optional prefixes constrain chapter data", () => {
+test("URL validation rejects cross-origin URLs and optional prefixes constrain chapter HTML pages", () => {
   const base = "https://somanovel.uk/read/river-story/1";
-  assert.equal(reader.safeLocalUrl("/reader-data/river-story/2.json", base, "/reader-data/river-story/"), "/reader-data/river-story/2.json");
+  assert.equal(reader.safeLocalUrl("/read/river-story/2", base, "/read/river-story/"), "/read/river-story/2");
   assert.equal(reader.safeLocalUrl("https://elsewhere.test/file", base), null);
-  assert.equal(reader.safeLocalUrl("/reader-data/other/2.json", base, "/reader-data/river-story/"), null);
+  assert.equal(reader.safeLocalUrl("/read/other/2", base, "/read/river-story/"), null);
   assert.equal(reader.safeLocalUrl("//elsewhere.test/file", base), null);
 });
 

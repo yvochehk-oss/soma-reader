@@ -73,6 +73,7 @@ A full release is complete only when:
 - language pairing matches `translationOfSlug`;
 - cover URLs exist and newly uploaded covers are versioned;
 - generated `public/books/<slug>/index.html`, `public/catalog/books.json`, and `public/sitemap.xml` contain every slug;
+- generated `public/read/<slug>/<n>.html` chapter HTML files and `public/reader-data/<slug>/manifest.json` exist for every chapter (no per-chapter JSON files — Plan A);
 - Wrangler dry-run and production deployment pass;
-- live `/book/<slug>`, `/books/<slug>/`, cover URL, and sitemap checks pass;
+- live `/books/<slug>/`, cover URL, sitemap, and chapter reader HTML checks pass;
 - the release audit status is `complete`.

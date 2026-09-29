@@ -42,12 +42,12 @@ test("static chapter HTML keeps the slashless canonical URL and adjacent chapter
   assert.doesNotMatch(html, /self\.__next_f\.push|__next_f/);
 });
 
-test("reader manifest URLs remain extensionless while HTML artifacts use .html files", () => {
+test("reader manifest URLs now point to /read/ chapter HTML pages (Plan A: no per-chapter JSON files)", () => {
   const artifacts = buildReaderArtifacts(book, chapters);
 
   assert.deepEqual(artifacts.manifest.chapters.map(({ url }) => url), [
-    "/reader-data/river-story/1.json",
-    "/reader-data/river-story/2.json",
+    "/read/river-story/1",
+    "/read/river-story/2",
   ]);
   assert.equal(staticReaderHtmlRelativePath(book.slug, artifacts.chapters[0].chapter_number), "river-story/1.html");
   assert.equal(staticReaderHtmlRelativePath(book.slug, artifacts.chapters[1].chapter_number), "river-story/2.html");

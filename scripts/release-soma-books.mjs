@@ -141,9 +141,8 @@ async function verifyLocalSeo(expectedBooks, actualBooks, siteUrl) {
   }
   if (!readerWorker.includes('url.pathname.startsWith("/read/")') ||
       !readerWorker.includes('readerAssetUrl.pathname = readerPath + ".html";') ||
-      !readerWorker.includes('new Response("Not Found", { status: 404 })') ||
-      !readerWorker.includes('url.pathname.startsWith("/reader-data/"')) {
-    throw new Error("OpenNext Worker is missing the exact static HTML route or explicit 404 path for reader URLs/data.");
+      !readerWorker.includes('new Response("Not Found", { status: 404 })')) {
+    throw new Error("OpenNext Worker is missing the exact static HTML route or explicit 404 path for reader URLs.");
   }
   if (!readerScript || !readerStyle) throw new Error("Static reader JavaScript or stylesheet is missing from public/.");
   for (const asset of ["reader-static.js", "reader-static.css"]) {
@@ -186,48 +185,34 @@ async function verifyLocalSeo(expectedBooks, actualBooks, siteUrl) {
     for (const entry of manifest.chapters) {
       const publicPage = resolve(PROJECT_ROOT, "public/read", book.slug, `${entry.number}.html`);
       const edgePage = resolve(PROJECT_ROOT, ".open-next/assets/read", book.slug, `${entry.number}.html`);
-      const publicChapterData = resolve(PROJECT_ROOT, "public/reader-data", book.slug, `${entry.number}.json`);
-      const edgeChapterData = resolve(PROJECT_ROOT, ".open-next/assets/reader-data", book.slug, `${entry.number}.json`);
-      const [publicPageStats, edgePageStats, publicDataStats, edgeDataStats] = await Promise.all([
+      const [publicPageStats, edgePageStats] = await Promise.all([
         stat(publicPage).catch(() => null),
         stat(edgePage).catch(() => null),
-        stat(publicChapterData).catch(() => null),
-        stat(edgeChapterData).catch(() => null),
       ]);
-      if (!publicPageStats || !edgePageStats || !publicDataStats || !edgeDataStats) {
-        throw new Error(`${book.slug} chapter ${entry.number}: static HTML or chapter JSON is missing from the build or Cloudflare ASSETS.`);
+      if (!publicPageStats || !edgePageStats) {
+        throw new Error(`${book.slug} chapter ${entry.number}: static HTML is missing from the build or Cloudflare ASSETS.`);
       }
-      if (publicPageStats.size !== edgePageStats.size || publicDataStats.size !== edgeDataStats.size) {
-        throw new Error(`${book.slug} chapter ${entry.number}: static HTML or chapter JSON differs in Cloudflare ASSETS.`);
+      if (publicPageStats.size !== edgePageStats.size) {
+        throw new Error(`${book.slug} chapter ${entry.number}: static HTML differs in Cloudflare ASSETS.`);
       }
     }
     for (const entry of new Map([[first.number, first], [last.number, last]]).values()) {
       const pagePath = resolve(PROJECT_ROOT, "public/read", book.slug, `${entry.number}.html`);
       const page = await readFile(pagePath, "utf8");
-      const dataPath = resolve(PROJECT_ROOT, "public/reader-data", book.slug, `${entry.number}.json`);
-      const chapterData = JSON.parse(await readFile(dataPath, "utf8"));
       const edgePage = await readFile(resolve(PROJECT_ROOT, ".open-next/assets/read", book.slug, `${entry.number}.html`), "utf8");
-      const edgeData = JSON.parse(await readFile(resolve(PROJECT_ROOT, ".open-next/assets/reader-data", book.slug, `${entry.number}.json`), "utf8"));
       const readerCanonical = `${siteUrl}/read/${book.slug}/${entry.number}`;
       if (!page.includes(`rel="canonical" href="${readerCanonical}"`) || !page.includes('<article class="reader-body" data-reader-content>')) {
         throw new Error(`${book.slug} chapter ${entry.number}: static reader HTML is missing its canonical or server-rendered body.`);
       }
       if (page.includes("self.__next_f.push") || page.includes("__next_f")) throw new Error(`${book.slug} chapter ${entry.number}: reader page unexpectedly contains a Next hydration payload.`);
-      if (chapterData.schemaVersion !== 1 || chapterData.book?.slug !== book.slug || Number(chapterData.chapter?.number) !== Number(entry.number) || !Array.isArray(chapterData.chapter?.paragraphs) || !chapterData.chapter.paragraphs.length) {
-        throw new Error(`${book.slug} chapter ${entry.number}: static chapter JSON is missing or invalid.`);
-      }
-      for (const paragraph of chapterData.chapter.paragraphs) {
-        if (!page.includes(htmlEscape(paragraph))) throw new Error(`${book.slug} chapter ${entry.number}: static HTML is missing a source paragraph.`);
-      }
-      if (JSON.stringify(edgeData) !== JSON.stringify(chapterData) || edgePage !== page) {
-        throw new Error(`${book.slug} chapter ${entry.number}: reader HTML/JSON was not copied unchanged into Cloudflare ASSETS.`);
+      if (edgePage !== page) {
+        throw new Error(`${book.slug} chapter ${entry.number}: reader HTML was not copied unchanged into Cloudflare ASSETS.`);
       }
       readerTargets.push({
         slug: book.slug,
         number: Number(entry.number),
         title: String(entry.title ?? ""),
         url: `/read/${book.slug}/${entry.number}`,
-        dataUrl: `/reader-data/${book.slug}/${entry.number}.json`,
         missingUrl: Number(entry.number) === Number(last.number)
           ? `/read/${book.slug}/${Number(last.number) + 1}`
           : undefined,
@@ -235,10 +220,10 @@ async function verifyLocalSeo(expectedBooks, actualBooks, siteUrl) {
     }
   }
   const publicReader = await treeStats(resolve(PROJECT_ROOT, "public/read"));
-  const publicData = await treeStats(resolve(PROJECT_ROOT, "public/reader-data"));
+  const publicManifests = await treeStats(resolve(PROJECT_ROOT, "public/reader-data"));
   const edgeReader = await treeStats(resolve(PROJECT_ROOT, ".open-next/assets/read"));
-  const edgeData = await treeStats(resolve(PROJECT_ROOT, ".open-next/assets/reader-data"));
-  if (publicReader.files !== edgeReader.files || publicData.files !== edgeData.files || publicReader.bytes !== edgeReader.bytes || publicData.bytes !== edgeData.bytes) {
+  const edgeManifests = await treeStats(resolve(PROJECT_ROOT, ".open-next/assets/reader-data"));
+  if (publicReader.files !== edgeReader.files || publicManifests.files !== edgeManifests.files || publicReader.bytes !== edgeReader.bytes || publicManifests.bytes !== edgeManifests.bytes) {
     throw new Error("Generated reader files and Cloudflare ASSETS copies differ in file count or byte size.");
   }
   return {
@@ -246,7 +231,7 @@ async function verifyLocalSeo(expectedBooks, actualBooks, siteUrl) {
     sitemap: true,
     catalogue: true,
     cloudflareAssets: cloudflareAssetStats,
-    staticReader: { books: new Set(expectedBooks.map((book) => book.slug)).size, chapters: publicReader.files, chapterDataAndManifests: publicData.files, bytes: publicReader.bytes + publicData.bytes },
+    staticReader: { books: new Set(expectedBooks.map((book) => book.slug)).size, chapters: publicReader.files, manifestFiles: publicManifests.files, bytes: publicReader.bytes + publicManifests.bytes },
     readerTargets,
   };
 }
@@ -272,7 +257,7 @@ async function verifyLive(expectedBooks, actualBooks, siteUrl, readerTargets = [
   const actualBySlug = new Map(actualBooks.map((book) => [book.slug, book]));
   for (const book of expectedBooks) {
     const encoded = encodeURIComponent(book.slug);
-    await fetchUntil(`${siteUrl}/book/${encoded}`, (_response, body) => body.includes(book.title), `${book.slug} reader page`);
+    await fetchUntil(`${siteUrl}/books/${encoded}/`, (_response, body) => body.includes(book.title), `${book.slug} SEO book page`);
     const coverUrl = actualBySlug.get(book.slug)?.coverUrl ?? actualBySlug.get(book.slug)?.cover_url;
     if (!coverUrl) throw new Error(`${book.slug}: no cover URL available for live verification.`);
     await fetchUntil(`${siteUrl}/books/${encoded}/`, (_response, body) => body.includes('property="og:image"') && body.includes(book.title) && body.includes(coverUrl), `${book.slug} SEO page`);
@@ -286,12 +271,6 @@ async function verifyLive(expectedBooks, actualBooks, siteUrl, readerTargets = [
       body.includes('data-reader-content') &&
       body.includes(`rel="canonical" href="${siteUrl}${target.url}"`) &&
       !body.includes("__next_f"), `${target.slug} chapter ${target.number} static reader HTML`);
-    await fetchUntil(`${siteUrl}${target.dataUrl}`, (_response, body) => {
-      try {
-        const payload = JSON.parse(body);
-        return payload.schemaVersion === 1 && payload.book?.slug === target.slug && Number(payload.chapter?.number) === target.number && Array.isArray(payload.chapter?.paragraphs) && payload.chapter.paragraphs.length > 0;
-      } catch { return false; }
-    }, `${target.slug} chapter ${target.number} static reader data`);
     if (target.missingUrl) {
       const response = await fetch(`${siteUrl}${target.missingUrl}`, { cache: "no-store", redirect: "manual" });
       const body = await response.text();
@@ -300,7 +279,7 @@ async function verifyLive(expectedBooks, actualBooks, siteUrl, readerTargets = [
       }
     }
   }
-  return { books: expectedBooks.length, staticReaderTargets: readerTargets.length, readerPages: true, readerData: true, seoPages: true, covers: true, sitemap: true };
+  return { books: expectedBooks.length, staticReaderTargets: readerTargets.length, readerPages: true, seoPages: true, covers: true, sitemap: true };
 }
 
 async function main() {

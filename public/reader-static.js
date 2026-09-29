@@ -142,12 +142,12 @@
   function normalizeManifest(payload, expectedSlug, baseUrl) {
     if (!isRecord(payload) || payload.schemaVersion !== 1 || !isRecord(payload.book) || payload.book.slug !== expectedSlug || !Array.isArray(payload.chapters)) return null;
     const encodedSlug = encodeURIComponent(expectedSlug);
-    const prefix = `/reader-data/${encodedSlug}/`;
+    const prefix = `/read/${encodedSlug}/`;
     const chapters = payload.chapters.flatMap((item) => {
       if (!isRecord(item)) return [];
       const number = Number(item.number);
       const url = safeLocalUrl(item.url, baseUrl, prefix);
-      if (!Number.isSafeInteger(number) || number < 1 || !url || !url.endsWith(`/${number}.json`)) return [];
+      if (!Number.isSafeInteger(number) || number < 1 || !url || !url.endsWith(`/${number}`)) return [];
       return [{ id: typeof item.id === "string" ? item.id : undefined, number, title: typeof item.title === "string" ? item.title : `Chapter ${number}`, url, wordCount: Number(item.wordCount) || undefined }];
     }).sort((a, b) => a.number - b.number);
     const unique = chapters.filter((item, index) => index === 0 || chapters[index - 1].number !== item.number);
@@ -335,11 +335,9 @@
           await Promise.all(requests.map(async (request) => {
             const pathname = new URL(request.url).pathname;
             const pagePrefix = `/read/${encodedSlug}/`;
-            const dataPrefix = `/reader-data/${encodedSlug}/`;
             const pageMatch = pathname.startsWith(pagePrefix) ? pathname.slice(pagePrefix.length).match(/^(\d+)\/?$/) : null;
-            const dataMatch = pathname.startsWith(dataPrefix) ? pathname.slice(dataPrefix.length).match(/^(\d+)\.json$/) : null;
-            const number = Number((pageMatch || dataMatch)?.[1]);
-            if ((pageMatch || dataMatch) && !keepNumbers.has(number)) await cache.delete(request);
+            const number = Number(pageMatch?.[1]);
+            if (pageMatch && !keepNumbers.has(number)) await cache.delete(request);
           }));
         }
       }
@@ -388,12 +386,17 @@
 
   async function getChapter(reader, entry) {
     const slug = reader.dataset.bookSlug;
-    const prefix = `/reader-data/${encodeURIComponent(slug)}/`;
+    const prefix = `/read/${encodeURIComponent(slug)}/`;
     const url = safeLocalUrl(entry.url, global.location.href, prefix);
-    if (!url) throw new Error(`Chapter ${entry.number} has an invalid data URL`);
-    const payload = await fetchJson(url);
-    const chapter = normalizeChapter(payload, slug, entry.number);
-    if (!chapter) throw new Error(`Chapter ${entry.number} data is invalid`);
+    if (!url) throw new Error(`Chapter ${entry.number} has an invalid page URL`);
+    const response = await global.fetch(url, { headers: { accept: "text/html" } });
+    if (!response.ok) throw new Error(`Request failed (${response.status})`);
+    const html = await response.text();
+    const doc = typeof global.DOMParser !== "undefined"
+      ? new global.DOMParser().parseFromString(html, "text/html")
+      : null;
+    const chapter = doc ? normalizeChapter(currentFromHtml(doc.querySelector("[data-reader]")), slug, entry.number) : null;
+    if (!chapter) throw new Error(`Chapter ${entry.number} HTML could not be parsed`);
     return { chapter, url };
   }
 
@@ -639,11 +642,9 @@
     initConsent(reader, copy);
 
     const currentHtmlChapter = currentFromHtml(reader);
-    const chapterUrl = safeLocalUrl(reader.dataset.chapterUrl || reader.dataset.readerChapterUrl, global.location.href, `/reader-data/${encodeURIComponent(slug)}/`);
     const manifestPath = safeLocalUrl(reader.dataset.manifestUrl || reader.dataset.readerManifestUrl, global.location.href);
     const cacheUrls = [startPath, "/reader-static.js", "/reader-static.css"];
     if (manifestPath) cacheUrls.push(manifestPath);
-    if (chapterUrl) cacheUrls.push(chapterUrl);
     const noteNode = reader.querySelector("[data-offline-status]") || reader.querySelector(".offline-note");
     if (noteNode) noteNode.textContent = copy.preparing;
 
@@ -653,11 +654,7 @@
       let nextAvailable = false;
       let nextPage = "";
       try {
-        let current = currentHtmlChapter;
-        if (chapterUrl) {
-          try { current = normalizeChapter(await fetchJson(chapterUrl), slug, chapterNumber) || current; } catch { /* Visible static HTML remains the source fallback. */ }
-        }
-        if (current) { await saveDownloadedChapter(current); currentSaved = true; }
+        if (currentHtmlChapter) { await saveDownloadedChapter(currentHtmlChapter); currentSaved = true; }
       } catch { currentSaved = false; }
       try {
         const manifest = await loadManifest(reader);
