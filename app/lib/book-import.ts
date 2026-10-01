@@ -1,3 +1,4 @@
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const MAX_BOOKS = 20;
@@ -8,7 +9,7 @@ const MAX_CHAPTERS_PER_BOOK = 800;
 const MAX_CHAPTERS = 1000;
 const SOMA_CATEGORIES = new Set(["Romance", "Thriller", "Sci-Fi", "Historical", "Fantasy", "Contemporary", "Urban Fantasy"]);
 
-type ChapterInput = { number?: unknown; title?: unknown; content?: unknown; status?: unknown; isFree?: unknown };
+type ChapterInput = { number?: unknown; title?: unknown; content?: unknown; status?: unknown; isFree?: unknown; wordCount?: unknown };
 export type ClassicIntegrityInput = {
   verified?: unknown;
   sourceCanonicalSha256?: unknown;
@@ -25,7 +26,7 @@ export type ClassicIntegrityInput = {
   reconstructedEndFingerprint?: unknown;
 };
 type BookInput = { slug?: unknown; title?: unknown; author?: unknown; language?: unknown; category?: unknown; description?: unknown; coverUrl?: unknown; coverDataUrl?: unknown; tags?: unknown; status?: unknown; featured?: unknown; translationOfSlug?: unknown; integrity?: ClassicIntegrityInput; chapters?: ChapterInput[] };
-type NormalizedBook = { slug: string; title: string; author: string; language: "en" | "sw"; category: string; description: string; coverUrl: string | null; coverDataUrl: string | null; tags: string[]; status: "draft" | "published" | "hidden"; featured: boolean; translationOfSlug: string | null; chapters: Array<{ number: number; title: string; content: string; status: "draft" | "published"; isFree: boolean }> };
+type NormalizedBook = { slug: string; title: string; author: string; language: "en" | "sw"; category: string; description: string; coverUrl: string | null; coverDataUrl: string | null; tags: string[]; status: "draft" | "published" | "hidden"; featured: boolean; translationOfSlug: string | null; chapters: Array<{ number: number; title: string; content: string; status: "draft" | "published"; isFree: boolean; wordCount: number }> };
 
 function text(value: unknown) { return typeof value === "string" ? value.trim() : ""; }
 function slugify(value: string) { return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""); }
@@ -65,7 +66,7 @@ export function validateClassicIntegrity(input: {
   tags: string[];
   chapters: IntegrityChapter[];
   integrity?: ClassicIntegrityInput;
-}): string | null {
+}, options: { precomputed?: boolean } = {}): string | null {
   if (!input.tags.some((tag) => tag.trim().toLowerCase() === CLASSICS_TAG)) return null;
   const integrity = input.integrity;
   if (!integrity || typeof integrity !== "object") return "must include integrity metadata for an English Classic.";
@@ -82,6 +83,27 @@ export function validateClassicIntegrity(input: {
   }
   if (integrity.sourceWordCount !== integrity.reconstructedWordCount || integrity.coverageRatio !== 1) {
     return "must preserve 100% of the source words (coverageRatio must equal 1).";
+  }
+
+  if (options.precomputed) {
+    // The trusted import script already recomputed every derived value from the chapter text on a machine
+    // without a CPU budget (and aborts the upload on any mismatch). Here we only verify the metadata is
+    // self-consistent, without touching chapter text again.
+    const minChapterWords = integrity.minChapterWordCount;
+    const maxChapterWords = integrity.maxChapterWordCount;
+    const suspiciousChapters = integrity.suspiciousShortChapterCount;
+    if (typeof minChapterWords !== "number" || !Number.isSafeInteger(minChapterWords) || minChapterWords < 0) {
+      return "has invalid minChapterWordCount integrity metadata.";
+    }
+    if (typeof maxChapterWords !== "number" || !Number.isSafeInteger(maxChapterWords) || maxChapterWords < 0) {
+      return "has invalid maxChapterWordCount integrity metadata.";
+    }
+    if (maxChapterWords > MAX_CLASSIC_CHAPTER_WORDS) return `contains a chapter longer than ${MAX_CLASSIC_CHAPTER_WORDS.toLocaleString("en-US")} words.`;
+    if (typeof suspiciousChapters !== "number" || !Number.isSafeInteger(suspiciousChapters) || suspiciousChapters < 0) {
+      return "has invalid suspiciousShortChapterCount integrity metadata.";
+    }
+    if (suspiciousChapters !== 0) return "contains a suspicious short table-of-contents or page-navigation chapter.";
+    return null;
   }
 
   const chapterWordCounts = input.chapters.map((chapter) => wordCount(chapter.content));
@@ -120,7 +142,7 @@ function decodeCover(dataUrl: string) {
   return { contentType: match[1], bytes };
 }
 
-function normalizeBook(input: BookInput, index: number, options: { chaptersOnly?: boolean; deferClassicIntegrity?: boolean } = {}): NormalizedBook | { error: string } {
+function normalizeBook(input: BookInput, index: number, options: { chaptersOnly?: boolean; deferClassicIntegrity?: boolean; precomputed?: boolean } = {}): NormalizedBook | { error: string } {
   const title = text(input.title); const author = text(input.author); const slug = slugify(text(input.slug) || title);
   const language = input.language === "sw" ? "sw" : input.language === "en" ? "en" : null;
   const status = input.status === "published" || input.status === "hidden" || input.status === "draft" ? input.status : "draft";
@@ -137,7 +159,11 @@ function normalizeBook(input: BookInput, index: number, options: { chaptersOnly?
   for (const chapter of chapters) {
     const number = Number(chapter.number); const chapterTitle = text(chapter.title); const content = text(chapter.content);
     if (!Number.isInteger(number) || number < 1 || chapterNumbers.has(number) || !chapterTitle || !content) return { error: `Book ${index + 1} has a chapter with a missing title/content or duplicate number.` };
-    chapterNumbers.add(number); normalizedChapters.push({ number, title: chapterTitle, content, status: chapter.status === "published" ? "published" : "draft", isFree: chapter.isFree !== false });
+    chapterNumbers.add(number);
+    // Import scripts precompute per-chapter word counts on machines without a CPU budget; reuse them when present
+    // so the Worker never splits full chapter text. Falls back to local computation for other callers.
+    const precomputedWordCount = positiveInteger(chapter.wordCount) ? chapter.wordCount : wordCount(content);
+    normalizedChapters.push({ number, title: chapterTitle, content, status: chapter.status === "published" ? "published" : "draft", isFree: chapter.isFree !== false, wordCount: precomputedWordCount });
   }
   const normalizedTags = Array.isArray(input.tags)
     ? input.tags.filter((tag): tag is string => typeof tag === "string").map((tag) => tag.trim().replace(/\s+/g, " ")).filter(Boolean)
@@ -152,7 +178,7 @@ function normalizeBook(input: BookInput, index: number, options: { chaptersOnly?
   if (!options.chaptersOnly && status === "published" && !tags.length) return { error: `Published book ${index + 1} needs at least one tag.` };
   if (tags.length > 12 || tags.some((tag) => tag.length > 40)) return { error: `Book ${index + 1} has too many tags or a tag longer than 40 characters.` };
   if (!options.deferClassicIntegrity) {
-    const integrityError = validateClassicIntegrity({ title, tags, chapters: normalizedChapters, integrity: input.integrity });
+    const integrityError = validateClassicIntegrity({ title, tags, chapters: normalizedChapters, integrity: input.integrity }, { precomputed: options.precomputed });
     if (integrityError) return { error: `Book ${index + 1} (${title}) ${integrityError}` };
   }
   const translationOfSlug = slugify(text(input.translationOfSlug));
@@ -167,7 +193,7 @@ type ExistingBookForChapterUpdate = {
   tags: unknown;
 };
 
-async function importChaptersOnly(supabase: SupabaseClient, books: NormalizedBook[], inputs: BookInput[]) {
+async function importChaptersOnly(supabase: SupabaseClient, books: NormalizedBook[], inputs: BookInput[], precomputed: boolean) {
   const slugs = books.map((book) => book.slug);
   const { data, error: lookupError } = await supabase.from("books").select("id,slug,title,tags").in("slug", slugs);
   if (lookupError) throw new Error(lookupError.message);
@@ -179,12 +205,12 @@ async function importChaptersOnly(supabase: SupabaseClient, books: NormalizedBoo
   for (const [index, book] of books.entries()) {
     const existing = existingBySlug.get(book.slug)!;
     const existingTags = Array.isArray(existing.tags) ? existing.tags.filter((tag): tag is string => typeof tag === "string") : [];
-    const integrityError = validateClassicIntegrity({ title: existing.title || book.title, tags: existingTags, chapters: book.chapters, integrity: inputs[index].integrity });
+    const integrityError = validateClassicIntegrity({ title: existing.title || book.title, tags: existingTags, chapters: book.chapters, integrity: inputs[index].integrity }, { precomputed });
     if (integrityError) throw new Error(`Book ${index + 1} (${existing.title || book.title}) ${integrityError}`);
   }
 
   const now = new Date().toISOString();
-  const chapterRows = books.flatMap((book) => book.chapters.map((chapter) => ({ book_id: existingBySlug.get(book.slug)!.id, chapter_number: chapter.number, title: chapter.title, content: chapter.content, status: chapter.status, is_free: chapter.isFree, published_at: chapter.status === "published" ? now : null, word_count: wordCount(chapter.content) })));
+  const chapterRows = books.flatMap((book) => book.chapters.map((chapter) => ({ book_id: existingBySlug.get(book.slug)!.id, chapter_number: chapter.number, title: chapter.title, content: chapter.content, status: chapter.status, is_free: chapter.isFree, published_at: chapter.status === "published" ? now : null, word_count: chapter.wordCount })));
   // The multi-row upsert is one database statement. Do it before removing stale
   // rows so an interrupted request leaves either the old edition or the full new
   // edition plus harmless extras; every step is idempotent and safe to retry.
@@ -203,15 +229,16 @@ async function importChaptersOnly(supabase: SupabaseClient, books: NormalizedBoo
   return { ok: true, importedBooks: books.length, importedChapters: chapterRows.length, books: existingBooks.map(({ id, slug, title }) => ({ id, slug, title })) };
 }
 
-export async function importBooks(supabase: SupabaseClient, payload: { books?: BookInput[]; updateMode?: unknown }) {
+export async function importBooks(supabase: SupabaseClient, payload: { books?: BookInput[]; updateMode?: unknown; precomputed?: unknown }) {
   if (!Array.isArray(payload.books) || !payload.books.length || payload.books.length > MAX_BOOKS) throw new Error(`Provide between 1 and ${MAX_BOOKS} books.`);
   if (payload.updateMode !== undefined && payload.updateMode !== "chapters-only") throw new Error("updateMode must be 'chapters-only' when provided.");
   const chaptersOnly = payload.updateMode === "chapters-only";
+  const precomputed = payload.precomputed === true;
   const books: NormalizedBook[] = [];
-  for (const [index, input] of payload.books.entries()) { const book = normalizeBook(input, index, { chaptersOnly, deferClassicIntegrity: chaptersOnly }); if ("error" in book) throw new Error(book.error); books.push(book); }
+  for (const [index, input] of payload.books.entries()) { const book = normalizeBook(input, index, { chaptersOnly, deferClassicIntegrity: chaptersOnly, precomputed }); if ("error" in book) throw new Error(book.error); books.push(book); }
   if (new Set(books.map((book) => book.slug)).size !== books.length) throw new Error("Each book needs a unique slug.");
   if (books.reduce((total, book) => total + book.chapters.length, 0) > MAX_CHAPTERS) throw new Error(`A batch can contain at most ${MAX_CHAPTERS} chapters.`);
-  if (chaptersOnly) return importChaptersOnly(supabase, books, payload.books);
+  if (chaptersOnly) return importChaptersOnly(supabase, books, payload.books, precomputed);
   const now = new Date().toISOString(); const coverVersion = Date.now(); const coversBySlug = new Map<string, string>();
   const translatedSlugs = [...new Set(books.map((book) => book.translationOfSlug).filter((slug): slug is string => Boolean(slug)))];
   const externalParentSlugs = translatedSlugs.filter((slug) => !books.some((book) => book.slug === slug));
@@ -248,7 +275,7 @@ export async function importBooks(supabase: SupabaseClient, payload: { books?: B
     const { error } = await supabase.from("books").update({ parent_book_id: parentId }).eq("id", idsBySlug.get(book.slug));
     if (error) throw new Error(error.message);
   }
-  const chapterRows = books.flatMap((book) => book.chapters.map((chapter) => ({ book_id: idsBySlug.get(book.slug), chapter_number: chapter.number, title: chapter.title, content: chapter.content, status: chapter.status, is_free: chapter.isFree, published_at: chapter.status === "published" ? now : null, word_count: wordCount(chapter.content) })));
+  const chapterRows = books.flatMap((book) => book.chapters.map((chapter) => ({ book_id: idsBySlug.get(book.slug), chapter_number: chapter.number, title: chapter.title, content: chapter.content, status: chapter.status, is_free: chapter.isFree, published_at: chapter.status === "published" ? now : null, word_count: chapter.wordCount })));
   if (chapterRows.some((chapter) => !chapter.book_id)) throw new Error("Could not match imported books.");
   const { error: chapterError } = await supabase.from("chapters").upsert(chapterRows, { onConflict: "book_id,chapter_number" });
   if (chapterError) throw new Error(chapterError.message);

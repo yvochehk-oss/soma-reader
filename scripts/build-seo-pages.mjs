@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { getSupabasePublicConfig } from "./lib/soma-public-config.mjs";
 import { buildReaderArtifacts, renderStaticReaderPage, staticReaderHtmlRelativePath } from "./lib/static-reader.mjs";
 
@@ -13,6 +15,40 @@ const publicCatalogueOutput = resolve("public/catalog/books.json");
 const staticReaderOutput = resolve("public/read");
 const readerDataOutput = resolve("public/reader-data");
 const homeIndexPath = resolve("index.html");
+
+// --- Incremental build (`--since`) ---
+// Without flags this script bakes the entire catalogue from scratch. With
+// `--since` it diffs every book against `.build-manifest.json` (written by
+// the previous run) and only re-bakes books whose content changed, so a new
+// chapter / new book no longer requires a full-site rebuild. The manifest
+// lives at the repo root (never inside public/, so it is not deployed) and
+// is gitignored: a fresh checkout without it simply falls back to a full
+// build. Template changes also force a full build via codeHash.
+const incrementalRequested = process.argv.includes("--since");
+const buildManifestPath = resolve(".build-manifest.json");
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
+let previousManifest = null;
+if (incrementalRequested) {
+  try {
+    const parsed = JSON.parse(await readFile(buildManifestPath, "utf8"));
+    if (parsed && typeof parsed.books === "object") previousManifest = parsed;
+  } catch {
+    previousManifest = null;
+  }
+}
+const codeHash = sha256(
+  (await readFile(fileURLToPath(import.meta.url), "utf8")) + "\n" +
+  (await readFile(resolve(scriptDir, "lib/static-reader.mjs"), "utf8")),
+);
+let incremental = incrementalRequested && previousManifest !== null;
+if (incremental && previousManifest.codeHash !== codeHash) {
+  console.log("Template sources changed since the last build; falling back to a full build.");
+  incremental = false;
+}
+if (incrementalRequested && !incremental && previousManifest === null) {
+  console.log("No previous build manifest found; running a full build.");
+}
 
 const escapeHtml = (value = "") => String(value)
   .replaceAll("&", "&amp;")
@@ -81,22 +117,34 @@ await writeFile(publicCatalogueOutput, `${JSON.stringify(books)}\n`);
 const isClassicRow = (book) => /(?:^|[\s_-])(?:classics?|literature)(?:$|[\s_-])|classic-literature|literature-classic/.test(
   [book.category, ...(book.tags || [])].join(" ").toLowerCase(),
 );
+const classicCount = books.filter(isClassicRow).length;
+const classicCountLabel = classicCount.toLocaleString("en-US");
 const homeHeroBook = books.find((book) => book.is_featured && book.language_code === "en" && !isClassicRow(book) && book.cover_url)
   || books.find((book) => book.language_code === "en" && !isClassicRow(book) && book.cover_url);
 const homeIndex = await readFile(homeIndexPath, "utf8");
 const featuredPreloadPattern = /<!-- HOME_FEATURED_PRELOAD_START -->[\s\S]*?<!-- HOME_FEATURED_PRELOAD_END -->/;
 if (!featuredPreloadPattern.test(homeIndex)) throw new Error("Homepage featured-cover preload markers are missing.");
+// The homepage <meta name="description"> and the WebSite JSON-LD description
+// quote the classics count in hard-coded prose ("a thousand ..."). Refresh the
+// figure on every build so crawlers never see a stale number. Both the
+// original wording and a previously generated figure are matched, keeping the
+// rewrite idempotent across repeated builds.
+const refreshHomepageClassicCount = (html) => html
+  .replace(/(?:a|more than a) thousand professionally re-typeset English classics/g, `${classicCountLabel} professionally re-typeset English classics`)
+  .replace(/\b\d{1,3}(?:,\d{3})* professionally re-typeset English classics/g, `${classicCountLabel} professionally re-typeset English classics`)
+  .replace(/zaidi ya vitabu elfu moja vya kale vya Kiingereza vilivyopangwa upya/g, `vitabu ${classicCountLabel} vya kale vya Kiingereza vilivyopangwa upya`)
+  .replace(/vitabu \d{1,3}(?:,\d{3})* vya kale vya Kiingereza vilivyopangwa upya/g, `vitabu ${classicCountLabel} vya kale vya Kiingereza vilivyopangwa upya`);
 if (homeHeroBook) {
   const featuredCover = absoluteUrl(homeHeroBook.cover_url);
   const featuredOrigin = new URL(featuredCover).origin;
   const featuredPreload = `<!-- HOME_FEATURED_PRELOAD_START -->\n    <link rel="preconnect" href="${escapeHtml(featuredOrigin)}" crossorigin />\n    <link rel="preload" as="image" href="${escapeHtml(featuredCover)}" fetchpriority="high" />\n    <!-- HOME_FEATURED_PRELOAD_END -->`;
-  const updatedHomeIndex = homeIndex.replace(featuredPreloadPattern, featuredPreload);
+  const updatedHomeIndex = refreshHomepageClassicCount(homeIndex.replace(featuredPreloadPattern, featuredPreload));
   await writeFile(homeIndexPath, updatedHomeIndex);
 } else {
-  await writeFile(homeIndexPath, homeIndex.replace(
+  await writeFile(homeIndexPath, refreshHomepageClassicCount(homeIndex.replace(
     featuredPreloadPattern,
     '<!-- HOME_FEATURED_PRELOAD_START -->\n    <!-- No English modern cover is available to preload. -->\n    <!-- HOME_FEATURED_PRELOAD_END -->',
-  ));
+  )));
 }
 const byRoot = new Map();
 for (const book of books) {
@@ -104,22 +152,41 @@ for (const book of books) {
   byRoot.set(root, [...(byRoot.get(root) || []), book]);
 }
 
-// This directory is fully generated from the current published catalogue.
-// Recreate it on every run so deleted or renamed slugs cannot survive as stale
-// static HTML and continue returning 200 after the database record is gone.
-await rm(output, { recursive: true, force: true });
-await mkdir(output, { recursive: true });
-// These generated trees are recreated from the published source rows each
-// build. Removing both first prevents unpublished or deleted chapters from
-// surviving as reachable static assets after a later release.
-await Promise.all([
-  rm(staticReaderOutput, { recursive: true, force: true }),
-  rm(readerDataOutput, { recursive: true, force: true }),
-]);
-await Promise.all([
-  mkdir(staticReaderOutput, { recursive: true }),
-  mkdir(readerDataOutput, { recursive: true }),
-]);
+if (incremental) {
+  // Incremental mode: the per-book diff below regenerates changed titles, so
+  // only wipe the trees of books that disappeared from the catalogue.
+  // Withdrawn slugs must not survive as stale static HTML returning 200.
+  const currentSlugs = new Set(books.map((book) => book.slug));
+  const removedSlugs = Object.keys(previousManifest.books).filter((slug) => !currentSlugs.has(slug));
+  await Promise.all(removedSlugs.flatMap((slug) => [
+    rm(resolve(output, slug), { recursive: true, force: true }),
+    rm(resolve(staticReaderOutput, slug), { recursive: true, force: true }),
+    rm(resolve(readerDataOutput, slug), { recursive: true, force: true }),
+  ]));
+  if (removedSlugs.length) {
+    console.log(`Incremental: removed ${removedSlugs.length} withdrawn book(s): ${removedSlugs.join(", ")}`);
+  }
+  await mkdir(output, { recursive: true });
+  await mkdir(staticReaderOutput, { recursive: true });
+  await mkdir(readerDataOutput, { recursive: true });
+} else {
+  // This directory is fully generated from the current published catalogue.
+  // Recreate it on every run so deleted or renamed slugs cannot survive as stale
+  // static HTML and continue returning 200 after the database record is gone.
+  await rm(output, { recursive: true, force: true });
+  await mkdir(output, { recursive: true });
+  // These generated trees are recreated from the published source rows each
+  // build. Removing both first prevents unpublished or deleted chapters from
+  // surviving as reachable static assets after a later release.
+  await Promise.all([
+    rm(staticReaderOutput, { recursive: true, force: true }),
+    rm(readerDataOutput, { recursive: true, force: true }),
+  ]);
+  await Promise.all([
+    mkdir(staticReaderOutput, { recursive: true }),
+    mkdir(readerDataOutput, { recursive: true }),
+  ]);
+}
 const allChapters = await fetchRows(`chapters?${new URLSearchParams({
   select: "id,book_id,chapter_number,title,content,word_count",
   status: "eq.published",
@@ -134,14 +201,77 @@ for (const ch of allChapters) {
   chaptersByBookId.get(ch.book_id).push(ch);
 }
 
+// Chapter-level hreflang support. Sibling editions of a book are found with
+// the same two strategies the book pages use (parent_book_id grouping, then
+// the "-sw" slug convention). A sibling chapter link is only emitted when the
+// sibling edition actually contains that chapter number, so a short
+// translation never advertises a chapter it does not have.
+const slugToBook = new Map(books.map((book) => [book.slug, book]));
+const chapterNumbersByBookId = new Map();
+for (const [bookId, chapterList] of chaptersByBookId) {
+  chapterNumbersByBookId.set(bookId, new Set(chapterList.map((ch) => Number(ch.chapter_number ?? ch.number))));
+}
+function siblingBooks(book) {
+  const siblings = new Map();
+  for (const alt of (byRoot.get(book.parent_book_id || book.id) || [])) {
+    if (alt.id !== book.id) siblings.set(String(alt.id), alt);
+  }
+  if (book.language_code === "sw") {
+    if (book.slug.endsWith("-sw")) {
+      const twin = slugToBook.get(book.slug.slice(0, -"-sw".length));
+      if (twin && twin.id !== book.id) siblings.set(String(twin.id), twin);
+    }
+  } else {
+    const twin = slugToBook.get(`${book.slug}-sw`);
+    if (twin && twin.id !== book.id) siblings.set(String(twin.id), twin);
+  }
+  return [...siblings.values()];
+}
+function siblingChapterAlternates(book, chapterNumber) {
+  return siblingBooks(book)
+    .filter((sib) => chapterNumbersByBookId.get(sib.id)?.has(chapterNumber))
+    .map((sib) => ({ language: sib.language_code === "sw" ? "sw" : "en", slug: sib.slug }));
+}
+
 let generatedReaderPages = 0;
 let generatedReaderFiles = 0;
 let generatedReaderBytes = 0;
+let skippedReaderBooks = 0;
+let skippedBookPages = 0;
+
+// Per-book content hash: the book row, its chapters, and the sibling chapter
+// lists that feed chapter-level hreflang alternates. If none of these
+// changed, the book page, reader-data manifest and every static chapter page
+// for this book are byte-identical to the last build and can be skipped.
+const bookContentHash = new Map();
+for (const book of books) {
+  const chapters = chaptersByBookId.get(book.id) || [];
+  const siblingSignature = siblingBooks(book)
+    .map((sib) => `${sib.slug}:${[...(chapterNumbersByBookId.get(sib.id) || new Set())].sort((a, b) => a - b).join(",")}`)
+    .sort()
+    .join("|");
+  bookContentHash.set(book.slug, sha256(JSON.stringify({ book, chapters, siblings: siblingSignature })));
+}
+const isBookUnchanged = (book) =>
+  incremental && previousManifest.books[book.slug] === bookContentHash.get(book.slug);
 for (const book of books) {
   const chapters = chaptersByBookId.get(book.id) || [];
   if (!chapters.length) continue;
   if (Number.isInteger(Number(book.total_chapters)) && Number(book.total_chapters) > 0 && Number(book.total_chapters) !== chapters.length) {
     throw new Error(`${book.slug}: books.total_chapters is ${book.total_chapters}, but the published chapter query returned ${chapters.length}; refusing to publish an incomplete reader tree.`);
+  }
+  if (isBookUnchanged(book)) {
+    skippedReaderBooks += 1;
+    continue;
+  }
+  if (incremental) {
+    // The shared trees are not wiped in incremental mode, so clear this
+    // book's own trees first: a chapter removed from the database must not
+    // survive as a stale static HTML file.
+    await Promise.all([
+      rm(resolve(staticReaderOutput, book.slug), { recursive: true, force: true }),
+      rm(resolve(readerDataOutput, book.slug), { recursive: true, force: true }),
+    ]);
   }
   const artifacts = buildReaderArtifacts(book, chapters);
   const bookDataDirectory = resolve(readerDataOutput, book.slug);
@@ -162,6 +292,7 @@ for (const book of books) {
       previousChapter: artifacts.chapters[chapterIndex - 1],
       nextChapter: artifacts.chapters[chapterIndex + 1],
       siteUrl: SITE_URL,
+      alternates: siblingChapterAlternates(book, number),
     });
     await writeFile(chapterPagePath, pageText);
     generatedReaderPages += 1;
@@ -212,7 +343,8 @@ for (const book of books) {
     : "";
   // hreflang + x-default for translated pairs. Without this, Google may
   // index the Swahili and English editions as duplicates and pick one
-  // arbitrarily. x-default points at the English edition.
+  // arbitrarily. x-default points at this page's own canonical URL (the
+  // edition the reader is already on).
   const selfLang = book.language_code === "sw" ? "sw" : "en";
   const hreflangTags = [
     `<link rel="alternate" hreflang="${selfLang}" href="${canonical}">`,
@@ -240,6 +372,9 @@ for (const book of books) {
   <meta property="og:type" content="book"><meta property="og:site_name" content="Soma Novel">
   <meta property="og:title" content="${escapeHtml(book.title)}"><meta property="og:description" content="${escapeHtml(book.description || "Read free on Soma Novel.")}">
   <meta property="og:url" content="${escapeHtml(canonical)}"><meta property="og:image" content="${escapeHtml(cover)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapeHtml(book.title)}"><meta name="twitter:description" content="${escapeHtml(book.description || "Read free on Soma Novel.")}">
+  <meta name="twitter:image" content="${escapeHtml(cover)}">
   <script type="application/ld+json">${JSON.stringify(schema).replaceAll("<", "\\u003c")}</script>
   <style>body{max-width:760px;margin:0 auto;padding:32px 20px;font:17px/1.65 system-ui,sans-serif;color:#102321;background:#f8f7f2}a{color:#9e3c19}img{width:180px;max-width:45%;border-radius:14px;float:right;margin:0 0 22px 26px}h1{line-height:1.15}.eyebrow{font-weight:700;color:#9e3c19}.meta,.versions{color:#50615e}li{margin:8px 0}@media(max-width:540px){img{float:none;max-width:100%;width:240px;margin:0 0 20px}}</style>
 </head>
@@ -254,9 +389,13 @@ ${languageLinks ? `  ${languageLinks}\n` : ""}  <p>${escapeHtml(book.description
   <h2>Chapters</h2><ol>${chapterList}</ol>
   ${legalFooter}
 </body></html>`;
-  const directory = resolve(output, book.slug);
-  await mkdir(directory, { recursive: true });
-  await writeFile(resolve(directory, "index.html"), html);
+  if (isBookUnchanged(book)) {
+    skippedBookPages += 1;
+  } else {
+    const directory = resolve(output, book.slug);
+    await mkdir(directory, { recursive: true });
+    await writeFile(resolve(directory, "index.html"), html);
+  }
   pages.push({
     canonical,
     title: book.title,
@@ -286,10 +425,24 @@ const pagesByLanguage = pages.reduce((accumulator, page) => {
 // the same selector above (`chaptersQuery` selects `chapter_number` only),
 // so we re-query the chapters table for the full URL set.
 const chapterUrls = [];
+const chapterHreflangByUrl = new Map();
 for (const book of books) {
   const chaptersPage = chaptersByBookId.get(book.id) || [];
+  const selfLang = book.language_code === "sw" ? "sw" : "en";
   for (const chapter of chaptersPage) {
-    chapterUrls.push(`${SITE_URL}/read/${encodeURIComponent(book.slug)}/${chapter.chapter_number}`);
+    const chapterNumber = Number(chapter.chapter_number);
+    const url = `${SITE_URL}/read/${encodeURIComponent(book.slug)}/${chapterNumber}`;
+    chapterUrls.push(url);
+    const alternates = siblingChapterAlternates(book, chapterNumber).map((alt) => ({
+      code: alt.language,
+      url: `${SITE_URL}/read/${encodeURIComponent(alt.slug)}/${chapterNumber}`,
+    }));
+    const englishAlternate = alternates.find((alt) => alt.code === "en");
+    chapterHreflangByUrl.set(url, [
+      { code: selfLang, url },
+      ...alternates,
+      { code: "x-default", url: englishAlternate ? englishAlternate.url : url },
+    ]);
   }
 }
 // Sitemap is split into a sitemap-index with per-language + per-section
@@ -393,7 +546,7 @@ function annotate(urls) {
 const homeAndStaticEntries = homeAndStatic.map((url) => ({ url }));
 const enEntries = annotate(enBookUrls);
 const swEntries = annotate(swBookUrls);
-const chapterEntries = chapterUrlsAll.map((url) => ({ url }));
+const chapterEntries = chapterUrlsAll.map((url) => ({ url, hreflang: chapterHreflangByUrl.get(url) }));
 
 await writeFile(resolve("public/sitemap-home.xml"), buildSitemapSet(homeAndStaticEntries));
 await writeFile(resolve("public/sitemap-books-en.xml"), buildSitemapSet(enEntries));
@@ -550,8 +703,8 @@ const llmPolicy = {
   contact: "contact@somanovel.uk",
   // Bilingual summary for both English and Kiswahili audiences.
   summary: {
-    en: "Soma Novel publishes original web fiction in English and Kiswahili (side-by-side, free to read and download), re-typesets more than a thousand public-domain English classics for phone reading (free to read and download), and offers a free self-publishing uploader that accepts .txt and .epub files. No account is required to read or download.",
-    sw: "Soma Novel inachapisha riwaya za mtandaoni kwa Kiingereza na Kiswahili (kwa pamoja, bure kusoma na kupakua), inapanga upya zaidi ya vitabu elfu moja vya kale vya Kiingereza kwa ajili ya kusoma kwenye simu (bure kusoma na kupakua), na inatoa kifungu cha bure cha kuchapisha mwenyewe kinachokubali faili za .txt na .epub. Hakuna haja ya akaunti ya kusoma au kupakua.",
+    en: `Soma Novel publishes original web fiction in English and Kiswahili (side-by-side, free to read and download), re-typesets ${classicCountLabel} public-domain English classics for phone reading (free to read and download), and offers a free self-publishing uploader that accepts .txt and .epub files. No account is required to read or download.`,
+    sw: `Soma Novel inachapisha riwaya za mtandaoni kwa Kiingereza na Kiswahili (kwa pamoja, bure kusoma na kupakua), inapanga upya vitabu ${classicCountLabel} vya kale vya Kiingereza kwa ajili ya kusoma kwenye simu (bure kusoma na kupakua), na inatoa kifungu cha bure cha kuchapisha mwenyewe kinachokubali faili za .txt na .epub. Hakuna haja ya akaunti ya kusoma au kupakua.`,
   },
   // What content is available for AI consumption. Bilingual coverage only
   // applies to original web fiction — the re-typeset English classics are
@@ -579,8 +732,8 @@ const llmPolicy = {
       languages: ["en", "sw"],
     },
     {
-      en: "Re-typeset English classics. More than a thousand public-domain English works re-typeset for phone screens, free to read online and free to download as a complete book.",
-      sw: "Vitabu vya kale vya Kiingereza vimepangwa upya. Zaidi ya vitabu elfu moja vya kale vya Kiingereza vimepangwa upya kwa skrini za simu, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Vitabu hivi vya kale ni vya Kiingereza pekee, kwa sababu chanzo chao cha asili ni Kiingereza.)",
+      en: `Re-typeset English classics. ${classicCountLabel} public-domain English works re-typeset for phone screens, free to read online and free to download as a complete book.`,
+      sw: `Vitabu vya kale vya Kiingereza vimepangwa upya. Vitabu ${classicCountLabel} vya kale vya Kiingereza vimepangwa upya kwa skrini za simu, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Vitabu hivi vya kale ni vya Kiingereza pekee, kwa sababu chanzo chao cha asili ni Kiingereza.)`,
       scope: "re_typeset_classics",
       languages: ["en"],
     },
@@ -598,6 +751,7 @@ const llmPolicy = {
       bilingual: true,
     },
     re_typeset_classics: {
+      count: classicCount,
       languages: ["en"],
       description_en: "Public-domain English works re-typeset for phone reading. English only.",
       description_sw: "Vitabu vya kale vya Kiingereza vimepangwa upya kwa ajili ya kusoma kwenye simu. Kiingereza pekee.",
@@ -651,7 +805,7 @@ mtandaoni za asili. Vitabu vya kale vya Kiingereza vilivyopangwa upya ni
 vya Kiingereza pekee, kwa sababu chanzo chao cha asili ni Kiingereza.
 
 - Original web fiction / Riwaya za mtandaoni za asili: ${pagesByLanguage.en.length} English + ${pagesByLanguage.sw.length} Kiswahili editions, published side-by-side.
-- Re-typeset English classics / Vitabu vya kale vya Kiingereza vilivyopangwa upya: 1,000+ public-domain works, English only. / 1,000+ vitabu vya kale vya Kiingereza pekee.
+- Re-typeset English classics / Vitabu vya kale vya Kiingereza vilivyopangwa upya: ${classicCountLabel} public-domain works, English only. / Vitabu ${classicCountLabel} vya kale vya Kiingereza pekee.
 
 # Three things Soma Novel does / Mambo matatu anayofanya Soma Novel
 
@@ -663,9 +817,9 @@ vya Kiingereza pekee, kwa sababu chanzo chao cha asili ni Kiingereza.
    Scope: original web fiction only. Languages: English + Kiswahili.
 
 2. Re-typeset English classics / Vitabu vya kale vya Kiingereza vimepangwa upya.
-   More than a thousand public-domain English works have been professionally
+   ${classicCountLabel} public-domain English works have been professionally
    re-typeset for phone screens, free to read online and free to download as a
-   complete book. / Zaidi ya vitabu elfu moja vya kale vya Kiingereza
+   complete book. / Vitabu ${classicCountLabel} vya kale vya Kiingereza
    vimepangwa upya kitaalamu kwa skrini za simu, bure kusoma mtandaoni na bure
    kupakua kitabu kizima.
    Scope: classics section. Languages: English only. / Lugha: Kiingereza pekee.
@@ -724,34 +878,34 @@ const bookListSw = pagesByLanguage.sw.map(bookLlmEntry).join("\n");
 // public-domain source language is English.
 const HIGHLIGHTS_EN = [
   "Bilingual web fiction (爽文). Every original serial is published side-by-side in English and Kiswahili, fully free to read online and free to download as a complete book (TXT or EPUB). Scope: original web fiction only.",
-  "Re-typeset English classics. More than a thousand public-domain English works have been professionally re-typeset for phone screens — cleaner line spacing, sensible margins, distraction-free reader — free to read online and free to download as a complete book. Scope: classics section. English only — Kiswahili translations are not produced for these public-domain works.",
+  `Re-typeset English classics. ${classicCountLabel} public-domain English works have been professionally re-typeset for phone screens — cleaner line spacing, sensible margins, distraction-free reader — free to read online and free to download as a complete book. Scope: classics section. English only — Kiswahili translations are not produced for these public-domain works.`,
   "Self-publishing. Readers can upload their own .txt or .epub manuscripts through the in-page uploader (the uploader accepts English and Kiswahili) and read or share them immediately, free of charge.",
 ].join("\n\n");
 
 const HIGHLIGHTS_SW = [
   "Riwaya za mtandaoni (爽文) katika lugha mbili. Kila riwaya yetu ya asili inachapishwa kwa Kiingereza na Kiswahili, hii ni bure kabisa kusoma mtandaoni na bure kupakua kitabu kizima (TXT au EPUB). Wigo: riwaya za mtandaoni za asili pekee.",
-  "Vitabu vya kale vya Kiingereza vimepangwa upya. Zaidi ya vitabu elfu moja vya kale vya Kiingereza — novela, hadithi fupi, na vitabu vya marejeleo — vimepangwa upya kwa skrini za simu, na vinapatikana bure kusoma mtandaoni na bure kupakua kitabu kizima. Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa vitabu hivi vya kale.",
+  `Vitabu vya kale vya Kiingereza vimepangwa upya. Vitabu ${classicCountLabel} vya kale vya Kiingereza — novela, hadithi fupi, na vitabu vya marejeleo — vimepangwa upya kwa skrini za simu, na vinapatikana bure kusoma mtandaoni na bure kupakua kitabu kizima. Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa vitabu hivi vya kale`,
   "Kuchapisha mwenyewe. Wasomaji wanaweza kupakia hati zao za .txt au .epub kupitia kifungu cha kupakia kilichopo kwenye ukurasa (kifungu kinakubali Kiingereza na Kiswahili), na kusoma au kushiriki mara moja, bila malipo.",
 ].join("\n\n");
 
 const llmsTxt = `# Soma Novel
 
-> Free English and Kiswahili web novels, free re-typeset English classics, and a free self-publishing uploader. ${pages.length} published titles (${pagesByLanguage.en.length} English, ${pagesByLanguage.sw.length} Kiswahili) plus a thousand public-domain classics.
-> Riwaya za bure za Kiingereza na Kiswahili, vitabu vya kale vya Kiingereza vilivyopangwa upya, na kifungu cha bure cha kuchapisha mwenyewe. Vitabu ${pages.length} (Kiingereza ${pagesByLanguage.en.length}, Kiswahili ${pagesByLanguage.sw.length}) pamoja na zaidi ya elfu moja ya vitabu vya kale.
+> Free English and Kiswahili web novels, free re-typeset English classics, and a free self-publishing uploader. ${pages.length} published titles (${pagesByLanguage.en.length} English, ${pagesByLanguage.sw.length} Kiswahili) plus ${classicCountLabel} public-domain classics.
+> Riwaya za bure za Kiingereza na Kiswahili, vitabu vya kale vya Kiingereza vilivyopangwa upya, na kifungu cha bure cha kuchapisha mwenyewe. Vitabu ${pages.length} (Kiingereza ${pagesByLanguage.en.length}, Kiswahili ${pagesByLanguage.sw.length}) pamoja na vitabu ${classicCountLabel} vya kale.
 
 ## Catalogue layout / Muundo wa orodha ya vitabu
 
 Soma Novel has two distinct catalogue sections. Bilingual coverage only applies to the **original web fiction** section. The **re-typeset English classics** are English-only, because their underlying public-domain source language is English. / Soma Novel ina sehemu mbili tofauti za orodha ya vitabu. Toleo la lugha mbili linatumika tu kwa **sehemu ya riwaya za mtandaoni za asili**. **Vitabu vya kale vya Kiingereza vilivyopangwa upya** ni vya Kiingereza pekee, kwa sababu chanzo chao cha asili ni Kiingereza.
 
 - **Original web fiction / Riwaya za mtandaoni za asili** — ${pagesByLanguage.en.length} English + ${pagesByLanguage.sw.length} Kiswahili editions, published side-by-side. Languages: English + Kiswahili.
-- **Re-typeset English classics / Vitabu vya kale vya Kiingereza vilivyopangwa upya** — 1,000+ public-domain works. Languages: English only. / 1,000+ vitabu vya kale. Lugha: Kiingereza pekee.
+- **Re-typeset English classics / Vitabu vya kale vya Kiingereza vilivyopangwa upya** — ${classicCountLabel} public-domain works. Languages: English only. / Vitabu ${classicCountLabel} vya kale. Lugha: Kiingereza pekee.
 
 ## What Soma Novel is / Soma Novel ni nini
 
 Soma Novel is a free reading site from East Africa. It does three things, and they are the only things it does:
 
 1. **Bilingual web fiction (爽文).** Every original serial on Soma Novel is published side-by-side in English and Kiswahili, so a reader can start a chapter in English and finish it in Kiswahili without losing their place. Every book is fully free to read online and free to download as a complete book (TXT or EPUB). Categories include romance, thriller, contemporary, fantasy, sci-fi, and historical. (Scope: original web fiction only.)
-2. **Re-typeset English classics.** More than a thousand public-domain English works — novels, short stories, and reference books — have been professionally re-typeset for phone screens, with cleaner line spacing, sensible margins, and a distraction-free reader. Every classic is free to read online and free to download as a complete book (TXT or EPUB). (Scope: classics section. English only — Kiswahili translations are not produced for these works because the source language is English.)
+2. **Re-typeset English classics.** ${classicCountLabel} public-domain English works — novels, short stories, and reference books — have been professionally re-typeset for phone screens, with cleaner line spacing, sensible margins, and a distraction-free reader. Every classic is free to read online and free to download as a complete book (TXT or EPUB). (Scope: classics section. English only — Kiswahili translations are not produced for these works because the source language is English.)
 3. **Self-publishing.** Readers can upload their own manuscripts in plain text (.txt) or EPUB (.epub) through the in-page uploader. The uploader accepts English and Kiswahili. The reader parses the file, splits it into chapters, and makes it readable immediately, free of charge.
 
 All three features are free, with no account required to read or download.
@@ -761,7 +915,7 @@ All three features are free, with no account required to read or download.
 Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Inafanya mambo matatu, na hayo ndiyo yote inayofanya:
 
 1. **Riwaya za mtandaoni (爽文) katika lugha mbili.** Kila riwaya yetu ya asili inachapishwa kwa Kiingereza na Kiswahili, hivyo msomaji anaweza kuanza sura kwa Kiingereza na kuimaliza kwa Kiswahili bila kupoteza mahali alipo. Kila kitabu ni bure kabisa kusoma mtandaoni na bure kupakua kitabu kizima (TXT au EPUB). Makundi ni mapenzi, thriller, maisha ya kila siku, fantasia, sayansi ya kubuni, na kihistoria. (Wigo: riwaya za mtandaoni za asili pekee.)
-2. **Vitabu vya kale vya Kiingereza vimepangwa upya.** Zaidi ya vitabu elfu moja vya kale vya Kiingereza — novela, hadithi fupi, na vitabu vya marejeleo — vimepangwa upya kitaalamu kwa ajili ya skrini za simu, na nafasi safi za mistari, kingo nzuri, na msomaji asiyepotoshwa. Kila kitabu cha kale ni bure kusoma mtandaoni na bure kupakua kitabu kizima (TXT au EPUB). (Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa vitabu hivi kwa sababu lugha ya chanzo ni Kiingereza.)
+2. **Vitabu vya kale vya Kiingereza vimepangwa upya.** Vitabu ${classicCountLabel} vya kale vya Kiingereza — novela, hadithi fupi, na vitabu vya marejeleo — vimepangwa upya kitaalamu kwa ajili ya skrini za simu, na nafasi safi za mistari, kingo nzuri, na msomaji asiyepotoshwa. Kila kitabu cha kale ni bure kusoma mtandaoni na bure kupakua kitabu kizima (TXT au EPUB). (Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa vitabu hivi kwa sababu lugha ya chanzo ni Kiingereza.)
 3. **Kuchapisha mwenyewe.** Wasomaji wanaweza kupakia hati zao za .txt au .epub kupitia kifungu cha kupakia kilichopo kwenye ukurasa. Kifungu cha kupakia kinakubali Kiingereza na Kiswahili. Kifungu hufasiri faili, kugawanya sura, na kufanya iweze kusomwa mara moja, bila malipo.
 
 Huduma zote tatu ni bure, na hakuna haja ya akaunti ya kusoma au kupakua.
@@ -808,7 +962,7 @@ const llmsFull = `# Soma Novel — Full Directory
 Soma Novel is a free reading site from East Africa. Two catalogue sections, three things:
 
 1. **Bilingual web fiction (爽文).** Every original serial is published side-by-side in English and Kiswahili, free to read online and free to download as a complete book. (Scope: original web fiction only.)
-2. **Re-typeset English classics.** More than a thousand public-domain English works have been professionally re-typeset for phone screens, free to read online and free to download as a complete book. (Scope: classics section. English only — Kiswahili translations are not produced because the source language is English.)
+2. **Re-typeset English classics.** ${classicCountLabel} public-domain English works have been professionally re-typeset for phone screens, free to read online and free to download as a complete book. (Scope: classics section. English only — Kiswahili translations are not produced because the source language is English.)
 3. **Self-publishing.** Readers can upload their own .txt or .epub manuscripts through the in-page uploader (English and Kiswahili both accepted), free of charge.
 
 ---
@@ -816,7 +970,7 @@ Soma Novel is a free reading site from East Africa. Two catalogue sections, thre
 Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za orodha ya vitabu, mambo matatu:
 
 1. **Riwaya za mtandaoni (爽文) katika lugha mbili.** Kila riwaya yetu ya asili inachapishwa kwa Kiingereza na Kiswahili, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Wigo: riwaya za mtandaoni za asili pekee.)
-2. **Vitabu vya kale vya Kiingereza vimepangwa upya.** Zaidi ya vitabu elfu moja vya kale vya Kiingereza vimepangwa upya kwa skrini za simu, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa sababu lugha ya chanzo ni Kiingereza.)
+2. **Vitabu vya kale vya Kiingereza vimepangwa upya.** Vitabu ${classicCountLabel} vya kale vya Kiingereza vimepangwa upya kwa skrini za simu, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa sababu lugha ya chanzo ni Kiingereza.)
 3. **Kuchapisha mwenyewe.** Wasomaji wanaweza kupakia hati zao za .txt au .epub kupitia kifungu cha kupakia (Kiingereza na Kiswahili vinakubaliwa), bure.
 
 ## Site / Tovuti
@@ -861,7 +1015,7 @@ const rss = `<?xml version="1.0" encoding="UTF-8"?>
   <channel>
     <title>Soma Novel</title>
     <link>${SITE_URL}/books/</link>
-    <description>Two catalogue sections: (1) original web fiction side-by-side in English and Kiswahili, free to read and download; (2) more than a thousand re-typeset English public-domain classics, English only, free to read and download. Plus a free self-publishing uploader for .txt and .epub. / Sehemu mbili za orodha: (1) riwaya za mtandaoni za asili kwa Kiingereza na Kiswahili kwa pamoja, bure kusoma na kupakua; (2) zaidi ya vitabu elfu moja vya kale vya Kiingereza vilivyopangwa upya, Kiingereza pekee, bure kusoma na kupakua. Pamoja na kifungu cha bure cha kuchapisha mwenyewe.</description>
+    <description>Two catalogue sections: (1) original web fiction side-by-side in English and Kiswahili, free to read and download; (2) ${classicCountLabel} re-typeset English public-domain classics, English only, free to read and download. Plus a free self-publishing uploader for .txt and .epub. / Sehemu mbili za orodha: (1) riwaya za mtandaoni za asili kwa Kiingereza na Kiswahili kwa pamoja, bure kusoma na kupakua; (2) vitabu ${classicCountLabel} vya kale vya Kiingereza vilivyopangwa upya, Kiingereza pekee, bure kusoma na kupakua. Pamoja na kifungu cha bure cha kuchapisha mwenyewe.</description>
     <language>en</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml" />
@@ -880,4 +1034,10 @@ ${pages.map((page) => `    <item>
 `;
 await writeFile(resolve("public/feed.xml"), rss);
 
-console.log(`Generated ${pages.length} public book pages, ${generatedReaderPages} static reader pages, ${generatedReaderFiles} reader files (manifests + HTML, ${generatedReaderBytes} bytes), ${chapterUrls.length} chapter URLs, the browser catalogue, sitemap.xml, robots.txt, llms.txt, llms-full.txt, and feed.xml.`);
+await writeFile(buildManifestPath, `${JSON.stringify({
+  version: 1,
+  codeHash,
+  builtAt: new Date().toISOString(),
+  books: Object.fromEntries(bookContentHash),
+}, null, 2)}\n`);
+console.log(`Generated ${pages.length} public book pages, ${generatedReaderPages} static reader pages, ${generatedReaderFiles} reader files (manifests + HTML, ${generatedReaderBytes} bytes), ${chapterUrls.length} chapter URLs, the browser catalogue, sitemap.xml, robots.txt, llms.txt, llms-full.txt, and feed.xml.${incremental ? ` Incremental: skipped ${skippedBookPages} book page(s) and ${skippedReaderBooks} reader tree(s).` : ""}`);

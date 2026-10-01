@@ -1,4 +1,14 @@
-// Web Crypto API (AES-GCM) Protected Offline Encryption & IndexedDB Manager
+// Offline chapter cache (AES-GCM) & IndexedDB Manager
+//
+// Honesty note: the AES-GCM key is exported as raw bytes and stored in the
+// SAME IndexedDB database (`crypto_keys` store) as the ciphertext. Anyone or
+// anything that can read this origin's IndexedDB can read both, so this is
+// local obfuscation — it stops casual inspection, not a determined reader.
+// It is NOT a security boundary: treat cached chapters as device-local data
+// and never rely on this "encryption" to protect secrets. (Making the key
+// non-extractable would raise the bar slightly but still not stop anyone
+// with access to this browser profile.)
+//
 
 const DB_NAME = 'soma_offline_encrypted_db';
 const DB_VERSION = 1;

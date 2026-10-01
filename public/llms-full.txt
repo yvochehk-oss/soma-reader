@@ -1,15 +1,15 @@
 # Soma Novel — Full Directory
 
 > Machine-readable companion to /llms.txt. Generated from the published
-> catalogue on 2026-09-29. Contains 237 titles and
-> 6465 chapters.
+> catalogue on 2026-10-01. Contains 241 titles and
+> 6537 chapters.
 
 ## About Soma Novel / Kuhusu Soma Novel
 
 Soma Novel is a free reading site from East Africa. Two catalogue sections, three things:
 
 1. **Bilingual web fiction (爽文).** Every original serial is published side-by-side in English and Kiswahili, free to read online and free to download as a complete book. (Scope: original web fiction only.)
-2. **Re-typeset English classics.** More than a thousand public-domain English works have been professionally re-typeset for phone screens, free to read online and free to download as a complete book. (Scope: classics section. English only — Kiswahili translations are not produced because the source language is English.)
+2. **Re-typeset English classics.** 80 public-domain English works have been professionally re-typeset for phone screens, free to read online and free to download as a complete book. (Scope: classics section. English only — Kiswahili translations are not produced because the source language is English.)
 3. **Self-publishing.** Readers can upload their own .txt or .epub manuscripts through the in-page uploader (English and Kiswahili both accepted), free of charge.
 
 ---
@@ -17,7 +17,7 @@ Soma Novel is a free reading site from East Africa. Two catalogue sections, thre
 Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za orodha ya vitabu, mambo matatu:
 
 1. **Riwaya za mtandaoni (爽文) katika lugha mbili.** Kila riwaya yetu ya asili inachapishwa kwa Kiingereza na Kiswahili, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Wigo: riwaya za mtandaoni za asili pekee.)
-2. **Vitabu vya kale vya Kiingereza vimepangwa upya.** Zaidi ya vitabu elfu moja vya kale vya Kiingereza vimepangwa upya kwa skrini za simu, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa sababu lugha ya chanzo ni Kiingereza.)
+2. **Vitabu vya kale vya Kiingereza vimepangwa upya.** Vitabu 80 vya kale vya Kiingereza vimepangwa upya kwa skrini za simu, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa sababu lugha ya chanzo ni Kiingereza.)
 3. **Kuchapisha mwenyewe.** Wasomaji wanaweza kupakia hati zao za .txt au .epub kupitia kifungu cha kupakia (Kiingereza na Kiswahili vinakubaliwa), bure.
 
 ## Site / Tovuti
@@ -52,9 +52,45 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 - URL: https://somanovel.uk/books/the-billionaires-rejected-bride/
 - Synopsis: For three years, Amani lived as the quiet wife of tycoon Hawthorne Vance. Surviving a fall into Ol Njorowa chasm, she returns to Nairobi to expose fraud and reclaim her empire.
 
+### The Father's Safe
+
+- Authors: Zahra Bahari
+- Language: English
+- Category: Thriller
+- Chapters: 18
+- URL: https://somanovel.uk/books/the-father-s-safe/
+- Synopsis: A gripping commercial novel 'Sanduku La Baba' by Zahra Bahari.
+
+### The Letter of Complaint
+
+- Authors: Nia Kendi
+- Language: English
+- Category: Thriller
+- Chapters: 18
+- URL: https://somanovel.uk/books/the-letter-of-complaint/
+- Synopsis: A gripping commercial novel 'Barua Ya Malalamiko' by Nia Kendi.
+
+### The Shop Without My Name
+
+- Authors: Kamau Hodari
+- Language: English
+- Category: Urban Fantasy
+- Chapters: 18
+- URL: https://somanovel.uk/books/the-shop-without-my-name/
+- Synopsis: A gripping commercial novel 'Duka Lisilo Na Jina Langu' by Kamau Hodari.
+
+### The Name of the School
+
+- Authors: Rashid Pwani
+- Language: English
+- Category: Thriller
+- Chapters: 18
+- URL: https://somanovel.uk/books/the-name-of-the-school/
+- Synopsis: A gripping commercial novel 'Jina La Shule' by Soma Originals.
+
 ### Jina La Shule
 
-- Authors: Soma Originals
+- Authors: Rashid Pwani
 - Language: Kiswahili
 - Category: Thriller
 - Chapters: 18
@@ -2170,4 +2206,4 @@ Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Sehemu mbili za oro
 
 ## Last build
 
-2026-09-29
+2026-10-01

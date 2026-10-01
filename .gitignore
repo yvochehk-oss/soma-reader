@@ -18,3 +18,4 @@ release-audits/
 .reasonix/
 public/read/
 public/reader-data/
+.build-manifest.json

@@ -50,6 +50,18 @@ export const EditorsChoiceHero: React.FC<EditorsChoiceHeroProps> = ({
               decoding="async"
               width="420"
               height="630"
+              onError={(e) => {
+                const image = e.currentTarget;
+                image.removeAttribute('srcset');
+                image.removeAttribute('sizes');
+                if (image.dataset.originalFallback !== 'true') {
+                  image.dataset.originalFallback = 'true';
+                  image.src = book.coverImage;
+                  return;
+                }
+                image.onerror = null;
+                image.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop';
+              }}
               className="w-[130px] md:w-[170px] lg:w-[210px] rounded-lg shadow-2xl object-cover object-top aspect-[3/4] border-4 border-white/40"
             />
           </button>

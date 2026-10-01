@@ -176,6 +176,9 @@ export const ClassicLibrary: React.FC<ClassicLibraryProps> = ({ books, language,
             decoding="async"
             width="640"
             height="360"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
             className="aspect-video w-full object-cover"
           />
           <figcaption className="px-5 py-4">
@@ -198,6 +201,9 @@ export const ClassicLibrary: React.FC<ClassicLibraryProps> = ({ books, language,
             decoding="async"
             width="640"
             height="360"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
             className="aspect-video w-full object-cover"
           />
           <figcaption className="px-5 py-4">

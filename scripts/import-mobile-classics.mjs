@@ -98,7 +98,10 @@ function wait(milliseconds) {
 
 async function uploadBook(apiUrl, token, item) {
   for (let attempt = 1; attempt <= MAX_UPLOAD_ATTEMPTS; attempt += 1) {
-    const payload = item.updateMode === 'chapters-only' ? { updateMode: 'chapters-only', books: [item.book] } : { books: [item.book] };
+    // The section parser already validated every integrity value locally (and aborts on mismatch),
+    // and each chapter carries its word count, so the Worker skips its CPU-heavy recomputation and
+    // only checks metadata self-consistency.
+    const payload = item.updateMode === 'chapters-only' ? { updateMode: 'chapters-only', books: [item.book], precomputed: true } : { books: [item.book], precomputed: true };
     const response = await fetch(apiUrl, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
     const result = await response.json().catch(() => ({}));
     if (response.ok) return result;

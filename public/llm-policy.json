@@ -4,8 +4,8 @@
   "site_name": "Soma Novel",
   "contact": "contact@somanovel.uk",
   "summary": {
-    "en": "Soma Novel publishes original web fiction in English and Kiswahili (side-by-side, free to read and download), re-typesets more than a thousand public-domain English classics for phone reading (free to read and download), and offers a free self-publishing uploader that accepts .txt and .epub files. No account is required to read or download.",
-    "sw": "Soma Novel inachapisha riwaya za mtandaoni kwa Kiingereza na Kiswahili (kwa pamoja, bure kusoma na kupakua), inapanga upya zaidi ya vitabu elfu moja vya kale vya Kiingereza kwa ajili ya kusoma kwenye simu (bure kusoma na kupakua), na inatoa kifungu cha bure cha kuchapisha mwenyewe kinachokubali faili za .txt na .epub. Hakuna haja ya akaunti ya kusoma au kupakua."
+    "en": "Soma Novel publishes original web fiction in English and Kiswahili (side-by-side, free to read and download), re-typesets 80 public-domain English classics for phone reading (free to read and download), and offers a free self-publishing uploader that accepts .txt and .epub files. No account is required to read or download.",
+    "sw": "Soma Novel inachapisha riwaya za mtandaoni kwa Kiingereza na Kiswahili (kwa pamoja, bure kusoma na kupakua), inapanga upya vitabu 80 vya kale vya Kiingereza kwa ajili ya kusoma kwenye simu (bure kusoma na kupakua), na inatoa kifungu cha bure cha kuchapisha mwenyewe kinachokubali faili za .txt na .epub. Hakuna haja ya akaunti ya kusoma au kupakua."
   },
   "crawlable": {
     "book_pages": true,
@@ -27,8 +27,8 @@
       ]
     },
     {
-      "en": "Re-typeset English classics. More than a thousand public-domain English works re-typeset for phone screens, free to read online and free to download as a complete book.",
-      "sw": "Vitabu vya kale vya Kiingereza vimepangwa upya. Zaidi ya vitabu elfu moja vya kale vya Kiingereza vimepangwa upya kwa skrini za simu, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Vitabu hivi vya kale ni vya Kiingereza pekee, kwa sababu chanzo chao cha asili ni Kiingereza.)",
+      "en": "Re-typeset English classics. 80 public-domain English works re-typeset for phone screens, free to read online and free to download as a complete book.",
+      "sw": "Vitabu vya kale vya Kiingereza vimepangwa upya. Vitabu 80 vya kale vya Kiingereza vimepangwa upya kwa skrini za simu, bure kusoma mtandaoni na bure kupakua kitabu kizima. (Vitabu hivi vya kale ni vya Kiingereza pekee, kwa sababu chanzo chao cha asili ni Kiingereza.)",
       "scope": "re_typeset_classics",
       "languages": [
         "en"
@@ -46,11 +46,12 @@
   ],
   "catalogue_layout": {
     "original_web_fiction": {
-      "en_count": 158,
+      "en_count": 162,
       "sw_count": 79,
       "bilingual": true
     },
     "re_typeset_classics": {
+      "count": 80,
       "languages": [
         "en"
       ],
@@ -79,5 +80,5 @@
     "sitemap_books_sw": "https://somanovel.uk/sitemap-books-sw.xml",
     "sitemap_chapters": "https://somanovel.uk/sitemap-chapters.xml"
   },
-  "generated_at": "2026-09-29T05:12:20.023Z"
+  "generated_at": "2026-10-01T02:34:55.313Z"
 }

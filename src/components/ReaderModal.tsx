@@ -586,7 +586,7 @@ export const ReaderModal: React.FC<ReaderModalProps> = ({
             )}
           </div>
           
-          <GoogleAdBanner slotId="8899001122" format="auto" className="my-12" />
+          <GoogleAdBanner slotId="6476924726" format="fluid" layout="in-article" className="my-12" />
           
         </div>
       </main>

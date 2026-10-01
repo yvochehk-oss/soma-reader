@@ -1,21 +1,21 @@
 # Soma Novel
 
-> Free English and Kiswahili web novels, free re-typeset English classics, and a free self-publishing uploader. 237 published titles (158 English, 79 Kiswahili) plus a thousand public-domain classics.
-> Riwaya za bure za Kiingereza na Kiswahili, vitabu vya kale vya Kiingereza vilivyopangwa upya, na kifungu cha bure cha kuchapisha mwenyewe. Vitabu 237 (Kiingereza 158, Kiswahili 79) pamoja na zaidi ya elfu moja ya vitabu vya kale.
+> Free English and Kiswahili web novels, free re-typeset English classics, and a free self-publishing uploader. 241 published titles (162 English, 79 Kiswahili) plus 80 public-domain classics.
+> Riwaya za bure za Kiingereza na Kiswahili, vitabu vya kale vya Kiingereza vilivyopangwa upya, na kifungu cha bure cha kuchapisha mwenyewe. Vitabu 241 (Kiingereza 162, Kiswahili 79) pamoja na vitabu 80 vya kale.
 
 ## Catalogue layout / Muundo wa orodha ya vitabu
 
 Soma Novel has two distinct catalogue sections. Bilingual coverage only applies to the **original web fiction** section. The **re-typeset English classics** are English-only, because their underlying public-domain source language is English. / Soma Novel ina sehemu mbili tofauti za orodha ya vitabu. Toleo la lugha mbili linatumika tu kwa **sehemu ya riwaya za mtandaoni za asili**. **Vitabu vya kale vya Kiingereza vilivyopangwa upya** ni vya Kiingereza pekee, kwa sababu chanzo chao cha asili ni Kiingereza.
 
-- **Original web fiction / Riwaya za mtandaoni za asili** — 158 English + 79 Kiswahili editions, published side-by-side. Languages: English + Kiswahili.
-- **Re-typeset English classics / Vitabu vya kale vya Kiingereza vilivyopangwa upya** — 1,000+ public-domain works. Languages: English only. / 1,000+ vitabu vya kale. Lugha: Kiingereza pekee.
+- **Original web fiction / Riwaya za mtandaoni za asili** — 162 English + 79 Kiswahili editions, published side-by-side. Languages: English + Kiswahili.
+- **Re-typeset English classics / Vitabu vya kale vya Kiingereza vilivyopangwa upya** — 80 public-domain works. Languages: English only. / Vitabu 80 vya kale. Lugha: Kiingereza pekee.
 
 ## What Soma Novel is / Soma Novel ni nini
 
 Soma Novel is a free reading site from East Africa. It does three things, and they are the only things it does:
 
 1. **Bilingual web fiction (爽文).** Every original serial on Soma Novel is published side-by-side in English and Kiswahili, so a reader can start a chapter in English and finish it in Kiswahili without losing their place. Every book is fully free to read online and free to download as a complete book (TXT or EPUB). Categories include romance, thriller, contemporary, fantasy, sci-fi, and historical. (Scope: original web fiction only.)
-2. **Re-typeset English classics.** More than a thousand public-domain English works — novels, short stories, and reference books — have been professionally re-typeset for phone screens, with cleaner line spacing, sensible margins, and a distraction-free reader. Every classic is free to read online and free to download as a complete book (TXT or EPUB). (Scope: classics section. English only — Kiswahili translations are not produced for these works because the source language is English.)
+2. **Re-typeset English classics.** 80 public-domain English works — novels, short stories, and reference books — have been professionally re-typeset for phone screens, with cleaner line spacing, sensible margins, and a distraction-free reader. Every classic is free to read online and free to download as a complete book (TXT or EPUB). (Scope: classics section. English only — Kiswahili translations are not produced for these works because the source language is English.)
 3. **Self-publishing.** Readers can upload their own manuscripts in plain text (.txt) or EPUB (.epub) through the in-page uploader. The uploader accepts English and Kiswahili. The reader parses the file, splits it into chapters, and makes it readable immediately, free of charge.
 
 All three features are free, with no account required to read or download.
@@ -25,7 +25,7 @@ All three features are free, with no account required to read or download.
 Soma Novel ni tovuti ya kusoma bure kutoka Afrika Mashariki. Inafanya mambo matatu, na hayo ndiyo yote inayofanya:
 
 1. **Riwaya za mtandaoni (爽文) katika lugha mbili.** Kila riwaya yetu ya asili inachapishwa kwa Kiingereza na Kiswahili, hivyo msomaji anaweza kuanza sura kwa Kiingereza na kuimaliza kwa Kiswahili bila kupoteza mahali alipo. Kila kitabu ni bure kabisa kusoma mtandaoni na bure kupakua kitabu kizima (TXT au EPUB). Makundi ni mapenzi, thriller, maisha ya kila siku, fantasia, sayansi ya kubuni, na kihistoria. (Wigo: riwaya za mtandaoni za asili pekee.)
-2. **Vitabu vya kale vya Kiingereza vimepangwa upya.** Zaidi ya vitabu elfu moja vya kale vya Kiingereza — novela, hadithi fupi, na vitabu vya marejeleo — vimepangwa upya kitaalamu kwa ajili ya skrini za simu, na nafasi safi za mistari, kingo nzuri, na msomaji asiyepotoshwa. Kila kitabu cha kale ni bure kusoma mtandaoni na bure kupakua kitabu kizima (TXT au EPUB). (Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa vitabu hivi kwa sababu lugha ya chanzo ni Kiingereza.)
+2. **Vitabu vya kale vya Kiingereza vimepangwa upya.** Vitabu 80 vya kale vya Kiingereza — novela, hadithi fupi, na vitabu vya marejeleo — vimepangwa upya kitaalamu kwa ajili ya skrini za simu, na nafasi safi za mistari, kingo nzuri, na msomaji asiyepotoshwa. Kila kitabu cha kale ni bure kusoma mtandaoni na bure kupakua kitabu kizima (TXT au EPUB). (Wigo: sehemu ya vitabu vya kale. Kiingereza pekee — tafsiri za Kiswahili hazitengenezwi kwa vitabu hivi kwa sababu lugha ya chanzo ni Kiingereza.)
 3. **Kuchapisha mwenyewe.** Wasomaji wanaweza kupakia hati zao za .txt au .epub kupitia kifungu cha kupakia kilichopo kwenye ukurasa. Kifungu cha kupakia kinakubali Kiingereza na Kiswahili. Kifungu hufasiri faili, kugawanya sura, na kufanya iweze kusomwa mara moja, bila malipo.
 
 Huduma zote tatu ni bure, na hakuna haja ya akaunti ya kusoma au kupakua.
@@ -38,9 +38,13 @@ Huduma zote tatu ni bure, na hakuna haja ya akaunti ya kusoma au kupakua.
 - About Soma Novel / Kuhusu Soma Novel: https://somanovel.uk/about
 - RSS feed / Mlisho wa RSS: https://somanovel.uk/feed.xml
 
-## English (158)
+## English (162)
 
 - [The Billionaire's Rejected Bride: Rise of the Sun Queen](https://somanovel.uk/books/the-billionaires-rejected-bride/) — Nia Kendi, romance, 10 chapters — For three years, Amani lived as the quiet wife of tycoon Hawthorne Vance. Surviving a fall into Ol Njorowa chasm, she returns to Nairobi to expose fraud and reclaim her empire.
+- [The Father's Safe](https://somanovel.uk/books/the-father-s-safe/) — Zahra Bahari, Thriller, 18 chapters — A gripping commercial novel 'Sanduku La Baba' by Zahra Bahari.
+- [The Letter of Complaint](https://somanovel.uk/books/the-letter-of-complaint/) — Nia Kendi, Thriller, 18 chapters — A gripping commercial novel 'Barua Ya Malalamiko' by Nia Kendi.
+- [The Shop Without My Name](https://somanovel.uk/books/the-shop-without-my-name/) — Kamau Hodari, Urban Fantasy, 18 chapters — A gripping commercial novel 'Duka Lisilo Na Jina Langu' by Kamau Hodari.
+- [The Name of the School](https://somanovel.uk/books/the-name-of-the-school/) — Rashid Pwani, Thriller, 18 chapters — A gripping commercial novel 'Jina La Shule' by Soma Originals.
 - [Jina La Shule](https://somanovel.uk/books/jina-la-shule/) — Soma Originals, Thriller, 18 chapters — A gripping commercial novel 'Jina La Shule' by Soma Originals.
 - [Duka Lisilo Na Jina Langu](https://somanovel.uk/books/duka-lisilo-na-jina-langu/) — Kamau Hodari, Urban Fantasy, 18 chapters — A gripping commercial novel 'Duka Lisilo Na Jina Langu' by Kamau Hodari.
 - [Barua Ya Malalamiko](https://somanovel.uk/books/barua-ya-malalamiko/) — Nia Kendi, Thriller, 18 chapters — A gripping commercial novel 'Barua Ya Malalamiko' by Nia Kendi.
@@ -202,7 +206,7 @@ Huduma zote tatu ni bure, na hakuna haja ya akaunti ya kusoma au kupakua.
 ## Kiswahili (79)
 
 - [Bi Harusi Aliyekataliwa na Tajiri: Kuinuka kwa Malkia wa Jua](https://somanovel.uk/books/bi-harusi-aliyekataliwa-na-tajiri-sw/) — Nia Kendi, romance, 10 chapters — Kwa miaka mitatu, Amani aliishi kama mke wa kimya wa tajiri Hawthorne Vance. Baada ya kupona korongoni, anarudi Nairobi kumlipa kisasi na kudai haki yake.
-- [Jina La Shule](https://somanovel.uk/books/jina-la-shule-sw/) — Soma Originals, Thriller, 18 chapters — Simulizi ya kusisimua ya Jina La Shule iliyoandikwa na Soma Originals.
+- [Jina La Shule](https://somanovel.uk/books/jina-la-shule-sw/) — Rashid Pwani, Thriller, 18 chapters — Simulizi ya kusisimua ya Jina La Shule iliyoandikwa na Soma Originals.
 - [Duka Lisilo Na Jina Langu](https://somanovel.uk/books/duka-lisilo-na-jina-langu-sw/) — Kamau Hodari, Urban Fantasy, 18 chapters — Asha Nkurunziza amejenga duka la vifaa vya simu na solar Nairobi kwa miaka kumi pamoja na Daniel Mwangi. Ukaguzi mpya unapowafanya wakague nyaraka, anagundua jina lake halipo kwenye usajili. Daniel anapotumia karatasi hi
 - [Barua Ya Malalamiko](https://somanovel.uk/books/barua-ya-malalamiko-sw/) — Nia Kendi, Thriller, 18 chapters — Nia Kendi amesubiri miaka mitano kupata promotion. Tatizo ni kwamba rafiki yake wa karibu, Amina, pia aliitaka. Wiki ya kwanza akiwa meneja, Nia analazimika kumpa Amina tathmini ya chini. Amina hamlilii wala kumtukana; a
 - [Kamera Haisahau](https://somanovel.uk/books/kamera-haisahau-sw/) — Rehema Kisiwa, Thriller, 18 chapters — Nuru Masha anajua kupamba sherehe, si kuwa mtu maarufu. Anapokubali kujibu maswali matatu mbele ya kamera kwenye soko la jioni, anaamini video itaonekana kwenye ukurasa mdogo wa mtaa. Siku mbili baadaye, uso wake uko kwe

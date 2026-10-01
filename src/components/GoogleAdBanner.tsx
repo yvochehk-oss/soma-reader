@@ -19,12 +19,14 @@ interface GoogleAdBannerProps {
    */
   slotId?: string;
   format?: 'auto' | 'fluid' | 'rectangle';
+  layout?: string;
   className?: string;
 }
 
 export const GoogleAdBanner: React.FC<GoogleAdBannerProps> = ({
   slotId,
   format = 'auto',
+  layout,
   className = '',
 }) => {
   const publisherId = import.meta.env.VITE_GOOGLE_ADSENSE_PUB_ID || ADSENSE_PUBLISHER_ID;
@@ -48,8 +50,9 @@ export const GoogleAdBanner: React.FC<GoogleAdBannerProps> = ({
     <div className={`w-full flex justify-center my-4 overflow-hidden min-h-[90px] ${className}`} aria-label="Advertisement">
       <ins
         className="adsbygoogle"
-        style={{ display: 'block', width: '100%' }}
+        style={{ display: 'block', width: '100%', ...(layout ? { textAlign: 'center' } : {}) }}
         {...(slotId ? { 'data-ad-slot': slotId } : {})}
+        {...(layout ? { 'data-ad-layout': layout } : {})}
         data-ad-format={format}
         data-ad-client={publisherId}
         data-full-width-responsive="true"

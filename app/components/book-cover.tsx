@@ -8,10 +8,10 @@ const accentClasses = {
 };
 
 export function BookCover({ book, size = "medium" }: { book: Book; size?: "small" | "medium" | "large" }) {
-  if (book.coverUrl) {
+  if (book.coverImage) {
     return <div className={`book-cover book-cover-image book-cover-${size}`} aria-label={`${book.title} cover`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={book.coverUrl} alt={`${book.title} cover`} />
+      <img src={book.coverImage} alt={`${book.title} cover`} />
     </div>;
   }
   return (

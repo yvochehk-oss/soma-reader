@@ -232,6 +232,14 @@ try {
     }
   }
   const allBooks = prepared.map((item) => item.book);
+  // Precompute per-chapter word counts locally (no CPU budget on this machine) so the Worker
+  // can skip splitting full chapter text on its 10ms budget. Keeps any valid pre-existing value.
+  const localWordCount = (value) => String(value ?? "").trim().split(/\s+/).filter(Boolean).length;
+  for (const book of allBooks) {
+    for (const chapter of book.chapters) {
+      if (!Number.isInteger(chapter.wordCount) || chapter.wordCount <= 0) chapter.wordCount = localWordCount(chapter.content);
+    }
+  }
   const duplicateSlugs = [...new Set(allBooks.map((book) => book.slug).filter((slug, index, slugs) => slugs.indexOf(slug) !== index))];
   if (duplicateSlugs.length) throw new Error(`Duplicate target slug(s) from separate sources: ${duplicateSlugs.join(", ")}. Remove duplicate/archive manuscripts or assign explicit metadata before uploading.`);
   const allChapters = allBooks.reduce((sum, book) => sum + book.chapters.length, 0);
@@ -292,7 +300,7 @@ try {
         for (let start = 0; start < allBooks.length; start += batchSize) {
           const batchNumber = start / batchSize + 1;
           const batch = allBooks.slice(start, start + batchSize);
-          const { response, result, attempts } = await fetchJsonWithRetry(apiUrl, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify({ books: batch }) }, { label: `Upload batch ${batchNumber}` });
+          const { response, result, attempts } = await fetchJsonWithRetry(apiUrl, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify({ books: batch, precomputed: true }) }, { label: `Upload batch ${batchNumber}` });
           if (!response.ok) throw new Error(`Batch ${batchNumber} failed (${response.status}): ${result.error ?? "Unknown error"}`);
           uploadedBooks += result.importedBooks;
           uploadedChapters += result.importedChapters;

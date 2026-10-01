@@ -4,7 +4,7 @@
   const CONSENT_KEY = "soma-ads-consent";
   const CONSENT_EVENT = "soma-ads-consent-changed";
   const PUBLISHER_ID = "ca-pub-6785168010810140";
-  const AD_SLOT_ID = "1159270041";
+  const AD_SLOT_ID = "6476924726";
   const PREFERENCES_KEY = "soma-reader-settings";
   const DB_NAME = "soma-offline";
   const STORE_NAME = "chapters";

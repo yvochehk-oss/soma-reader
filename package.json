@@ -20,6 +20,7 @@
     "typecheck:vite": "tsc -p tsconfig.vite.json --noEmit",
     "lint": "npm run typecheck:vite",
     "import:books": "node scripts/upload-soma-books.mjs",
+    "seo:since": "node scripts/build-seo-pages.mjs --since",
     "release:books": "node scripts/release-soma-books.mjs",
     "test:book-release": "node --test scripts/tests/soma-book-metadata.test.mjs scripts/tests/soma-book-release.test.mjs scripts/tests/static-reader-build.test.mjs scripts/tests/reader-static.test.mjs scripts/tests/cloudflare-static-asset-limits.test.mjs"
   },

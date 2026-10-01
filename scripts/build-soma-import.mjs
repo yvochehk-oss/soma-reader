@@ -143,6 +143,15 @@ const payload = {
   }],
 };
 
+// Precompute per-chapter word counts locally (no CPU budget on this machine) so the Worker
+// can skip splitting full chapter text on its 10ms budget.
+for (const chapter of chapters) {
+  if (!Number.isInteger(chapter.wordCount) || chapter.wordCount <= 0) {
+    chapter.wordCount = String(chapter.content ?? "").trim().split(/\s+/).filter(Boolean).length;
+  }
+}
+payload.precomputed = true;
+
 if (status === "published") {
   const normalized = assertPublicationMetadata(payload.books[0], `“${title}”`);
   payload.books[0].category = normalized.category;

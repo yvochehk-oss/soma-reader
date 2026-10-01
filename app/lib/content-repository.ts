@@ -82,11 +82,11 @@ function mapBook(row: BookRow): Book {
     languageLabel: row.language_code === "sw" ? "Kiswahili" : "English",
     category: row.category,
     categoryLabel: categoryLabels[row.category] ?? row.category,
-    chapters: row.total_chapters,
+    chaptersCount: row.total_chapters,
     updated: relativeUpdated(row.updated_at),
     accent: accentFor(row.category, row.language_code),
     badge: row.is_featured ? "Featured" : undefined,
-    coverUrl: row.cover_url,
+    coverImage: row.cover_url,
   };
 }
 

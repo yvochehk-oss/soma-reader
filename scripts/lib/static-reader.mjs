@@ -116,7 +116,7 @@ function consentMarkup(language) {
     <button type="button" class="reader-cookie-settings" data-reader-consent-settings>${escapeHtml(copy.settings)}</button>`;
 }
 
-export function renderStaticReaderPage({ book, chapter, previousChapter, nextChapter, siteUrl = SITE_URL }) {
+export function renderStaticReaderPage({ book, chapter, previousChapter, nextChapter, siteUrl = SITE_URL, alternates = [] }) {
   assertBookSlug(book.slug);
   const number = Number(chapter.chapter_number ?? chapter.number);
   const title = String(chapter.title ?? `Chapter ${number}`);
@@ -167,6 +167,23 @@ export function renderStaticReaderPage({ book, chapter, previousChapter, nextCha
   const download20 = language === "sw" ? "Pakua sura 20 zijazo" : "Download next 20 chapters";
   const readerContent = paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("\n");
   const coverMeta = coverUrl ? `<meta property="og:image" content="${escapeHtml(coverUrl)}">` : "";
+  // hreflang for translated chapter pairs. The caller only passes a sibling
+  // edition when it actually contains this chapter number, so a short
+  // translation never advertises a chapter it does not have. x-default
+  // prefers the English edition, matching the book pages.
+  const chapterAlternates = Array.isArray(alternates) ? alternates : [];
+  const englishChapterAlternate = chapterAlternates.find((alt) => alt.language === "en");
+  const englishChapterUrl = englishChapterAlternate
+    ? `${siteUrl}${readerPath(englishChapterAlternate.slug, number)}`
+    : canonical;
+  const hreflangTags = [
+    `<link rel="alternate" hreflang="${language}" href="${escapeHtml(canonical)}">`,
+    ...chapterAlternates.map((alt) => {
+      const altLang = alt.language === "sw" ? "sw" : "en";
+      return `<link rel="alternate" hreflang="${altLang}" href="${escapeHtml(`${siteUrl}${readerPath(alt.slug, number)}`)}">`;
+    }),
+    `<link rel="alternate" hreflang="x-default" href="${escapeHtml(englishChapterUrl)}">`,
+  ].join("\n  ");
 
   return `<!doctype html>
 <html lang="${language}">
@@ -176,6 +193,7 @@ export function renderStaticReaderPage({ book, chapter, previousChapter, nextCha
   <title>${escapeHtml(chapterHeading)} | Soma Novel</title>
   <meta name="description" content="${escapeHtml(description)}">
   <link rel="canonical" href="${escapeHtml(canonical)}">
+  ${hreflangTags}
   <meta name="robots" content="index,follow,max-image-preview:large">
   <meta name="google-adsense-account" content="ca-pub-6785168010810140">
   <meta name="google-adsense-platform-account" content="ca-pub-6785168010810140">
@@ -203,7 +221,7 @@ export function renderStaticReaderPage({ book, chapter, previousChapter, nextCha
       <span class="reader-chapter-label">${chapterLabel}</span>
       <h1>${escapeHtml(title)}</h1>
       <article class="reader-body" data-reader-content>${readerContent}</article>
-      <div class="reader-ad" aria-label="Advertisement"><ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-client="ca-pub-6785168010810140" data-ad-slot="1159270041" data-full-width-responsive="true"></ins></div>
+      <div class="reader-ad" aria-label="Advertisement"><ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-6785168010810140" data-ad-slot="6476924726"></ins></div>
       <nav class="reader-footer" aria-label="${language === "sw" ? "Sura" : "Chapters"}">
         ${previousUrl ? `<a href="${previousUrl}" data-reader-turn-link="previous">${escapeHtml(prevLinkText)}</a>` : `<a href="${bookHref}">${escapeHtml(backLinkText)}</a>`}
         ${nextNumber ? `<a href="${nextUrl}" data-reader-turn-link="next">${escapeHtml(nextLinkText)}</a>` : `<a href="${bookHref}">${escapeHtml(backLinkText)}</a>`}

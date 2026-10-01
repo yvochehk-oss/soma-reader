@@ -10,7 +10,7 @@ export function BookCard({ book, compact = false }: { book: Book; compact?: bool
       <span className="book-card-copy">
         <span className="book-card-title">{book.title}</span>
         <span className="book-card-author">{book.author}</span>
-        <span className="book-card-meta">{book.language === "sw" ? <T id="kiswahili" /> : <T id="english" />} · <T id="chapters" values={{ count: book.chapters }} /></span>
+        <span className="book-card-meta">{book.language === "sw" ? <T id="kiswahili" /> : <T id="english" />} · <T id="chapters" values={{ count: book.chaptersCount }} /></span>
       </span>
     </Link>
   );

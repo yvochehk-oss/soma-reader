@@ -1,3 +1,4 @@
+
 import { findPublishedBook, listPublishedChapterWindow } from "@/app/lib/content-repository";
 
 type RouteContext = { params: Promise<{ bookSlug: string }> };
@@ -24,6 +25,8 @@ export async function GET(request: Request, { params }: RouteContext) {
 
   const chapters = await listPublishedChapterWindow(bookSlug, from, limit, book.id);
   return Response.json({ chapters }, {
-    headers: { "Cache-Control": "no-store" },
+    // Published chapter text is immutable once released; let the edge cache it so repeat
+    // reads don't burn Worker invocations or Supabase round-trips. Errors stay no-store.
+    headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
   });
 }

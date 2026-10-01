@@ -11,11 +11,11 @@ export type Book = {
   languageLabel: string;
   category: string;
   categoryLabel: string;
-  chapters: number;
+  chaptersCount: number;
   updated: string;
   accent: "orange" | "teal" | "purple" | "green";
   badge?: string;
-  coverUrl?: string | null;
+  coverImage?: string | null;
 };
 
 export type Chapter = {
@@ -37,7 +37,7 @@ export const books: Book[] = [
     languageLabel: "English",
     category: "romance",
     categoryLabel: "Romance",
-    chapters: 24,
+    chaptersCount: 24,
     updated: "2h ago",
     accent: "orange",
     badge: "Trending",
@@ -52,7 +52,7 @@ export const books: Book[] = [
     languageLabel: "Kiswahili",
     category: "life",
     categoryLabel: "Maisha",
-    chapters: 18,
+    chaptersCount: 18,
     updated: "5h ago",
     accent: "teal",
     badge: "Kiswahili",
@@ -67,7 +67,7 @@ export const books: Book[] = [
     languageLabel: "English",
     category: "thriller",
     categoryLabel: "Thriller",
-    chapters: 31,
+    chaptersCount: 31,
     updated: "Yesterday",
     accent: "purple",
     badge: "New",
@@ -82,7 +82,7 @@ export const books: Book[] = [
     languageLabel: "Kiswahili",
     category: "youth",
     categoryLabel: "Vijana",
-    chapters: 12,
+    chaptersCount: 12,
     updated: "2d ago",
     accent: "green",
   },
