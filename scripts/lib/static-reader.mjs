@@ -30,6 +30,19 @@ function readerPath(slug, number) {
   return `/read/${encodeURIComponent(slug)}/${number}`;
 }
 
+const READER_AD_HTML = '<div class="reader-ad" aria-label="Advertisement"><ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-6785168010810140" data-ad-slot="6476924726"></ins></div>';
+
+// Long chapters (>=20 paragraphs) get one extra in-article ad near the
+// midpoint, inserted at a paragraph boundary. Short chapters keep only
+// the end-of-chapter ad so ads never overwhelm the text.
+function withMidChapterAd(paragraphHtml, paragraphCount) {
+  if (paragraphCount < 20) return paragraphHtml;
+  const parts = paragraphHtml.split("\n");
+  const insertAt = Math.floor(parts.length / 2);
+  parts.splice(insertAt, 0, READER_AD_HTML);
+  return parts.join("\n");
+}
+
 export function staticReaderHtmlRelativePath(slug, number) {
   assertBookSlug(slug);
   const chapterNumber = Number(number);
@@ -220,8 +233,8 @@ export function renderStaticReaderPage({ book, chapter, previousChapter, nextCha
       <div class="offline-note" data-offline-status>${language === "sw" ? "✓ Sura hii iko tayari kwa kusoma bila mtandao." : "✓ This chapter is ready for offline reading."}</div>
       <span class="reader-chapter-label">${chapterLabel}</span>
       <h1>${escapeHtml(title)}</h1>
-      <article class="reader-body" data-reader-content>${readerContent}</article>
-      <div class="reader-ad" aria-label="Advertisement"><ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-6785168010810140" data-ad-slot="6476924726"></ins></div>
+      <article class="reader-body" data-reader-content>${withMidChapterAd(readerContent, paragraphs.length)}</article>
+      ${READER_AD_HTML}
       <nav class="reader-footer" aria-label="${language === "sw" ? "Sura" : "Chapters"}">
         ${previousUrl ? `<a href="${previousUrl}" data-reader-turn-link="previous">${escapeHtml(prevLinkText)}</a>` : `<a href="${bookHref}">${escapeHtml(backLinkText)}</a>`}
         ${nextNumber ? `<a href="${nextUrl}" data-reader-turn-link="next">${escapeHtml(nextLinkText)}</a>` : `<a href="${bookHref}">${escapeHtml(backLinkText)}</a>`}

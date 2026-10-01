@@ -389,9 +389,8 @@ export default function App() {
             onToggleBookmark={toggleBookmark}
           />
 
-          {/* Advertising placement on the homepage uses auto-ads so we don't
-              reference a slot ID that has not been approved by AdSense yet. */}
-          <GoogleAdBanner format="auto" className="my-0" />
+          {/* Homepage display unit (soma2, slot 8823886465). Auto ads runs site-wide as backfill. */}
+          <GoogleAdBanner slotId="8823886465" format="auto" className="my-0" />
 
           {/* Top Rankings */}
             <TopRankings
