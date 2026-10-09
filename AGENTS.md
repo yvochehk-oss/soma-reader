@@ -44,3 +44,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **云端模型/Tool 兜底**：若本地模型不可用，必须使用 `generate_image` 工具调用云端 AI 图像模型生成底图。
 - **排版合规**：在 AI 模型生成的艺术底图上使用 Pillow 叠加自适应安全边距的双语标题与作者名，生成 `cover_sw.jpg`、`cover_en.jpg` 与 `cover.jpg`。
 <!-- END:ops-rules -->
+
+## Soma增量数据部署保护（2026-10-09 实施分支）
+
+- 数据通道只有在代码+构建环境指纹、Worker 哈希、Vite 不可变资源、
+  缓存中的 SEO/ASSETS 快照及上一次成功部署游标一致时才能开启。
+- `seo:since` 生成的 manifest **不是部署成功凭据**；必须部署、线上验收
+  并记录真实 Cloudflare deployment ID 后才能更新成功状态。
+- 只允许镜像同步 SEO 拥有的文件。不得在数据通道改 `_headers`、
+  `/assets/*`、阅读器 JS/CSS、Worker 或未经分类的静态文件。
+- 独立预览的 Worker 名称、绑定和 Supabase 测试环境必须与生产不同；
+  没有至少三轮新增、更新、撤回的真实成功证据，禁止生产增量发布。
+- 生产 cron 当前**未切换**，不得因分支代码存在就将其视为已上线。

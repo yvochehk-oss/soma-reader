@@ -48,6 +48,7 @@ test("cross-process lock denies overlapping publisher and releases on failure",a
  const root=await setup(t);let attempts=0;
  await withDeploymentLock(root,"preview",async()=>{
    await assert.rejects(withDeploymentLock(root,"preview",async()=>attempts++),/DEPLOY_LOCKED/);
+   await assert.rejects(withDeploymentLock(root,"production",async()=>attempts++),/DEPLOY_LOCKED/);
  });
  assert.equal(attempts,0);
  await assert.rejects(withDeploymentLock(root,"preview",async()=>{throw Error("stop");}),/stop/);

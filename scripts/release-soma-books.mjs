@@ -288,7 +288,7 @@ async function main() {
   if (!rootArg || rootArg.startsWith("--")) usage();
   validateCliOptions(args.slice(1), {
     valueFlags: [...VALUE_FLAGS, "--audit-out", "--site-url"],
-    booleanFlags: ["--publish", "--deploy", "--dry-run"],
+    booleanFlags: ["--publish", "--deploy", "--dry-run", "--data-only"],
   });
   if (!args.includes("--publish")) throw new Error("A release must include --publish so the full metadata gate is enforced.");
   const dryRun = args.includes("--dry-run");
@@ -351,6 +351,12 @@ async function main() {
 
     const importToken = getImportToken();
     if (!importToken) throw new Error("No import token found. Set SOMA_IMPORT_TOKEN (or BOOK_IMPORT_TOKEN) or save it in Keychain as 'Soma Book Import Token'.");
+    if (args.includes("--data-only")) {
+      const approval = await readFile(resolve(PROJECT_ROOT, ".soma-deploy-state/preview-gates.json"), "utf8").then(JSON.parse).catch(() => null);
+      if (!approval || approval.status !== "passed" || new Set(approval.validatedRuns || []).size < 3) {
+        throw new Error("DATA_DEPLOY_BLOCKED: Three verified preview scenarios are required before database upload.");
+      }
+    }
     const apiUrl = option(args, "--api-url", "https://somanovel.uk/api/internal/book-import");
     await step("database-upload", async () => {
       const uploadAuditPath = join(temporary, "upload.json");
@@ -371,6 +377,17 @@ async function main() {
       if (errors.length) throw new Error(errors.join("; "));
       return actual;
     });
+
+    if (args.includes("--data-only")) {
+      await step("cloudflare-data-deployment-with-shared-gates", async () => {
+        await runCommand(process.execPath, ["scripts/deploy-soma-site.mjs", "--target", "production", "--data-only", "--approve-production"]);
+        return { delegatedTo: "scripts/deploy-soma-site.mjs", requestedMode: "data" };
+      });
+      audit.status = "complete";
+      await persist();
+      console.log(`Release complete via shared data gate. Audit: ${auditPath}`);
+      return;
+    }
 
     const localBuild = await step("cloudflare-build-and-local-seo-verification", async () => {
       await runCommand("npm", ["run", "cf:build"]);

@@ -16,7 +16,8 @@ export async function withDeploymentLock(root, target, fn) {
   assertTarget(target);
   const stateDir = stateDirectory(root);
   await mkdir(stateDir,{recursive:true});
-  const lock = join(stateDir,target+".lock");
+  // Shared build workspace is reused by both targets: use one global publish lock.
+  const lock = join(stateDir,"global.lock");
   try { await mkdir(lock); }
   catch (error) {
     if (error.code === "EEXIST") throw new Error("DEPLOY_LOCKED: " + target + ". Check the existing publisher before manual recovery.");
