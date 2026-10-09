@@ -7,7 +7,7 @@ export const SEO_FILES = Object.freeze([
   "sitemap.xml", "feed.xml", "robots.txt",
   "llms.txt", "llms-full.txt", "llm-policy.json", "ai.txt",
 ]);
-export const SEO_SITEMAP = /^sitemap-[a-z0-9-]+\.xml$/;
+export const SEO_SITEMAP = /^sitemap-(?:home|books-en|books-sw|chapters)\.xml$/;
 export const SEO_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export function ownedBySeo(relativePath) {
@@ -109,9 +109,21 @@ export async function assertSeoSnapshot(root, { requireHomepage = true } = {}) {
       if (!set.has(path)) throw new Error("Missing chapter HTML: " + path);
     }
   }
-  for (const name of names.filter((x) => x.startsWith("books/") && x !== "books/index.html")) {
-    const slug = name.split("/")[1];
-    if (!slugs.has(slug)) throw new Error("Orphan published book page: " + name);
+  const expectedChapters = new Set();
+  for (const book of catalog) {
+    const manifest = JSON.parse(await readFile(inside(root,"reader-data/"+book.slug+"/manifest.json"),"utf8"));
+    for (const chapter of manifest.chapters) expectedChapters.add("read/"+book.slug+"/"+chapter.number+".html");
+  }
+  for (const name of names) {
+    if (name.startsWith("books/") && name !== "books/index.html") {
+      const parts=name.split("/");
+      if (parts.length!==3 || parts[2]!=="index.html" || !slugs.has(parts[1])) throw new Error("Orphan published book page: "+name);
+    }
+    if (name.startsWith("reader-data/")) {
+      const parts=name.split("/");
+      if (parts.length!==3 || parts[2]!=="manifest.json" || !slugs.has(parts[1])) throw new Error("Orphan reader manifest: "+name);
+    }
+    if (name.startsWith("read/") && !expectedChapters.has(name)) throw new Error("Orphan static reader chapter: "+name);
   }
   return { files: names.length, books: slugs.size, names };
 }

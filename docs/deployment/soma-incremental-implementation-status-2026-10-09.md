@@ -29,7 +29,7 @@
 - Node v24.13.1；Next.js v16.3.0；OpenNext/Cloudflare v1.20.2；Vite v6.4.3；Wrangler v4.118.0。
 - `npm run build:vite`：成功；书页 247、静态章节 6645。
 - `npm run cf:build`：成功；自有静态检查器 7213 文件/143640308 字节，未越过项目限额。
-- `wrangler deploy --dry-run --no-autoconfig`：成功退出，**未部署**；Wrangler 显示 7966 个读入条目，与静态检查器的计数口径不同，需后续核对。
+- `wrangler deploy --dry-run --no-autoconfig`：成功退出，**未部署**；Wrangler 显示 7966 个读入条目：实测包含 7213 个文件和 754 个目录（根目录不计，共 7213+754-1=7966），不是遗漏 753 个资源文件。
 - `npm run test:book-release`：27 passed。
 - `npm run test:incremental-deploy`：离线门禁 + 合成差分测试；固定时间、双语关联、章节编辑、整书撤回的 FULL/INCREMENTAL 静态 SEO 结果逐文件哈希一致。
 - `npm run lint`：TypeScript Vite typecheck 成功。
@@ -38,11 +38,12 @@
 ## 尚待真实环境完成
 
 1. 取得与生产 Supabase 不同的独立测试项目及受控测试数据。
-2. 配置 `SOMA_PREVIEW_SUPABASE_URL`、`SOMA_PREVIEW_SUPABASE_ANON_KEY`、`SOMA_PREVIEW_BASE_URL`（后者必须是独立 workers.dev 域名）；预览 Worker 账户应可用且不能映射生产自引用服务。
-3. 分别执行新增双语书、更新章节、撤回旧书的**三次不同预览部署**，每轮收集真实 deployment ID、远端 HTML/headers、完整缓存/版本证据。
-4. 找到生产机实际 `deploy_soma_site.py`/cron/launchd 入口，审查配置，**不能依据 Mac mini 无匹配就认为生产无 cron**。
-5. 全面验收数据库审计、线上缓存、首页、目录、SEO/AI 索引、旧路径 404、API 和管理员访问；失败后演练恢复/回滚。
-6. 预览三轮证明全部完成后，再在明确生产放行下进行 3 次低风险人工灰度；最后才允许改生产 cron。
+2. Mac mini 上 `wrangler whoami` 实测返回 **You are not authenticated**；在受信任部署环境配置 Cloudflare 授权后才能真实部署预览 Worker。
+3. 配置 `SOMA_PREVIEW_SUPABASE_URL`、`SOMA_PREVIEW_SUPABASE_ANON_KEY`、`SOMA_PREVIEW_BASE_URL`（后者必须是独立 workers.dev 域名）；预览 Worker 账户应可用且不能映射生产自引用服务。
+4. 分别执行新增双语书、更新章节、撤回旧书的**三次不同预览部署**，每轮收集真实 deployment ID、远端 HTML/headers、完整缓存/版本证据。
+5. 找到生产机实际 `deploy_soma_site.py`/cron/launchd 入口，审查配置，**不能依据 Mac mini 无匹配就认为生产无 cron**。
+6. 全面验收数据库审计、线上缓存、首页、目录、SEO/AI 索引、旧路径 404、API 和管理员访问；失败后演练恢复/回滚。
+7. 预览三轮证明全部完成后，再在明确生产放行下进行 3 次低风险人工灰度；最后才允许改生产 cron。
 
 ## 运行说明
 

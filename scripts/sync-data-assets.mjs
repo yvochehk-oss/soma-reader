@@ -41,13 +41,15 @@ export async function planSync(source, target, { allowEmpty = false } = {}) {
   for (const change of changes) counts[change.action]++;
   const removedBooks = changes.filter((c) => c.action === "removed" && /^books\/[^/]+\/index\.html$/.test(c.path)).length;
   const existingBooks = t.filter((p) => /^books\/[^/]+\/index\.html$/.test(p)).length;
+  const sourceBooks = s.filter((p) => /^books\/[^/]+\/index\.html$/.test(p)).length;
   const deletionLimit = Math.max(5, Math.ceil(existingBooks * 0.05));
-  return { schemaVersion: 1, source, target, counts, removedBooks, existingBooks, deletionLimit, changes };
+  return { schemaVersion: 1, source, target, counts, removedBooks, existingBooks, sourceBooks, deletionLimit, changes };
 }
 
 export async function syncSeoAssets(source, target, options = {}) {
   if (!options.unsafeSkipSnapshotCheck) await assertSeoSnapshot(source);
   const plan = await planSync(source, target);
+  if (plan.existingBooks > 0 && plan.sourceBooks === 0) throw new Error("EMPTY_CATALOG_WITHDRAWAL_BLOCKED");
   if (plan.removedBooks > plan.deletionLimit && !options.approveMassDeletion) {
     throw new Error("MASS_DELETE_APPROVAL_REQUIRED: " + plan.removedBooks + " books");
   }

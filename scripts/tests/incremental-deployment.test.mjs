@@ -115,3 +115,24 @@ test("fingerprint deterministic; excludes generated SEO content but catches runt
  const envB=await fingerprintEnv(base,{NEXT_PUBLIC_SITE_URL:"https://b.example"});
  assert.notEqual(envA,envB);
 });
+
+test("orphan reader chapters and undeclared sitemap variants are rejected", async(t)=>{
+ const x=await fixture(); t.after(()=>rm(x.tmp,{recursive:true,force:true}));
+ await put(x.source,"read/ghost/1.html","unsafe stale chapter");
+ await assert.rejects(assertSeoSnapshot(x.source),/Orphan static reader chapter/);
+ await rm(join(x.source,"read/ghost"),{recursive:true,force:true});
+ await put(x.source,"sitemap-unreviewed.xml","not in the output contract");
+ // Files not declared by the producer are not owned and must not be
+ // accidentally propagated by the SEO-only synchronizer.
+ assert.equal(ownedBySeo("sitemap-unreviewed.xml"),false);
+});
+
+test("an emptied published catalog cannot mass-delete a nonempty target",async(t)=>{
+ const x=await fixture();t.after(()=>rm(x.tmp,{recursive:true,force:true}));
+ await syncSeoAssets(x.source,x.target);
+ await put(x.source,"catalog/books.json",[]);
+ await rm(join(x.source,"books/sample"),{recursive:true,force:true});
+ await rm(join(x.source,"read/sample"),{recursive:true,force:true});
+ await rm(join(x.source,"reader-data/sample"),{recursive:true,force:true});
+ await assert.rejects(syncSeoAssets(x.source,x.target),/EMPTY_CATALOG_WITHDRAWAL_BLOCKED/);
+});
