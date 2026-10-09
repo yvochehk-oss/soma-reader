@@ -118,6 +118,30 @@ test("release dry-run exercises the production metadata gate without uploading o
     assert.deepEqual(audit.steps.map((step) => step.name), ["source-and-metadata-preflight"]);
     assert.equal(audit.books[0].status, "published");
     assert.equal(audit.steps[0].result.upload.status, "skipped-dry-run");
+
+    // No preview proof: the real --data-only release must stop before any
+    // production database mutation, even with an import token available.
+    const blockedAuditPath=join(temporary,"blocked-data-release.json");
+    const blocked=await new Promise((resolvePromise,reject)=>{
+      const child=spawn(process.execPath,["scripts/release-soma-books.mjs",folder,
+        "--publish","--deploy","--data-only","--audit-out",blockedAuditPath],{
+        cwd:process.cwd(),
+        env:{...process.env,SOMA_IMPORT_TOKEN:"synthetic-test-token",
+          NEXT_PUBLIC_SUPABASE_URL:"http://127.0.0.1:9",
+          NEXT_PUBLIC_SUPABASE_ANON_KEY:"test"},
+        stdio:["ignore","pipe","pipe"],
+      });
+      let stderr="";
+      child.stderr.on("data",chunk=>{stderr+=chunk;});
+      child.once("error",reject);
+      child.once("close",code=>resolvePromise({code,stderr}));
+    });
+    assert.notEqual(blocked.code,0);
+    assert.match(blocked.stderr,/PREVIEW_THREE_RUN_GATE_FAILED/);
+    const blockedAudit=JSON.parse(await readFile(blockedAuditPath,"utf8"));
+    assert.deepEqual(blockedAudit.steps.map(step=>step.name),[
+      "source-and-metadata-preflight","data-deploy-production-approval-preflight"]);
+    assert.ok(blockedAudit.steps.every(step=>step.name!=="database-upload"));
   } finally {
     await rm(temporary, { recursive: true, force: true });
   }

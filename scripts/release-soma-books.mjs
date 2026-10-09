@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url";
 import { fetchJsonWithRetry, getImportToken } from "./lib/soma-release-http.mjs";
 import { validateCliOptions } from "./lib/soma-cli.mjs";
 import { assertCloudflareStaticAssetLimits } from "./lib/cloudflare-static-asset-limits.mjs";
+import { assertProductionDataGate } from "./lib/production-gate.mjs";
+import { prepareWranglerConfig, effectiveEnv } from "./deploy-soma-site.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const PROJECT_ROOT = resolve(dirname(SCRIPT_PATH), "..");
@@ -352,10 +354,12 @@ async function main() {
     const importToken = getImportToken();
     if (!importToken) throw new Error("No import token found. Set SOMA_IMPORT_TOKEN (or BOOK_IMPORT_TOKEN) or save it in Keychain as 'Soma Book Import Token'.");
     if (args.includes("--data-only")) {
-      const approval = await readFile(resolve(PROJECT_ROOT, ".soma-deploy-state/preview-gates.json"), "utf8").then(JSON.parse).catch(() => null);
-      if (!approval || approval.status !== "passed" || new Set(approval.validatedRuns || []).size < 3) {
-        throw new Error("DATA_DEPLOY_BLOCKED: Three verified preview scenarios are required before database upload.");
-      }
+      await step("data-deploy-production-approval-preflight", async () => {
+        const wranglerText = await readFile(resolve(PROJECT_ROOT, "wrangler.jsonc"), "utf8");
+        const config = prepareWranglerConfig(wranglerText, ".", "production", {});
+        const buildEnv = effectiveEnv("production", config, process.env);
+        return assertProductionDataGate(PROJECT_ROOT, buildEnv);
+      });
     }
     const apiUrl = option(args, "--api-url", "https://somanovel.uk/api/internal/book-import");
     await step("database-upload", async () => {

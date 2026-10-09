@@ -4,11 +4,12 @@ import {mkdir,mkdtemp,readFile,writeFile,rm} from "node:fs/promises";
 import {join} from "node:path";
 import {tmpdir} from "node:os";
 import {randomUUID} from "node:crypto";
-import {selectMode,prepareWranglerConfig,injectPreviewNoindex} from "../deploy-soma-site.mjs";
+import {selectMode,prepareWranglerConfig,injectPreviewNoindex,assertPreviewIsolation,assertPreviewScenarioBaseline} from "../deploy-soma-site.mjs";
 import {buildFingerprint,digestTree,shaFile} from "../lib/build-fingerprint.mjs";
 import {verifyBuildCache} from "../code-hash.mjs";
 import {withDeploymentLock,saveDeploymentState,readDeploymentState} from "../lib/deployment-state.mjs";
 import {recordPreviewValidation,assertPreviewPromotionGate} from "../lib/preview-gates.mjs";
+import {assertProductionDataGate} from "../lib/production-gate.mjs";
 
 async function setup(t) {
  const root=await mkdtemp(join(tmpdir(),"soma-gate-"));t.after(()=>rm(root,{recursive:true,force:true}));
@@ -36,7 +37,7 @@ test("preview Wrangler configuration isolates worker self-binding and avoids rou
  assert.throws(()=>prepareWranglerConfig(source,".","preview",
  {previewUrl:"https://production.example",previewKey:"pk",previewBaseUrl:"https://preview.workers.dev"}),/PREVIEW_NOT_ISOLATED/);
  const config=prepareWranglerConfig(source,".","preview",
- {previewUrl:"https://test.supabase.co",previewKey:"public-test",previewBaseUrl:"https://preview.workers.dev"});
+ {previewUrl:"https://test.supabase.co",previewKey:"public-test",previewBaseUrl:"https://soma-reader-incremental-preview.testing.workers.dev"});
  assert.equal(config.name,"soma-reader-incremental-preview");
  assert.equal(config.services[0].service,config.name);
  assert.equal(config.vars.NEXT_PUBLIC_SUPABASE_URL,"https://test.supabase.co");
@@ -44,6 +45,24 @@ test("preview Wrangler configuration isolates worker self-binding and avoids rou
  assert.ok(!("routes" in config));
  assert.match(injectPreviewNoindex("/*\n  Cache-Control: public"),/X-Robots-Tag: noindex/);
 });
+test("preview isolation blocks trailing-slash aliases and unrelated workers.dev targets",()=>{
+ const production="https://production.example",base="https://soma-reader-incremental-preview.testing.workers.dev";
+ assert.doesNotThrow(()=>assertPreviewIsolation("https://isolated.supabase.co",production,base));
+ for(const database of ["https://production.example/","HTTPS://PRODUCTION.EXAMPLE","http://isolated.supabase.co",
+   "https://isolated.supabase.co/other","https://user:pass@isolated.supabase.co"]) {
+   assert.throws(()=>assertPreviewIsolation(database,production,base),/PREVIEW_NOT_ISOLATED/);
+ }
+ for(const site of ["https://soma-reader.testing.workers.dev",
+   "https://some-other-worker.testing.workers.dev","https://soma-reader-incremental-preview.testing.workers.dev/unsafe",
+   "https://soma-reader-incremental-preview.testing.workers.dev?wrong=1"]) {
+   assert.throws(()=>assertPreviewIsolation("https://isolated.supabase.co",production,site),/PREVIEW_NOT_ISOLATED/);
+ }
+ assert.throws(()=>assertPreviewScenarioBaseline("preview","added",null),/PREVIEW_SCENARIO_BASELINE_REQUIRED/);
+ assert.doesNotThrow(()=>assertPreviewScenarioBaseline("preview",null,null));
+ assert.doesNotThrow(()=>assertPreviewScenarioBaseline("preview","updated",
+   {deploymentId:randomUUID(),verifiedAt:new Date().toISOString()}));
+});
+
 test("cross-process lock denies overlapping publisher and releases on failure",async(t)=>{
  const root=await setup(t);let attempts=0;
  await withDeploymentLock(root,"preview",async()=>{
@@ -85,6 +104,18 @@ test("success cursor cannot be written before verified remote deployment",async(
  await assert.rejects(saveDeploymentState(root,"preview",{schemaVersion:1,target:"preview",cacheId:randomUUID()}),/unverified/);
  assert.equal(await readDeploymentState(root,"preview"),null);
 });
+test("shared production preflight rejects absent, stale, or mismatched preview evidence before data mutation",async(t)=>{
+ const root=await setup(t),env={NEXT_PUBLIC_SITE_URL:"https://somanovel.uk"};
+ await assert.rejects(assertProductionDataGate(root,env),/PREVIEW_THREE_RUN_GATE_FAILED/);
+ const fingerprint=await buildFingerprint(root,env);
+ await recordPreviewValidation(root,"added",randomUUID(),randomUUID(),{added:2,addedLanguages:["en","sw"]},fingerprint.codeFingerprint);
+ await recordPreviewValidation(root,"updated",randomUUID(),randomUUID(),{updated:1,modifiedChapters:1},fingerprint.codeFingerprint);
+ await recordPreviewValidation(root,"withdrawn",randomUUID(),randomUUID(),{removed:1},fingerprint.codeFingerprint);
+ assert.equal((await assertProductionDataGate(root,env)).deploymentIds.length,3);
+ await write(root,"app/route.js","return 2;");
+ await assert.rejects(assertProductionDataGate(root,env),/PREVIEW_THREE_RUN_GATE_FAILED/);
+});
+
 test("three distinct, recent preview deployments must prove scenarios on the same code",async(t)=>{
  const root=await setup(t),sha="a".repeat(64),otherSha="b".repeat(64);
  const added={added:2,updated:0,removed:0,addedLanguages:["en","sw"]};

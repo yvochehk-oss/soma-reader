@@ -13,7 +13,8 @@ import { buildFingerprint, digestTree, shaFile } from "./lib/build-fingerprint.m
 import { verifyBuildCache } from "./code-hash.mjs";
 import { withDeploymentLock, readDeploymentState, saveDeploymentState, writeAudit, persistCache, writeRecoveryState } from "./lib/deployment-state.mjs";
 import { assertCloudflareStaticAssetLimits } from "./lib/cloudflare-static-asset-limits.mjs";
-import { recordPreviewValidation, assertPreviewPromotionGate } from "./lib/preview-gates.mjs";
+import { recordPreviewValidation } from "./lib/preview-gates.mjs";
+import { assertProductionDataGate } from "./lib/production-gate.mjs";
 import { diffPublishedBooks, changedChapterNumbers, removedChapterNumbers } from "./lib/publication-diff.mjs";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -30,6 +31,28 @@ export function selectMode(request, gate) {
   return { requested:"data", actual:"full", fallbackReason:gate.reason };
 }
 
+export function assertPreviewIsolation(previewUrl,productionUrl,previewBaseUrl) {
+  try {
+    const previewDb=new URL(previewUrl),productionDb=new URL(productionUrl);
+    const previewWorker=new URL(previewBaseUrl);
+    const safeDb=previewDb.protocol==="https:" && !previewDb.username && !previewDb.password &&
+      previewDb.pathname==="/" && !previewDb.search && !previewDb.hash &&
+      previewDb.origin!==productionDb.origin;
+    const safeWorker=previewWorker.protocol==="https:" && !previewWorker.username && !previewWorker.password &&
+      /^soma-reader-incremental-preview\.[a-z0-9-]+\.workers\.dev$/.test(previewWorker.hostname) &&
+      previewWorker.pathname==="/" && !previewWorker.search && !previewWorker.hash;
+    if(!safeDb||!safeWorker)throw new Error("Preview origin does not satisfy isolation checks");
+  }catch{
+    throw new Error("PREVIEW_NOT_ISOLATED");
+  }
+}
+
+export function assertPreviewScenarioBaseline(target,scenario,existing) {
+  if(target==="preview" && scenario && (!existing || !existing.deploymentId || !existing.verifiedAt)) {
+    throw new Error("PREVIEW_SCENARIO_BASELINE_REQUIRED");
+  }
+}
+
 export function prepareWranglerConfig(text, candidate, target, env) {
   if (!["production","preview"].includes(target)) throw new Error("Unknown deploy target");
   // Current wrangler.jsonc contains JSON with trailing commas; disallow
@@ -42,8 +65,7 @@ export function prepareWranglerConfig(text, candidate, target, env) {
   if ("routes" in config || "route" in config) throw new Error("Route management is not allowed in data deploy config");
   if (target==="preview") {
     if(!env.previewUrl || !env.previewKey || !env.previewBaseUrl) throw new Error("PREVIEW_ENV_MISSING");
-    if(env.previewUrl===config.vars.NEXT_PUBLIC_SUPABASE_URL ||
-       env.previewBaseUrl.includes("somanovel.uk")) throw new Error("PREVIEW_NOT_ISOLATED");
+    assertPreviewIsolation(env.previewUrl,config.vars.NEXT_PUBLIC_SUPABASE_URL,env.previewBaseUrl);
     config.name=PREVIEW_WORKER;
     config.services[0].service=PREVIEW_WORKER;
     config.vars.NEXT_PUBLIC_SUPABASE_URL=env.previewUrl;
@@ -89,16 +111,13 @@ function publicEnv(target,wrangler,provided) {
     const previewKey=provided.SOMA_PREVIEW_SUPABASE_ANON_KEY;
     const previewBaseUrl=provided.SOMA_PREVIEW_BASE_URL;
     if(!previewUrl||!previewKey||!previewBaseUrl) throw new Error("PREVIEW_ENV_MISSING: need separate test Supabase and preview URL");
-    if(previewUrl===wrangler.vars.NEXT_PUBLIC_SUPABASE_URL ||
-       !/^https:\/\//.test(previewUrl) ||
-       !/^https:\/\/[^/]+\.workers\.dev\/?$/.test(previewBaseUrl) ||
-       previewBaseUrl.includes("somanovel.uk")) throw new Error("PREVIEW_NOT_ISOLATED");
+    assertPreviewIsolation(previewUrl,wrangler.vars.NEXT_PUBLIC_SUPABASE_URL,previewBaseUrl);
     return {previewUrl,previewKey,previewBaseUrl};
   }
   return {previewUrl:null,previewKey:null,previewBaseUrl:null};
 }
 
-function effectiveEnv(target,config,provided) {
+export function effectiveEnv(target,config,provided) {
   const env={...provided,
     NEXT_PUBLIC_SUPABASE_URL:config.vars.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY:config.vars.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -205,11 +224,10 @@ export async function publishSite(options) {
     const env=effectiveEnv(target,config,process.env);
     const baseUrl=target==="preview"?preview.previewBaseUrl:SITE_URL;
     const existing=await readDeploymentState(ROOT,target);
+    assertPreviewScenarioBaseline(target,scenario,existing);
     if(target==="production") {
       if(!approveProduction) throw new Error("PRODUCTION_APPROVAL_REQUIRED");
-      const approval=await readFile(resolve(ROOT,".soma-deploy-state/preview-gates.json"),"utf8").then(JSON.parse).catch(()=>null);
-      const sourceFingerprint=await buildFingerprint(ROOT,env);
-      assertPreviewPromotionGate(approval,sourceFingerprint.codeFingerprint);
+      await assertProductionDataGate(ROOT,env);
     }
     await mkdir(dir,{recursive:true});
     async function step(name,fn){
