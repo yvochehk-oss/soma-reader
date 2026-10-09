@@ -125,6 +125,7 @@ test("orphan reader chapters and undeclared sitemap variants are rejected", asyn
  // Files not declared by the producer are not owned and must not be
  // accidentally propagated by the SEO-only synchronizer.
  assert.equal(ownedBySeo("sitemap-unreviewed.xml"),false);
+ await assert.rejects(assertSeoSnapshot(x.source),/Unclassified sitemap output/);
 });
 
 test("an emptied published catalog cannot mass-delete a nonempty target",async(t)=>{

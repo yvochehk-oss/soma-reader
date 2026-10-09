@@ -28,11 +28,12 @@
 
 - Node v24.13.1；Next.js v16.3.0；OpenNext/Cloudflare v1.20.2；Vite v6.4.3；Wrangler v4.118.0。
 - `npm run build:vite`：成功；书页 247、静态章节 6645。
-- `npm run cf:build`：成功；自有静态检查器 7213 文件/143640308 字节，未越过项目限额。
+- `npm run cf:build`：已两次成功；首轮 7213 文件/143640308 字节，分支最终复验为 7217 文件/143663569 字节，均低于项目限额。
 - `wrangler deploy --dry-run --no-autoconfig`：成功退出，**未部署**；Wrangler 显示 7966 个读入条目：实测包含 7213 个文件和 754 个目录（根目录不计，共 7213+754-1=7966），不是遗漏 753 个资源文件。
 - `npm run test:book-release`：27 passed。
 - `npm run test:incremental-deploy`：离线门禁 + 合成差分测试；固定时间、双语关联、章节编辑、整书撤回的 FULL/INCREMENTAL 静态 SEO 结果逐文件哈希一致。
 - `npm run lint`：TypeScript Vite typecheck 成功。
+- 显式 fail-closed CLI 探针：缺预览环境时 `PREVIEW_ENV_MISSING`（退出码 1）；未取得生产批准时 `PRODUCTION_APPROVAL_REQUIRED`（退出码 1），均未调用远端部署。
 - 不包含真实三轮 Cloudflare 预览部署的结论。
 
 ## 尚待真实环境完成

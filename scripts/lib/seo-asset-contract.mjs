@@ -77,6 +77,7 @@ export async function enumerateSeoFiles(root) {
     }
   }
   for (const name of await readdir(base)) {
+    if (/^sitemap-.*\.xml$/.test(name) && !SEO_SITEMAP.test(name)) throw new Error("Unclassified sitemap output: " + name);
     if (!SEO_FILES.includes(name) && !SEO_SITEMAP.test(name)) continue;
     const p = join(base, name);
     const st = await safeEntry(p);
