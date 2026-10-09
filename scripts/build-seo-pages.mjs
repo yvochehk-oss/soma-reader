@@ -1,11 +1,14 @@
 import { execFileSync } from "node:child_process";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile, stat, readdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getSupabasePublicConfig } from "./lib/soma-public-config.mjs";
 import { buildReaderArtifacts, renderStaticReaderPage, staticReaderHtmlRelativePath } from "./lib/static-reader.mjs";
 
+const configuredBuildTime = process.env.SOMA_BUILD_TIMESTAMP;
+const generationTime = configuredBuildTime ? new Date(configuredBuildTime) : new Date();
+if (Number.isNaN(generationTime.getTime())) throw new Error("Invalid SOMA_BUILD_TIMESTAMP");
 const ADSENSE_PUBLISHER_ID = "ca-pub-6785168010810140";
 const SITE_URL = "https://somanovel.uk";
 const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "contact@somanovel.uk";
@@ -14,7 +17,6 @@ const output = resolve("public/books");
 const publicCatalogueOutput = resolve("public/catalog/books.json");
 const staticReaderOutput = resolve("public/read");
 const readerDataOutput = resolve("public/reader-data");
-const homeIndexPath = resolve("index.html");
 
 // --- Incremental build (`--since`) ---
 // Without flags this script bakes the entire catalogue from scratch. With
@@ -102,7 +104,7 @@ async function fetchRows(path) {
 const booksQuery = new URLSearchParams({
   select: "id,parent_book_id,slug,title,author_name,description,cover_url,language_code,category,tags,total_chapters,is_featured,published_at,created_at,updated_at",
   status: "eq.published",
-  or: `(published_at.is.null,published_at.lte.${new Date(Date.now() + 5 * 60 * 1000).toISOString()})`,
+  or: `(published_at.is.null,published_at.lte.${new Date(generationTime.getTime() + 5 * 60 * 1000).toISOString()})`,
   order: "is_featured.desc,created_at.desc,id.asc",
 });
 const books = await fetchRows(`books?${booksQuery}`);
@@ -121,31 +123,11 @@ const classicCount = books.filter(isClassicRow).length;
 const classicCountLabel = classicCount.toLocaleString("en-US");
 const homeHeroBook = books.find((book) => book.is_featured && book.language_code === "en" && !isClassicRow(book) && book.cover_url)
   || books.find((book) => book.language_code === "en" && !isClassicRow(book) && book.cover_url);
-const homeIndex = await readFile(homeIndexPath, "utf8");
-const featuredPreloadPattern = /<!-- HOME_FEATURED_PRELOAD_START -->[\s\S]*?<!-- HOME_FEATURED_PRELOAD_END -->/;
-if (!featuredPreloadPattern.test(homeIndex)) throw new Error("Homepage featured-cover preload markers are missing.");
-// The homepage <meta name="description"> and the WebSite JSON-LD description
-// quote the classics count in hard-coded prose ("a thousand ..."). Refresh the
-// figure on every build so crawlers never see a stale number. Both the
-// original wording and a previously generated figure are matched, keeping the
-// rewrite idempotent across repeated builds.
-const refreshHomepageClassicCount = (html) => html
-  .replace(/(?:a|more than a) thousand professionally re-typeset English classics/g, `${classicCountLabel} professionally re-typeset English classics`)
-  .replace(/\b\d{1,3}(?:,\d{3})* professionally re-typeset English classics/g, `${classicCountLabel} professionally re-typeset English classics`)
-  .replace(/zaidi ya vitabu elfu moja vya kale vya Kiingereza vilivyopangwa upya/g, `vitabu ${classicCountLabel} vya kale vya Kiingereza vilivyopangwa upya`)
-  .replace(/vitabu \d{1,3}(?:,\d{3})* vya kale vya Kiingereza vilivyopangwa upya/g, `vitabu ${classicCountLabel} vya kale vya Kiingereza vilivyopangwa upya`);
-if (homeHeroBook) {
-  const featuredCover = absoluteUrl(homeHeroBook.cover_url);
-  const featuredOrigin = new URL(featuredCover).origin;
-  const featuredPreload = `<!-- HOME_FEATURED_PRELOAD_START -->\n    <link rel="preconnect" href="${escapeHtml(featuredOrigin)}" crossorigin />\n    <link rel="preload" as="image" href="${escapeHtml(featuredCover)}" fetchpriority="high" />\n    <!-- HOME_FEATURED_PRELOAD_END -->`;
-  const updatedHomeIndex = refreshHomepageClassicCount(homeIndex.replace(featuredPreloadPattern, featuredPreload));
-  await writeFile(homeIndexPath, updatedHomeIndex);
-} else {
-  await writeFile(homeIndexPath, refreshHomepageClassicCount(homeIndex.replace(
-    featuredPreloadPattern,
-    '<!-- HOME_FEATURED_PRELOAD_START -->\n    <!-- No English modern cover is available to preload. -->\n    <!-- HOME_FEATURED_PRELOAD_END -->',
-  )));
-}
+// The tracked homepage template stays immutable. Both build channels patch compiled HTML.
+await writeFile(resolve("public/catalog/home-seo.json"), JSON.stringify({
+  schemaVersion: 1, classicCount,
+  featuredCover: homeHeroBook ? absoluteUrl(homeHeroBook.cover_url) : null,
+}) + "\n");
 const byRoot = new Map();
 for (const book of books) {
   const root = book.parent_book_id || book.id;
@@ -190,7 +172,7 @@ if (incremental) {
 const allChapters = await fetchRows(`chapters?${new URLSearchParams({
   select: "id,book_id,chapter_number,title,content,word_count",
   status: "eq.published",
-  or: `(published_at.is.null,published_at.lte.${new Date(Date.now() + 5 * 60 * 1000).toISOString()})`,
+  or: `(published_at.is.null,published_at.lte.${new Date(generationTime.getTime() + 5 * 60 * 1000).toISOString()})`,
   order: "book_id.asc,chapter_number.asc,id.asc",
 })}`);
 const chaptersByBookId = new Map();
@@ -252,15 +234,33 @@ for (const book of books) {
     .join("|");
   bookContentHash.set(book.slug, sha256(JSON.stringify({ book, chapters, siblings: siblingSignature })));
 }
-const isBookUnchanged = (book) =>
-  incremental && previousManifest.books[book.slug] === bookContentHash.get(book.slug);
+const isBookUnchanged = async (book) => {
+  if (!incremental || previousManifest.books[book.slug] !== bookContentHash.get(book.slug)) return false;
+  const chapters = chaptersByBookId.get(book.id) || [];
+  const needed = [
+    resolve(output, book.slug, "index.html"),
+    resolve(readerDataOutput, book.slug, "manifest.json"),
+    ...chapters.map((ch) => resolve(staticReaderOutput, staticReaderHtmlRelativePath(book.slug, ch.chapter_number))),
+  ];
+  for (const path of needed) {
+    const entry = await stat(path).catch(() => null);
+    if (!entry?.isFile() || entry.size === 0) return false;
+  }
+  try {
+    const reader = JSON.parse(await readFile(resolve(readerDataOutput, book.slug, "manifest.json"), "utf8"));
+    if (!Array.isArray(reader.chapters) || reader.chapters.length !== chapters.length) return false;
+    const filenames = await readdir(resolve(staticReaderOutput, book.slug));
+    if (filenames.length !== chapters.length) return false;
+    return true;
+  } catch { return false; }
+};
 for (const book of books) {
   const chapters = chaptersByBookId.get(book.id) || [];
-  if (!chapters.length) continue;
-  if (Number.isInteger(Number(book.total_chapters)) && Number(book.total_chapters) > 0 && Number(book.total_chapters) !== chapters.length) {
+  if (!chapters.length) throw new Error(`${book.slug}: published book has no published chapters; refusing incomplete SEO build.`);
+  if (!Number.isInteger(Number(book.total_chapters)) || Number(book.total_chapters) !== chapters.length) {
     throw new Error(`${book.slug}: books.total_chapters is ${book.total_chapters}, but the published chapter query returned ${chapters.length}; refusing to publish an incomplete reader tree.`);
   }
-  if (isBookUnchanged(book)) {
+  if (await isBookUnchanged(book)) {
     skippedReaderBooks += 1;
     continue;
   }
@@ -389,7 +389,7 @@ ${languageLinks ? `  ${languageLinks}\n` : ""}  <p>${escapeHtml(book.description
   <h2>Chapters</h2><ol>${chapterList}</ol>
   ${legalFooter}
 </body></html>`;
-  if (isBookUnchanged(book)) {
+  if (await isBookUnchanged(book)) {
     skippedBookPages += 1;
   } else {
     const directory = resolve(output, book.slug);
@@ -412,7 +412,7 @@ ${languageLinks ? `  ${languageLinks}\n` : ""}  <p>${escapeHtml(book.description
 const catalogue = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>English & Kiswahili Web Novels | Soma Novel</title><meta name="description" content="Browse free English and Kiswahili web novels from East Africa on Soma Novel."><link rel="canonical" href="${SITE_URL}/books/"><meta name="robots" content="index,follow"><meta name="google-adsense-platform-account" content="${ADSENSE_PUBLISHER_ID}"><meta name="google-adsense-platform-domain" content="somanovel.uk"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUBLISHER_ID}" crossorigin="anonymous"></script><style>body{max-width:860px;margin:0 auto;padding:32px 20px;font:17px/1.6 system-ui,sans-serif;background:#f8f7f2;color:#102321}a{color:#9e3c19}li{margin:12px 0}</style></head><body><nav><a href="/">Soma Novel</a></nav><h1>English & Kiswahili Web Novels</h1><p>Free stories from East Africa, available in English and Kiswahili.</p><ul>${pages.map((page) => `<li><a href="${page.canonical.replace(SITE_URL, "")}">${escapeHtml(page.title)}</a></li>`).join("\n")}</ul>${legalFooter}</body></html>`;
 await writeFile(resolve(output, "index.html"), catalogue);
 
-const today = new Date().toISOString().slice(0, 10);
+const today = generationTime.toISOString().slice(0, 10);
 const pagesByLanguage = pages.reduce((accumulator, page) => {
   const bucket = page.language === "sw" ? "sw" : "en";
   accumulator[bucket].push(page);
@@ -779,7 +779,7 @@ const llmPolicy = {
     sitemap_books_sw: `${SITE_URL}/sitemap-books-sw.xml`,
     sitemap_chapters: `${SITE_URL}/sitemap-chapters.xml`,
   },
-  generated_at: new Date().toISOString(),
+  generated_at: generationTime.toISOString(),
 };
 
 await writeFile(resolve("public/llm-policy.json"), JSON.stringify(llmPolicy, null, 2) + "\n");
@@ -1017,13 +1017,13 @@ const rss = `<?xml version="1.0" encoding="UTF-8"?>
     <link>${SITE_URL}/books/</link>
     <description>Two catalogue sections: (1) original web fiction side-by-side in English and Kiswahili, free to read and download; (2) ${classicCountLabel} re-typeset English public-domain classics, English only, free to read and download. Plus a free self-publishing uploader for .txt and .epub. / Sehemu mbili za orodha: (1) riwaya za mtandaoni za asili kwa Kiingereza na Kiswahili kwa pamoja, bure kusoma na kupakua; (2) vitabu ${classicCountLabel} vya kale vya Kiingereza vilivyopangwa upya, Kiingereza pekee, bure kusoma na kupakua. Pamoja na kifungu cha bure cha kuchapisha mwenyewe.</description>
     <language>en</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <lastBuildDate>${generationTime.toUTCString()}</lastBuildDate>
     <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml" />
 ${pages.map((page) => `    <item>
       <title>${escapeHtml(page.title)}</title>
       <link>${page.canonical}</link>
       <guid>${page.canonical}</guid>
-      <pubDate>${new Date(page.updated || new Date()).toUTCString()}</pubDate>
+      <pubDate>${new Date(page.updated || generationTime).toUTCString()}</pubDate>
       <description>${escapeHtml(page.description || `Read ${page.title} on Soma Novel. / Soma ${page.title} kwenye Soma Novel.`)}</description>
       <category>${escapeHtml(page.category)}</category>
       <category>${page.language === "sw" ? "Kiswahili" : "English"}</category>
@@ -1037,7 +1037,7 @@ await writeFile(resolve("public/feed.xml"), rss);
 await writeFile(buildManifestPath, `${JSON.stringify({
   version: 1,
   codeHash,
-  builtAt: new Date().toISOString(),
+  builtAt: generationTime.toISOString(),
   books: Object.fromEntries(bookContentHash),
 }, null, 2)}\n`);
 console.log(`Generated ${pages.length} public book pages, ${generatedReaderPages} static reader pages, ${generatedReaderFiles} reader files (manifests + HTML, ${generatedReaderBytes} bytes), ${chapterUrls.length} chapter URLs, the browser catalogue, sitemap.xml, robots.txt, llms.txt, llms-full.txt, and feed.xml.${incremental ? ` Incremental: skipped ${skippedBookPages} book page(s) and ${skippedReaderBooks} reader tree(s).` : ""}`);

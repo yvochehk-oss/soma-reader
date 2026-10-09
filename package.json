@@ -7,7 +7,7 @@
     "dev": "tsx server.ts",
     "dev:next": "next dev",
     "build": "next build",
-    "build:vite": "node scripts/build-seo-pages.mjs && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build:vite": "node scripts/build-seo-pages.mjs && vite build && node scripts/patch-built-homepage.mjs && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "build:next": "next build",
     "cf:build": "opennextjs-cloudflare build && npm run build:vite && node scripts/merge-vite-into-open-next.mjs",
     "cf:preview": "npm run cf:build && wrangler dev",
@@ -21,6 +21,8 @@
     "lint": "npm run typecheck:vite",
     "import:books": "node scripts/upload-soma-books.mjs",
     "seo:since": "node scripts/build-seo-pages.mjs --since",
+    "test:incremental-deploy": "node --test scripts/tests/incremental-deployment.test.mjs scripts/tests/deployment-gates.test.mjs scripts/tests/seo-differential.test.mjs",
+    "cf:data:preview": "node scripts/deploy-soma-site.mjs --target preview --data-only",
     "release:books": "node scripts/release-soma-books.mjs",
     "test:book-release": "node --test scripts/tests/soma-book-metadata.test.mjs scripts/tests/soma-book-release.test.mjs scripts/tests/static-reader-build.test.mjs scripts/tests/reader-static.test.mjs scripts/tests/cloudflare-static-asset-limits.test.mjs"
   },
