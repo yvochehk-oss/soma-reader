@@ -8,7 +8,7 @@ import {selectMode,prepareWranglerConfig,injectPreviewNoindex} from "../deploy-s
 import {buildFingerprint,digestTree,shaFile} from "../lib/build-fingerprint.mjs";
 import {verifyBuildCache} from "../code-hash.mjs";
 import {withDeploymentLock,saveDeploymentState,readDeploymentState} from "../lib/deployment-state.mjs";
-import {recordPreviewValidation} from "../lib/preview-gates.mjs";
+import {recordPreviewValidation,assertPreviewPromotionGate} from "../lib/preview-gates.mjs";
 
 async function setup(t) {
  const root=await mkdtemp(join(tmpdir(),"soma-gate-"));t.after(()=>rm(root,{recursive:true,force:true}));
@@ -85,13 +85,29 @@ test("success cursor cannot be written before verified remote deployment",async(
  await assert.rejects(saveDeploymentState(root,"preview",{schemaVersion:1,target:"preview",cacheId:randomUUID()}),/unverified/);
  assert.equal(await readDeploymentState(root,"preview"),null);
 });
-test("three distinct scenario validations are required for production gate",async(t)=>{
- const root=await setup(t);
- const a=await recordPreviewValidation(root,"added",randomUUID(),randomUUID(),{added:2,updated:0,removed:0});
+test("three distinct, recent preview deployments must prove scenarios on the same code",async(t)=>{
+ const root=await setup(t),sha="a".repeat(64),otherSha="b".repeat(64);
+ const added={added:2,updated:0,removed:0,addedLanguages:["en","sw"]};
+ const updated={added:0,updated:1,removed:0,modifiedChapters:1};
+ const withdrawn={added:0,updated:0,removed:1};
+ const firstDeployment=randomUUID();
+ const a=await recordPreviewValidation(root,"added",randomUUID(),firstDeployment,added,sha);
  assert.equal(a.status,"incomplete");
- const b=await recordPreviewValidation(root,"updated",randomUUID(),randomUUID(),{added:0,updated:1,removed:0});
+ const b=await recordPreviewValidation(root,"updated",randomUUID(),randomUUID(),updated,sha);
  assert.equal(b.status,"incomplete");
- const c=await recordPreviewValidation(root,"withdrawn",randomUUID(),randomUUID(),{added:0,updated:0,removed:1});
- assert.equal(c.status,"passed");
- assert.equal(new Set(c.validatedRuns).size,3);
+ const duplicate=await recordPreviewValidation(root,"withdrawn",randomUUID(),firstDeployment,withdrawn,sha);
+ assert.equal(duplicate.status,"incomplete","same Cloudflare deployment must not count twice");
+ assert.throws(()=>assertPreviewPromotionGate(duplicate,sha),/PREVIEW_THREE_RUN_GATE_FAILED/);
+ const c=await recordPreviewValidation(root,"withdrawn",randomUUID(),randomUUID(),withdrawn,sha);
+ assert.equal(c.status,"incomplete","duplicate historical deployment ID must be resolved before promotion");
+ assert.throws(()=>assertPreviewPromotionGate(c,otherSha),/PREVIEW_THREE_RUN_GATE_FAILED/);
+ const fixed=await recordPreviewValidation(root,"added",a.runs[0].runId,randomUUID(),added,sha);
+ assert.equal(fixed.status,"passed");
+ assert.ok(assertPreviewPromotionGate(fixed,sha).deploymentIds.length>=3);
+ assert.throws(()=>assertPreviewPromotionGate(fixed,otherSha),/PREVIEW_THREE_RUN_GATE_FAILED/);
+ const stale=structuredClone(fixed);
+ for(const r of stale.runs)r.verifiedAt="2025-01-01T00:00:00Z";
+ assert.throws(()=>assertPreviewPromotionGate(stale,sha),/PREVIEW_THREE_RUN_GATE_FAILED/);
+ await assert.rejects(recordPreviewValidation(root,"updated",randomUUID(),randomUUID(),
+   {added:0,updated:1,removed:0,modifiedChapters:0},sha),/PREVIEW_SCENARIO_NOT_PROVEN/);
 });

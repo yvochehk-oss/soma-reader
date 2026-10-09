@@ -22,17 +22,19 @@
 - 候选与成功状态分离；同环境互斥锁、原子状态提交、远端状态不明时的恢复标记。
 - 隔离预览 Worker 生成逻辑，独立自引用绑定、测试 Supabase 检查、`X-Robots-Tag` noindex。
 - 公共部署入口、`release-soma-books.mjs --data-only` 显式接入；未批准时在数据库上传前拒绝。
-- 生产通道强制预览证明（三种不同实际部署的 added/updated/withdrawn）。
+- 生产通道强制预览证明（三种不同实际部署的 added/updated/withdrawn）；放行门禁升级至 schema v2：要求 Cloudflare deployment ID 唯一、同一份源码指纹、七天内完成、双语新增/实质章节更新/完整撤书的真实证据；源码变更使原证明失效。
 
 ## 已验证（本机 Mac mini 隔离克隆）
 
 - Node v24.13.1；Next.js v16.3.0；OpenNext/Cloudflare v1.20.2；Vite v6.4.3；Wrangler v4.118.0。
 - `npm run build:vite`：成功；书页 247、静态章节 6645。
 - `npm run cf:build`：已两次成功；首轮 7213 文件/143640308 字节，分支最终复验为 7217 文件/143663569 字节，均低于项目限额。
-- `wrangler deploy --dry-run --no-autoconfig`：成功退出，**未部署**；Wrangler 显示 7966 个读入条目：实测包含 7213 个文件和 754 个目录（根目录不计，共 7213+754-1=7966），不是遗漏 753 个资源文件。
+- `wrangler deploy --dry-run --no-autoconfig`：成功退出，**未部署**；首次 7966 个读入条目，2026-10-09 本轮重建后 7974 个读入条目（其中 7217 个实际文件）；Wrangler 的读入条目包含目录，不等于 Cloudflare 静态文件数量。
 - `npm run test:book-release`：27 passed。
-- `npm run test:incremental-deploy`：离线门禁 + 合成差分测试；固定时间、双语关联、章节编辑、整书撤回的 FULL/INCREMENTAL 静态 SEO 结果逐文件哈希一致。
+- `npm run test:incremental-deploy`：**19/19 passed**；离线门禁 + 合成差分测试；固定时间、双语关联、章节编辑、整书撤回的 FULL/INCREMENTAL 静态 SEO 结果逐文件哈希一致；远端旧章节、撤回后残留页面被拒；生产放行拒绝重复 Cloudflare deployment ID、旧代码指纹、超期证明、只改书元数据但章节未改的伪更新。
 - `npm run lint`：TypeScript Vite typecheck 成功。
+- 本轮复验：从既有 `wrangler.jsonc` 读取公开 URL/anon key 作为**进程级临时构建变量**，`cf:build` 成功；247 本书、6645 章、7217 个静态文件、143663569 字节；无 Supabase 公开构建变量时 `cf:build` 预期 fail-closed，代码与密钥文件均无改动。
+- 注意：用生产公开只读配置生成 SEO 会使本地 `public/` 跟踪文件与 Git 快照不同（241→247 本书）。该构建产物不得并入本实施分支提交；本次提交仅包含开发代码、测试、部署文档。
 - 显式 fail-closed CLI 探针：缺预览环境时 `PREVIEW_ENV_MISSING`（退出码 1）；未取得生产批准时 `PRODUCTION_APPROVAL_REQUIRED`（退出码 1），均未调用远端部署。
 - 不包含真实三轮 Cloudflare 预览部署的结论。
 
@@ -40,7 +42,7 @@
 
 1. 取得与生产 Supabase 不同的独立测试项目及受控测试数据。
 2. Mac mini 上 `wrangler whoami` 实测返回 **You are not authenticated**；在受信任部署环境配置 Cloudflare 授权后才能真实部署预览 Worker。
-3. 配置 `SOMA_PREVIEW_SUPABASE_URL`、`SOMA_PREVIEW_SUPABASE_ANON_KEY`、`SOMA_PREVIEW_BASE_URL`（后者必须是独立 workers.dev 域名）；预览 Worker 账户应可用且不能映射生产自引用服务。
+3. 配置 `SOMA_PREVIEW_SUPABASE_URL`、`SOMA_PREVIEW_SUPABASE_ANON_KEY`、`SOMA_PREVIEW_BASE_URL`（后者必须是独立 workers.dev 域名）；预览 Worker 账户应可用且不能映射生产自引用服务。三轮预览必须使用**同一代码指纹**，三次真实 Cloudflare deployment ID 互不重复，且放行时验证记录不得超过七天。
 4. 分别执行新增双语书、更新章节、撤回旧书的**三次不同预览部署**，每轮收集真实 deployment ID、远端 HTML/headers、完整缓存/版本证据。
 5. 找到生产机实际 `deploy_soma_site.py`/cron/launchd 入口，审查配置，**不能依据 Mac mini 无匹配就认为生产无 cron**。
 6. 全面验收数据库审计、线上缓存、首页、目录、SEO/AI 索引、旧路径 404、API 和管理员访问；失败后演练恢复/回滚。

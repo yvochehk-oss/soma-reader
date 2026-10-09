@@ -13,7 +13,8 @@ import { buildFingerprint, digestTree, shaFile } from "./lib/build-fingerprint.m
 import { verifyBuildCache } from "./code-hash.mjs";
 import { withDeploymentLock, readDeploymentState, saveDeploymentState, writeAudit, persistCache, writeRecoveryState } from "./lib/deployment-state.mjs";
 import { assertCloudflareStaticAssetLimits } from "./lib/cloudflare-static-asset-limits.mjs";
-import { recordPreviewValidation } from "./lib/preview-gates.mjs";
+import { recordPreviewValidation, assertPreviewPromotionGate } from "./lib/preview-gates.mjs";
+import { diffPublishedBooks, changedChapterNumbers, removedChapterNumbers } from "./lib/publication-diff.mjs";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const PREVIEW_WORKER = "soma-reader-incremental-preview";
@@ -115,49 +116,71 @@ async function copyCandidate(source,dest) {
     await cp(src,join(dest,name),{recursive:true,force:true});
   }
 }
-async function liveVerify(base,candidate,previous) {
+export async function liveVerify(base,candidate,previous) {
   const baseUrl=base.replace(/\/$/,"");
   const catalog=JSON.parse(await readFile(join(candidate,"public/catalog/books.json"),"utf8"));
   const before=previous? JSON.parse(await readFile(join(previous,"public/catalog/books.json"),"utf8")) : [];
-  const slugs=new Set(catalog.map(b=>b.slug));
-  const removed=before.filter(b=>!slugs.has(b.slug)).map(b=>b.slug);
-  const previousMap=new Map(before.map(b=>[b.slug,JSON.stringify(b)]));
-  const added=catalog.filter(b=>!previousMap.has(b.slug));
-  const updated=catalog.filter(b=>previousMap.has(b.slug) && previousMap.get(b.slug)!==JSON.stringify(b));
-  const changed=[...added,...updated];
+  const currentManifest=JSON.parse(await readFile(join(candidate,".build-manifest.json"),"utf8"));
+  const previousManifest=previous? JSON.parse(await readFile(join(previous,".build-manifest.json"),"utf8")) : null;
+  const {added,updated,removed,changed}=diffPublishedBooks(catalog,before,currentManifest.books,previousManifest?.books);
   async function check(path,assertFn) {
-    const response=await fetch(baseUrl+path,{cache:"no-store",headers:{"cache-control":"no-cache"}});
-    const text=await response.text();
-    if(!assertFn(response,text))throw new Error("LIVE_VERIFICATION_FAILED: "+path+" status "+response.status);
-    return {url:path,status:response.status};
+    let problem=null;
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        const separator=path.includes("?")?"&":"?";
+        const url=baseUrl+path+separator+"_soma_verification="+attempt+"-"+Date.now();
+        const response=await fetch(url,{cache:"no-store",headers:{"cache-control":"no-cache"}});
+        const text=await response.text();
+        if(assertFn(response,text))return {url:path,status:response.status};
+        problem="status="+response.status+" bytes="+Buffer.byteLength(text);
+      }catch(e){problem=e.message;}
+    }
+    throw new Error("LIVE_VERIFICATION_FAILED: "+path+" "+problem);
+  }
+  async function checkExact(path,asset) {
+    const expected=await readFile(join(candidate,"public",asset),"utf8");
+    return check(path,(response,html)=>response.status===200&&html===expected);
   }
   const proof=[];
   const snapshot=await assertSeoSnapshot(join(candidate,"public"));
   if(snapshot.books!==catalog.length) throw new Error("Catalogue mismatch");
-  proof.push(await check("/catalog/books.json",(r,body)=>r.ok&&JSON.parse(body).length===catalog.length));
-  proof.push(await check("/sitemap.xml",(r,body)=>r.ok&&body.includes("sitemap-books-en.xml")));
+  proof.push(await checkExact("/catalog/books.json","catalog/books.json"));
+  proof.push(await checkExact("/sitemap.xml","sitemap.xml"));
   for(const page of ["/feed.xml","/llms.txt","/llms-full.txt","/ai.txt","/llm-policy.json","/robots.txt"]){
     proof.push(await check(page,(r)=>r.ok));
   }
-  proof.push(await check("/",r=>r.ok));
+  const expectedHome=await readFile(join(candidate,".open-next/assets/index.html"),"utf8");
+  proof.push(await check("/",(r,html)=>r.status===200&&html===expectedHome));
+  if(previous && changed.length>10)throw new Error("Too many changed books for automatic verification");
+  let modifiedChapters=0;
   // Verify changed books, or a representative unchanged book on a no-op
   for(const book of (changed.length?changed:catalog.slice(0,1)).slice(0,10)){
-    proof.push(await check("/books/"+encodeURIComponent(book.slug)+"/",
-      (r,html)=>r.ok&&html.includes(book.title)&&html.includes('rel="canonical"')));
+    proof.push(await checkExact("/books/"+encodeURIComponent(book.slug)+"/","books/"+book.slug+"/index.html"));
     const mf=JSON.parse(await readFile(join(candidate,"public/reader-data",book.slug,"manifest.json"),"utf8"));
-    for(const ch of [mf.chapters[0],mf.chapters.at(-1)]){
-      proof.push(await check("/read/"+book.slug+"/"+ch.number,
-        (r,html)=>r.ok&&html.includes("data-reader-content")&&!html.includes("__next_f")));
+    const changedNumbers=await changedChapterNumbers(join(candidate,"public"),previous?join(previous,"public"):null,book.slug,mf);
+    if(previous && changedNumbers.length>60)throw new Error("Too many chapter changes for automatic remote verification: "+book.slug);
+    if(previous && updated.some(row=>row.slug===book.slug))modifiedChapters+=changedNumbers.length;
+    const numbers=[...new Set([mf.chapters[0].number,mf.chapters.at(-1).number,...changedNumbers.slice(0,60)])];
+    for(const number of numbers){
+      proof.push(await checkExact("/read/"+book.slug+"/"+number,"read/"+book.slug+"/"+number+".html"));
+    }
+    if(previous && !added.some(row=>row.slug===book.slug)){
+      for(const removedNumber of await removedChapterNumbers(join(candidate,"public"),join(previous,"public"),book.slug)){
+        proof.push(await check("/read/"+book.slug+"/"+removedNumber,r=>r.status===404));
+      }
     }
     proof.push(await check("/read/"+book.slug+"/"+(Number(mf.chapters.at(-1).number)+1),
       r=>r.status===404));
   }
-  for(const slug of removed.slice(0,15)) {
-    proof.push(await check("/books/"+encodeURIComponent(slug)+"/",r=>r.status===404));
-    proof.push(await check("/read/"+encodeURIComponent(slug)+"/1",r=>r.status===404));
+  for(const book of removed.slice(0,15)) {
+    proof.push(await check("/books/"+encodeURIComponent(book.slug)+"/",r=>r.status===404));
+    const oldManifest=JSON.parse(await readFile(join(previous,"public/reader-data",book.slug,"manifest.json"),"utf8"));
+    for(const chapter of oldManifest.chapters){
+      proof.push(await check("/read/"+encodeURIComponent(book.slug)+"/"+chapter.number,r=>r.status===404));
+    }
   }
   if(removed.length>15)throw new Error("Too many withdrawals for automatic remote verification");
-  return {checks:proof,changed:changed.length,added:added.length,updated:updated.length,removed:removed.length,addedLanguages:[...new Set(added.map(b=>b.language_code))]};
+  return {checks:proof,changed:changed.length,added:added.length,updated:updated.length,modifiedChapters,removed:removed.length,addedLanguages:[...new Set(added.map(b=>b.language_code))]};
 }
 
 function deploymentId(output) {
@@ -185,8 +208,8 @@ export async function publishSite(options) {
     if(target==="production") {
       if(!approveProduction) throw new Error("PRODUCTION_APPROVAL_REQUIRED");
       const approval=await readFile(resolve(ROOT,".soma-deploy-state/preview-gates.json"),"utf8").then(JSON.parse).catch(()=>null);
-      if(!approval || !Array.isArray(approval.validatedRuns) ||
-         new Set(approval.validatedRuns).size<3 || approval.status!=="passed") throw new Error("PREVIEW_THREE_RUN_GATE_FAILED");
+      const sourceFingerprint=await buildFingerprint(ROOT,env);
+      assertPreviewPromotionGate(approval,sourceFingerprint.codeFingerprint);
     }
     await mkdir(dir,{recursive:true});
     async function step(name,fn){
@@ -287,7 +310,7 @@ export async function publishSite(options) {
         }
         if(target==="preview" && scenario) {
           const valid=(scenario==="added" && liveProof.added>=2 && liveProof.addedLanguages.includes("en") && liveProof.addedLanguages.includes("sw")) ||
-            (scenario==="updated" && liveProof.updated>=1) ||
+            (scenario==="updated" && liveProof.updated>=1 && liveProof.modifiedChapters>=1) ||
             (scenario==="withdrawn" && liveProof.removed>=1);
           if(!valid)throw new Error("PREVIEW_SCENARIO_NOT_PROVEN: "+scenario);
         }
@@ -301,7 +324,7 @@ export async function publishSite(options) {
           assetsTreeDigest:assetsSha,publicTreeDigest,publishedAssetsTreeDigest,
           deploymentId:id,verifiedAt:NOW(),
         }));
-        if(target==="preview" && scenario)await recordPreviewValidation(ROOT,scenario,runId,id,liveProof);
+        if(target==="preview" && scenario)await recordPreviewValidation(ROOT,scenario,runId,id,liveProof,fingerprint.codeFingerprint);
         audit.status="complete";audit.endedAt=NOW();audit.totalMs=Math.round(performance.now()-start);
         await writeAudit(ROOT,runId,audit);
         return audit;

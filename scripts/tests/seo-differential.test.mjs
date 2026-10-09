@@ -104,3 +104,42 @@ test("manifest-says-unchanged but deleted static page is reconstructed",async(t)
  const recovered=await readFile(join(workspace,"public/read/first-story/1.html"),"utf8");
  assert.match(recovered,/One a/);
 });
+import { liveVerify } from "../deploy-soma-site.mjs";
+
+async function fakeLive(candidate, stale = new Map()) {
+  return async function mockFetch(input) {
+    const pathname = new URL(String(input)).pathname;
+    if (stale.has(pathname)) return new Response(stale.get(pathname), {status:200});
+    let local;
+    if(pathname==="/")local=join(candidate,".open-next/assets/index.html");
+    else if(/^\/read\/[a-z0-9-]+\/[1-9][0-9]*$/.test(pathname))local=join(candidate,"public",pathname+".html");
+    else if(/^\/books\/[a-z0-9-]+\/$/.test(pathname))local=join(candidate,"public",pathname,"index.html");
+    else local=join(candidate,"public",pathname);
+    const contents=await readFile(local).catch(e=>e.code==="ENOENT"?null:Promise.reject(e));
+    return contents===null?new Response("Not found",{status:404}):new Response(contents,{status:200});
+  };
+}
+
+test("live verification detects chapter-only edits from SEO hashes and rejects stale remote HTML",async(t)=>{
+  const f=await makeFixture(t);
+  const old=join(f.base,"live-old"),current=join(f.base,"live-new");
+  await runBuild(old,f.oldPath,f.bin);
+  await cp(old,current,{recursive:true});
+  await runBuild(current,f.newPath,f.bin,true);
+  await mkdir(join(current,".open-next/assets"),{recursive:true});
+  await writeFile(join(current,".open-next/assets/index.html"),"built home");
+  const priorFetch=globalThis.fetch;
+  t.after(()=>{globalThis.fetch=priorFetch;});
+  globalThis.fetch=await fakeLive(current);
+  const proof=await liveVerify("https://test.workers.dev",current,old);
+  assert.equal(proof.added,1);
+  assert.ok(proof.updated>=1,"edited chapter with unchanged book metadata must count as changed");
+  assert.ok(proof.modifiedChapters>=1);
+  assert.equal(proof.removed,1);
+  const oldHtml=await readFile(join(old,"public/read/first-story/2.html"),"utf8");
+  globalThis.fetch=await fakeLive(current,new Map([["/read/first-story/2",oldHtml]]));
+  await assert.rejects(liveVerify("https://test.workers.dev",current,old),/LIVE_VERIFICATION_FAILED.*first-story\/2/);
+  const removedHtml=await readFile(join(old,"public/read/old-book/2.html"),"utf8");
+  globalThis.fetch=await fakeLive(current,new Map([["/read/old-book/2",removedHtml]]));
+  await assert.rejects(liveVerify("https://test.workers.dev",current,old),/LIVE_VERIFICATION_FAILED.*old-book\/2/);
+});
