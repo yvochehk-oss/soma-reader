@@ -19,3 +19,6 @@ release-audits/
 public/read/
 public/reader-data/
 .build-manifest.json
+.soma-deploy-state/
+.soma-deploy-work/
+.soma-deploy-cache/

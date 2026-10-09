@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "soma-reader-incremental-preview",
+  "account_id": "02bc5c920536191bcf39eb43402411d4",
+  "compatibility_date": "2026-07-26",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1
+  },
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none",
+    "run_worker_first": false
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "soma-reader-incremental-preview"
+    }
+  ],
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://somanovel.uk",
+    "NEXT_PUBLIC_CANONICAL_URL": "https://somanovel.uk",
+    "NEXT_PUBLIC_CONTACT_EMAIL": "contact@somanovel.uk"
+  },
+  "workers_dev": true
+}
